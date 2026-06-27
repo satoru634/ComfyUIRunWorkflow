@@ -1,0 +1,3 @@
+[submodule "ComfyUILibs"]
+	path = ComfyUILibs
+	url = git@github-satoru:satoru634/ComfyUILibs.git
