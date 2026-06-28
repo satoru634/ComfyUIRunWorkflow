@@ -15,7 +15,13 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         private string _appVersion = String.Empty;
 
         [ObservableProperty]
-        private ApplicationTheme _currentTheme = ApplicationTheme.Unknown;
+        private ApplicationTheme _selectedTheme;
+
+        public List<ApplicationTheme> ThemeList { get; } = new List<ApplicationTheme>
+        {
+            ApplicationTheme.Light,
+            ApplicationTheme.Dark
+        };
 
         public SettingsViewModel(Setting<AppConfig> config)
         {
@@ -34,8 +40,8 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
         private void InitializeViewModel()
         {
-            CurrentTheme = ApplicationThemeManager.GetAppTheme();
-            AppVersion = $"UiDesktopApp1 - {GetAssemblyVersion()}";
+            AppVersion = $"ComfyUIRunWorkflow - {GetAssemblyVersion()}";
+            SelectedTheme = Config.Data.WindowSetting.Theme;
 
             _isInitialized = true;
         }
@@ -46,29 +52,10 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                 ?? String.Empty;
         }
 
-        [RelayCommand]
-        private void OnChangeTheme(string parameter)
+        partial void OnSelectedThemeChanged(ApplicationTheme value)
         {
-            switch (parameter)
-            {
-                case "theme_light":
-                    if (CurrentTheme == ApplicationTheme.Light)
-                        break;
-
-                    ApplicationThemeManager.Apply(ApplicationTheme.Light);
-                    CurrentTheme = ApplicationTheme.Light;
-
-                    break;
-
-                default:
-                    if (CurrentTheme == ApplicationTheme.Dark)
-                        break;
-
-                    ApplicationThemeManager.Apply(ApplicationTheme.Dark);
-                    CurrentTheme = ApplicationTheme.Dark;
-
-                    break;
-            }
+            Config.Data.WindowSetting.Theme = value;
+            ApplicationThemeManager.Apply(value);
         }
     }
 }

@@ -6,12 +6,17 @@
   xmlns:local="clr-namespace:ComfyUIRunWorkflow.Views.Windows"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+  xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
   Title="{Binding ViewModel.ApplicationTitle, Mode=OneWay}"
-  Width="1100"
-  Height="650"
-  d:DataContext="{d:DesignInstance local:MainWindow,
-                                     IsDesignTimeCreatable=True}"
-  d:DesignHeight="450"
+  Width="{Binding ViewModel.Config.Data.WindowSetting.WindowSize.Width, Mode=TwoWay}"
+  Height="{Binding ViewModel.Config.Data.WindowSetting.WindowSize.Height, Mode=TwoWay}"
+  MinWidth="800"
+  MinHeight="640"
+  Left="{Binding ViewModel.Config.Data.WindowSetting.WindowPos.X, Mode=TwoWay}"
+  Top="{Binding ViewModel.Config.Data.WindowSetting.WindowPos.Y, Mode=TwoWay}"
+  WindowState="{Binding ViewModel.Config.Data.WindowSetting.State, Mode=TwoWay}"
+  d:DataContext="{d:DesignInstance local:MainWindow, IsDesignTimeCreatable=True}"
+  d:DesignHeight="640"
   d:DesignWidth="800"
   ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
   ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
@@ -19,9 +24,17 @@
   Foreground="{DynamicResource TextFillColorPrimaryBrush}"
   WindowBackdropType="Mica"
   WindowCornerPreference="Round"
-  WindowStartupLocation="CenterScreen"
   mc:Ignorable="d"
 >
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction 
+                Command="{Binding ViewModel.WindowClosingCommand}" 
+                PassEventArgsToCommand="True" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />

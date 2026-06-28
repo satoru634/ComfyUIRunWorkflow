@@ -1,6 +1,7 @@
 ﻿using ComfyUILibs.Common;
 using ComfyUIRunWorkflow.Models;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using Wpf.Ui.Controls;
 
 namespace ComfyUIRunWorkflow.ViewModels.Windows
@@ -49,6 +50,21 @@ namespace ComfyUIRunWorkflow.ViewModels.Windows
         public MainWindowViewModel(Setting<AppConfig> config)
         {
             Config = config;
+        }
+
+        [RelayCommand]
+        private void OnWindowClosing(CancelEventArgs? e)
+        {
+            // 終了前に確認ダイアログを出す例
+            // もし終了をキャンセルしたい場合は e.Cancel = true; とする
+            if (e != null)
+            {
+                // ここに保存確認などのロジックを記述
+                // e.Cancel = true; 
+            }
+
+            Config.Save();
+            return;
         }
     }
 }
