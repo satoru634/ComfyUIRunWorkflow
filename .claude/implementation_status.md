@@ -1,9 +1,9 @@
 # 実装状況
 
-## 現在の状態（2026-06-28 時点）
+## 現在の状態（2026-06-29 時点）
 
-`ComfyUILibs` の `Common` および `Base` 名前空間が実装済み・master マージ済み。
-`ComfyUIRunWorkflow` は WPF-UI テンプレートのスキャフォールドのみで ComfyUI 関連の実装はゼロ。
+`ComfyUILibs` のフェーズ1実装が完了・master マージ済み。
+`ComfyUIRunWorkflow` のフェーズ2（GUI 実装）が `feature/phase2-gui` ブランチで完了。
 
 ### 存在するファイル（テンプレート由来）
 
@@ -64,27 +64,39 @@
 
 合計テスト数: 120件（全パス）
 
-### フェーズ 2: ComfyUIRunWorkflow の GUI 実装
+### フェーズ 2: ComfyUIRunWorkflow の GUI 実装（完了）
 
 **ViewModel**
-- [ ] `ViewModels/Pages/DashboardViewModel.cs` — ワークフロー実行 VM（WorkflowRunner を DI で利用）
-- [ ] `ViewModels/Pages/SettingsViewModel.cs` — 設定 VM（ComfyUI URL・config パス等）
-- [ ] `ViewModels/Pages/DataViewModel.cs` — 実行結果一覧 VM
+- [x] `ViewModels/Pages/DashboardViewModel.cs` — ワークフロー実行 VM（ConfigLoader + WorkflowRunner 使用）
+- [x] `ViewModels/Pages/SettingsViewModel.cs` — 設定 VM（ComfyUI URL・config パス・結果フォルダ）
+- [x] `ViewModels/Pages/DataViewModel.cs` — 実行結果一覧 VM（result_*.json 読み込み）
 
 **View**
-- [ ] `Views/Pages/DashboardPage.xaml` — ワークフロー実行 UI
-- [ ] `Views/Pages/SettingsPage.xaml` — 設定 UI
-- [ ] `Views/Pages/DataPage.xaml` — 実行結果 UI
+- [x] `Views/Pages/DashboardPage.xaml` — ワークフロー実行 UI
+- [x] `Views/Pages/SettingsPage.xaml` — 設定 UI
+- [x] `Views/Pages/DataPage.xaml` — 実行結果 UI
+- [x] `Views/Windows/ResultDetailWindow.xaml` — 結果詳細ダイアログ
 
-**DI 登録**
-- [ ] `App.xaml.cs` に ComfyUILibs のサービス登録を追加
-- [ ] WPF プロジェクトの csproj に ComfyUILibs のプロジェクト参照を追加
+**Model**
+- [x] `Models/AppConfig.cs` — ComfyUIUrl・ConfigPath・ResultsFolder フィールド追加
+- [x] `Models/LoraSlot.cs` — LoRA 選択スロット Observable ラッパー
 
-### フェーズ 3: テンプレートファイルの配置
+**Helpers**
+- [x] `Helpers/BoolToVisibilityConverter.cs` — bool→Visibility 変換
+- [x] `App.xaml` — BoolToVisibilityConverter・NullToVisibilityConverter をリソース登録
 
-- [ ] `templates/` ディレクトリをリポジトリに追加
-  - Python版の `run_workflow/templates/` を参照・コピー
-  - csproj でビルド時に出力ディレクトリへコピーする設定（`CopyToOutputDirectory`）
+**テスト（ComfyUIRunWorkflowTests）**
+- [x] `Models/AppConfigTests.cs` — 新フィールド（ComfyUIUrl・ConfigPath・ResultsFolder）テスト追加
+- [x] `ViewModels/Pages/DashboardViewModelTests.cs` — ワークフロー実行 VM テスト（29件）
+- [x] `ViewModels/Pages/DataViewModelTests.cs` — 結果一覧 VM テスト（12件）
+
+合計テスト数: 89件（全パス）
+
+### フェーズ 3: テンプレートファイルの配置（完了）
+
+- [x] `templates/` ディレクトリをリポジトリに追加
+  - Python版の `run_workflow/templates/` をコピー（anima / anima_rapid / sdxl 各5ファイル + template_wd14_tagger.json）
+  - csproj に `<Content Include="templates\**\*"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>` を追加
 
 ### 将来的な拡張
 
