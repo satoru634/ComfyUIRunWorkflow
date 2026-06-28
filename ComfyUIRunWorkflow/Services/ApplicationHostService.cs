@@ -19,6 +19,9 @@ namespace ComfyUIRunWorkflow.Services
 
         private INavigationWindow _navigationWindow;
 
+        /// <summary>
+        /// DI コンテナからサービスプロバイダーと設定を受け取って初期化する。
+        /// </summary>
         public ApplicationHostService(IServiceProvider serviceProvider, Setting<AppConfig> config)
         {
             _serviceProvider = serviceProvider;
