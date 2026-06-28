@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComfyUILibs", "ComfyUILibs\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComfyUILibsTests", "ComfyUILibs\ComfyUILibsTests\ComfyUILibsTests.csproj", "{B0A527C9-9414-10C7-27EF-32CCC066FBA2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComfyUIRunWorkflowTests", "ComfyUIRunWorkflowTests\ComfyUIRunWorkflowTests.csproj", "{3EB30DB8-0FD4-4A93-8182-69A2FB593CF0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,6 +32,10 @@ Global
 		{B0A527C9-9414-10C7-27EF-32CCC066FBA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0A527C9-9414-10C7-27EF-32CCC066FBA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0A527C9-9414-10C7-27EF-32CCC066FBA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3EB30DB8-0FD4-4A93-8182-69A2FB593CF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EB30DB8-0FD4-4A93-8182-69A2FB593CF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EB30DB8-0FD4-4A93-8182-69A2FB593CF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EB30DB8-0FD4-4A93-8182-69A2FB593CF0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
