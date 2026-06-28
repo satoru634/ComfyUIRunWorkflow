@@ -1,77 +1,121 @@
-﻿using ComfyUILibs.Common;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Text.Json;
+using ComfyUILibs.Common;
+using ComfyUILibs.Models;
 using ComfyUIRunWorkflow.Models;
-using System.Windows.Media;
+using ComfyUIRunWorkflow.Views.Windows;
 using Wpf.Ui.Abstractions.Controls;
 
 namespace ComfyUIRunWorkflow.ViewModels.Pages
 {
     /// <summary>
-    /// データページの ViewModel。
-    /// 現在はランダムカラーのデモ表示のみ。将来的に実行結果一覧に置き換える。
+    /// 実行結果一覧ページの ViewModel。
+    /// ResultsFolder 内の result_*.json を読み込んで一覧表示する。
     /// </summary>
     public partial class DataViewModel : ObservableObject, INavigationAware
     {
         /// <summary>アプリケーション設定。</summary>
         public Setting<AppConfig> Config { get; }
 
-        /// <summary>初期化済みかどうか。ページ遷移のたびに再初期化しないためのフラグ。</summary>
-        private bool _isInitialized = false;
-
-        /// <summary>表示するカラーコレクション。</summary>
+        /// <summary>読み込んだ実行結果のリスト（新しい順）。</summary>
         [ObservableProperty]
-        private IEnumerable<DataColor> _colors;
+        private ObservableCollection<WorkflowResult> _results = new();
 
-        /// <summary>
-        /// DI コンテナから設定を受け取って初期化する。
-        /// </summary>
+        /// <summary>現在の状態メッセージ（空ならメッセージなし）。</summary>
+        [ObservableProperty]
+        private string _statusMessage = "";
+
+        /// <summary>読み込み中かどうか。</summary>
+        [ObservableProperty]
+        private bool _isLoading = false;
+
+        private static readonly JsonSerializerOptions _jsonOptions = new()
+        {
+            PropertyNameCaseInsensitive = true,
+        };
+
+        /// <summary>DI コンテナから設定を受け取って初期化する。</summary>
         public DataViewModel(Setting<AppConfig> config)
         {
             Config = config;
-            _colors = new List<DataColor>();
         }
 
-        /// <summary>
-        /// ページへナビゲートされたときに呼び出される。初回のみ <see cref="InitializeViewModel"/> を実行する。
-        /// </summary>
-        public Task OnNavigatedToAsync()
-        {
-            if (!_isInitialized)
-                InitializeViewModel();
+        /// <summary>ページへ遷移するたびに結果を再読み込みする。</summary>
+        public Task OnNavigatedToAsync() => LoadResultsAsync();
 
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// ページから離れるときに呼び出される。現在は何もしない。
-        /// </summary>
+        /// <summary>ページから離れるときは何もしない。</summary>
         public Task OnNavigatedFromAsync() => Task.CompletedTask;
 
+        /// <summary>結果フォルダを再スキャンして一覧を更新する。</summary>
+        [RelayCommand]
+        private Task RefreshAsync() => LoadResultsAsync();
+
         /// <summary>
-        /// デモ用のランダムカラーデータを 8192 件生成して <see cref="Colors"/> に設定する。
+        /// ResultsFolder 内の result_*.json を読み込んで Results を更新する。
+        /// フォルダが未設定または存在しない場合はエラーメッセージを表示する。
         /// </summary>
-        private void InitializeViewModel()
+        private async Task LoadResultsAsync()
         {
-            var random = new Random();
-            var colorCollection = new List<DataColor>();
+            var folder = Config.Data.ResultsFolder;
 
-            for (int i = 0; i < 8192; i++)
-                colorCollection.Add(
-                    new DataColor
+            if (string.IsNullOrWhiteSpace(folder))
+            {
+                StatusMessage = "設定ページで結果出力フォルダを指定してください";
+                Results = new ObservableCollection<WorkflowResult>();
+                return;
+            }
+
+            if (!Directory.Exists(folder))
+            {
+                StatusMessage = $"フォルダが見つかりません: {folder}";
+                Results = new ObservableCollection<WorkflowResult>();
+                return;
+            }
+
+            IsLoading = true;
+            StatusMessage = "";
+
+            try
+            {
+                var files = await Task.Run(() =>
+                    Directory.GetFiles(folder, "result_*.json")
+                        .OrderByDescending(f => f)
+                        .ToArray());
+
+                var loaded = new ObservableCollection<WorkflowResult>();
+                foreach (var file in files)
+                {
+                    try
                     {
-                        Color = new SolidColorBrush(
-                            Color.FromArgb(
-                                (byte)200,
-                                (byte)random.Next(0, 250),
-                                (byte)random.Next(0, 250),
-                                (byte)random.Next(0, 250)
-                            )
-                        )
+                        var json = await File.ReadAllTextAsync(file);
+                        var result = JsonSerializer.Deserialize<WorkflowResult>(json, _jsonOptions);
+                        if (result != null)
+                            loaded.Add(result);
                     }
-                );
+                    catch
+                    {
+                        // 読み込めないファイルはスキップする
+                    }
+                }
 
-            Colors = colorCollection;
+                Results = loaded;
 
-            _isInitialized = true;
+                if (loaded.Count == 0)
+                    StatusMessage = "結果がありません";
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        /// <summary>指定した結果の詳細ダイアログを開く。</summary>
+        [RelayCommand]
+        private void OpenDetail(WorkflowResult result)
+        {
+            var window = new ResultDetailWindow(result);
+            window.ShowDialog();
         }
     }
 }
