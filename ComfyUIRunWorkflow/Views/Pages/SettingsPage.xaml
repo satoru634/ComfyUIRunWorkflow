@@ -1,57 +1,193 @@
-﻿<Page
+<Page
     x:Class="ComfyUIRunWorkflow.Views.Pages.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:helpers="clr-namespace:ComfyUIRunWorkflow.Helpers"
     xmlns:local="clr-namespace:ComfyUIRunWorkflow.Views.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Title="SettingsPage"
     d:DataContext="{d:DesignInstance local:SettingsPage, IsDesignTimeCreatable=False}"
-    d:DesignHeight="450"
+    d:DesignHeight="600"
     d:DesignWidth="800"
     ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
     ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     mc:Ignorable="d">
 
-    <StackPanel>
-        <TextBlock Margin="8,8,8,4" FontSize="16" FontWeight="Medium" Text="設定" />
-        <Border
-            Margin="8,4,8,4"
-            Background="{DynamicResource FlyoutBackground}"
-            BorderBrush="{DynamicResource FlyoutBorderBrush}"
-            BorderThickness="1"
-            CornerRadius="4">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="16,8,16,16">
 
-                <ui:SymbolIcon
-                    Grid.Column="0"
-                    Symbol="DarkTheme24"
-                    Width="40"
-                    Height="40"/>
-                <TextBlock
-                    Grid.Column="1"
-                    Margin="4,4,4,4"
-                    FontSize="14"
-                    FontWeight="Bold"
-                    Text="テーマ"
-                    VerticalAlignment="Center"/>
-                <ComboBox
-                    Grid.Column="2"
-                    Margin="4,8,8,8"
-                    ItemsSource="{Binding ViewModel.ThemeList, Mode=OneWay}"
-                    SelectedItem="{Binding ViewModel.SelectedTheme, Mode=TwoWay}"
-                    Width="200"
-                    HorizontalAlignment="Left"
-                    FontSize="12"/>
-            </Grid>
-        </Border>
-    </StackPanel>
+            <!-- タイトル -->
+            <TextBlock
+                Margin="0,0,0,12"
+                FontSize="20"
+                FontWeight="SemiBold"
+                Text="設定" />
+
+            <!-- 表示 -->
+            <TextBlock
+                Margin="0,0,0,4"
+                FontSize="14"
+                FontWeight="Medium"
+                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                Text="表示" />
+            <Border
+                Margin="0,0,0,12"
+                Padding="12"
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="4">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon
+                        Grid.Column="0"
+                        Margin="0,0,8,0"
+                        VerticalAlignment="Center"
+                        Symbol="DarkTheme24" />
+                    <TextBlock
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        FontSize="14"
+                        Text="テーマ" />
+                    <ComboBox
+                        Grid.Column="2"
+                        Width="200"
+                        ItemsSource="{Binding ViewModel.ThemeList, Mode=OneWay}"
+                        SelectedItem="{Binding ViewModel.SelectedTheme, Mode=TwoWay}" />
+                </Grid>
+            </Border>
+
+            <!-- 接続 -->
+            <TextBlock
+                Margin="0,0,0,4"
+                FontSize="14"
+                FontWeight="Medium"
+                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                Text="接続" />
+            <Border
+                Margin="0,0,0,4"
+                Padding="12"
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="4">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon
+                        Grid.Column="0"
+                        Margin="0,0,8,0"
+                        VerticalAlignment="Center"
+                        Symbol="Globe24" />
+                    <TextBlock
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        FontSize="14"
+                        Text="ComfyUI URL" />
+                    <ui:TextBox
+                        Grid.Column="2"
+                        Width="300"
+                        PlaceholderText="http://127.0.0.1:8188"
+                        Text="{Binding ViewModel.Config.Data.ComfyUIUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                </Grid>
+            </Border>
+            <Border
+                Margin="0,0,0,12"
+                Padding="12"
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="4">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon
+                        Grid.Column="0"
+                        Margin="0,0,8,0"
+                        VerticalAlignment="Center"
+                        Symbol="DocumentSettings20" />
+                    <TextBlock
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        FontSize="14"
+                        Text="config.json パス" />
+                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                        <ui:TextBox
+                            Width="240"
+                            Margin="0,0,4,0"
+                            PlaceholderText="C:\...\config.json"
+                            Text="{Binding ViewModel.Config.Data.ConfigPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <ui:Button
+                            Command="{Binding ViewModel.BrowseConfigPathCommand}"
+                            Content="参照"
+                            Appearance="Secondary" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- 出力 -->
+            <TextBlock
+                Margin="0,0,0,4"
+                FontSize="14"
+                FontWeight="Medium"
+                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                Text="出力" />
+            <Border
+                Margin="0,0,0,12"
+                Padding="12"
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="4">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon
+                        Grid.Column="0"
+                        Margin="0,0,8,0"
+                        VerticalAlignment="Center"
+                        Symbol="Folder24" />
+                    <TextBlock
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        FontSize="14"
+                        Text="結果出力フォルダ" />
+                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                        <ui:TextBox
+                            Width="240"
+                            Margin="0,0,4,0"
+                            PlaceholderText="C:\...\results"
+                            Text="{Binding ViewModel.Config.Data.ResultsFolder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <ui:Button
+                            Command="{Binding ViewModel.BrowseResultsFolderCommand}"
+                            Content="参照"
+                            Appearance="Secondary" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- バージョン -->
+            <TextBlock
+                Margin="0,8,0,0"
+                FontSize="12"
+                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                Text="{Binding ViewModel.AppVersion}" />
+
+        </StackPanel>
+    </ScrollViewer>
 </Page>
