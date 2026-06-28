@@ -1,8 +1,11 @@
-﻿using ComfyUIRunWorkflow.Views.Pages;
+﻿using ComfyUILibs.Common;
+using ComfyUIRunWorkflow.Models;
+using ComfyUIRunWorkflow.Views.Pages;
 using ComfyUIRunWorkflow.Views.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Wpf.Ui;
+using Wpf.Ui.Appearance;
 
 namespace ComfyUIRunWorkflow.Services
 {
@@ -12,12 +15,14 @@ namespace ComfyUIRunWorkflow.Services
     public class ApplicationHostService : IHostedService
     {
         private readonly IServiceProvider _serviceProvider;
+        private readonly Setting<AppConfig> _config;
 
         private INavigationWindow _navigationWindow;
 
-        public ApplicationHostService(IServiceProvider serviceProvider)
+        public ApplicationHostService(IServiceProvider serviceProvider, Setting<AppConfig> config)
         {
             _serviceProvider = serviceProvider;
+            _config = config;
         }
 
         /// <summary>
@@ -48,6 +53,10 @@ namespace ComfyUIRunWorkflow.Services
                 _navigationWindow = (
                     _serviceProvider.GetService(typeof(INavigationWindow)) as INavigationWindow
                 )!;
+
+                // テーマを適用
+                ApplicationThemeManager.Apply(_config.Data.WindowSetting.Theme);
+
                 _navigationWindow!.ShowWindow();
 
                 _navigationWindow.Navigate(typeof(Views.Pages.DashboardPage));

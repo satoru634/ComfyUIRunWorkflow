@@ -1,45 +1,57 @@
 ﻿<Page
-  x:Class="ComfyUIRunWorkflow.Views.Pages.SettingsPage"
-  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-  xmlns:helpers="clr-namespace:ComfyUIRunWorkflow.Helpers"
-  xmlns:local="clr-namespace:ComfyUIRunWorkflow.Views.Pages"
-  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-  xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-  Title="SettingsPage"
-  d:DataContext="{d:DesignInstance local:SettingsPage,
-                                     IsDesignTimeCreatable=False}"
-  d:DesignHeight="450"
-  d:DesignWidth="800"
-  ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
-  ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-  mc:Ignorable="d"
->
-  <Page.Resources>
-    <helpers:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
-  </Page.Resources>
-  <StackPanel>
-    <TextBlock FontSize="20" FontWeight="Medium" Text="Personalization" />
-    <TextBlock Margin="0,12,0,0" Text="Theme" />
-    <RadioButton
-      Margin="0,12,0,0"
-      Command="{Binding ViewModel.ChangeThemeCommand, Mode=OneWay}"
-      CommandParameter="theme_light"
-      Content="Light"
-      GroupName="themeSelect"
-      IsChecked="{Binding ViewModel.CurrentTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Light, Mode=OneWay}"
-    />
-    <RadioButton
-      Margin="0,8,0,0"
-      Command="{Binding ViewModel.ChangeThemeCommand, Mode=OneWay}"
-      CommandParameter="theme_dark"
-      Content="Dark"
-      GroupName="themeSelect"
-      IsChecked="{Binding ViewModel.CurrentTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Dark, Mode=OneWay}"
-    />
-    <TextBlock Margin="0,24,0,0" FontSize="20" FontWeight="Medium" Text="About ComfyUIRunWorkflow" />
-    <TextBlock Margin="0,12,0,0" Text="{Binding ViewModel.AppVersion, Mode=OneWay}" />
-  </StackPanel>
+    x:Class="ComfyUIRunWorkflow.Views.Pages.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpers="clr-namespace:ComfyUIRunWorkflow.Helpers"
+    xmlns:local="clr-namespace:ComfyUIRunWorkflow.Views.Pages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    Title="SettingsPage"
+    d:DataContext="{d:DesignInstance local:SettingsPage, IsDesignTimeCreatable=False}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+    ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    mc:Ignorable="d">
+
+    <StackPanel>
+        <TextBlock Margin="8,8,8,4" FontSize="16" FontWeight="Medium" Text="設定" />
+        <Border
+            Margin="8,4,8,4"
+            Background="{DynamicResource FlyoutBackground}"
+            BorderBrush="{DynamicResource FlyoutBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="4">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <ui:SymbolIcon
+                    Grid.Column="0"
+                    Symbol="DarkTheme24"
+                    Width="40"
+                    Height="40"/>
+                <TextBlock
+                    Grid.Column="1"
+                    Margin="4,4,4,4"
+                    FontSize="14"
+                    FontWeight="Bold"
+                    Text="テーマ"
+                    VerticalAlignment="Center"/>
+                <ComboBox
+                    Grid.Column="2"
+                    Margin="4,8,8,8"
+                    ItemsSource="{Binding ViewModel.ThemeList, Mode=OneWay}"
+                    SelectedItem="{Binding ViewModel.SelectedTheme, Mode=TwoWay}"
+                    Width="200"
+                    HorizontalAlignment="Left"
+                    FontSize="12"/>
+            </Grid>
+        </Border>
+    </StackPanel>
 </Page>
