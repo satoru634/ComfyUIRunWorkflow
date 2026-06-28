@@ -33,12 +33,32 @@ ComfyUIRunWorkflow/                     <- ソリューションルート
       WorkflowRunnerTests.cs            <- WorkflowRunner テスト（9件、FakeComfyUIClient 使用）
       Wd14TaggerRunnerTests.cs          <- Wd14TaggerRunner テスト（5件）
   ComfyUIRunWorkflow/                   <- メイン WPF プロジェクト（GUI のみ）
-    ViewModels/Pages/                   <- 各ページの ViewModel
+    Models/
+      AppConfig.cs                      <- アプリ設定（ウィンドウ状態・ComfyUIUrl・ConfigPath・ResultsFolder）
+      LoraSlot.cs                       <- LoRA 選択スロット（ObservableObject ラッパー）
+    ViewModels/Pages/
+      DashboardViewModel.cs             <- ワークフロー実行 VM（ConfigLoader + WorkflowRunner 使用）
+      SettingsViewModel.cs              <- 設定 VM（テーマ・URL・パス管理）
+      DataViewModel.cs                  <- 実行結果一覧 VM（result_*.json 読み込み）
     ViewModels/Windows/
-    Views/Pages/                        <- XAML ページ
+      MainWindowViewModel.cs            <- ナビゲーション定義・ウィンドウ状態保存
+    Views/Pages/
+      DashboardPage.xaml                <- ワークフロー実行 UI
+      SettingsPage.xaml                 <- 設定 UI
+      DataPage.xaml                     <- 実行結果一覧 UI
     Views/Windows/
-    Helpers/                            <- UI ヘルパー・コンバーター
-    Services/                           <- GUI 固有サービス（ApplicationHostService 等）
+      MainWindow.xaml                   <- ナビゲーションホスト
+      ResultDetailWindow.xaml           <- 実行結果詳細ダイアログ
+    Helpers/
+      EnumToBooleanConverter.cs         <- テーマ切り替え用列挙型コンバーター
+      BoolToVisibilityConverter.cs      <- bool→Visibility・逆変換・null→Visibility コンバーター
+    Services/
+      ApplicationHostService.cs         <- 起動時ウィンドウ表示
     Assets/
     Resources/
+    templates/                          <- ワークフローテンプレート（ビルド時に出力ディレクトリへコピー）
+      anima/                            <- anima ワークフロー用（template_lora_0〜4.json）
+      anima_rapid/                      <- anima_rapid ワークフロー用（template_lora_0〜4.json）
+      sdxl/                             <- sdxl ワークフロー用（template_lora_0〜4.json）
+      template_wd14_tagger.json         <- WD14 Tagger ワークフローテンプレート
 ```
