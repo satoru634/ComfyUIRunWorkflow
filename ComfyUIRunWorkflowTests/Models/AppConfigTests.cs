@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.IO;
 using System.Windows;
 using ComfyUILibs.Base;
 using ComfyUIRunWorkflow.Models;
@@ -200,7 +201,8 @@ namespace ComfyUIRunWorkflowTests.Models
         public void AppConfig_ResultsFolder_DefaultValue()
         {
             var config = new AppConfig();
-            Assert.Equal("", config.ResultsFolder);
+            var expected = Path.Combine(Directory.GetCurrentDirectory(), "Results");
+            Assert.Equal(expected, config.ResultsFolder);
         }
 
         [Fact]
