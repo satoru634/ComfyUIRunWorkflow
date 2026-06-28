@@ -179,5 +179,64 @@ namespace ComfyUIRunWorkflowTests.Models
 
             Assert.Contains("WindowSetting", changed);
         }
+
+        // ── AppConfig 新フィールド ────────────────────────────────────────────────
+
+        [Fact]
+        public void AppConfig_ComfyUIUrl_DefaultValue()
+        {
+            var config = new AppConfig();
+            Assert.Equal("http://127.0.0.1:8188", config.ComfyUIUrl);
+        }
+
+        [Fact]
+        public void AppConfig_ConfigPath_DefaultValue()
+        {
+            var config = new AppConfig();
+            Assert.Equal("", config.ConfigPath);
+        }
+
+        [Fact]
+        public void AppConfig_ResultsFolder_DefaultValue()
+        {
+            var config = new AppConfig();
+            Assert.Equal("", config.ResultsFolder);
+        }
+
+        [Fact]
+        public void AppConfig_ComfyUIUrl_Set_RaisesPropertyChanged()
+        {
+            var config = new AppConfig();
+            var changed = new List<string?>();
+            ((INotifyPropertyChanged)config).PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+
+            config.ComfyUIUrl = "http://192.168.1.100:8188";
+
+            Assert.Contains("ComfyUIUrl", changed);
+        }
+
+        [Fact]
+        public void AppConfig_ConfigPath_Set_RaisesPropertyChanged()
+        {
+            var config = new AppConfig();
+            var changed = new List<string?>();
+            ((INotifyPropertyChanged)config).PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+
+            config.ConfigPath = "C:\\config.json";
+
+            Assert.Contains("ConfigPath", changed);
+        }
+
+        [Fact]
+        public void AppConfig_ResultsFolder_Set_RaisesPropertyChanged()
+        {
+            var config = new AppConfig();
+            var changed = new List<string?>();
+            ((INotifyPropertyChanged)config).PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+
+            config.ResultsFolder = "C:\\results";
+
+            Assert.Contains("ResultsFolder", changed);
+        }
     }
 }

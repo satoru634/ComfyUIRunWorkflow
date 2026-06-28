@@ -1,4 +1,5 @@
 ﻿using ComfyUILibs.Base;
+using System.IO;
 using Wpf.Ui.Appearance;
 
 namespace ComfyUIRunWorkflow.Models
@@ -53,6 +54,18 @@ namespace ComfyUIRunWorkflow.Models
         [ObservableProperty]
         private WindowSettingData _windowSetting;
 
+        /// <summary>ComfyUI サーバーの接続先 URL。</summary>
+        [ObservableProperty]
+        private string _comfyUIUrl = "http://127.0.0.1:8188";
+
+        /// <summary>ワークフロー設定ファイル（config.json）のパス。</summary>
+        [ObservableProperty]
+        private string _configPath = "";
+
+        /// <summary>実行結果 JSON ファイルの出力先フォルダパス。</summary>
+        [ObservableProperty]
+        private string _resultsFolder = "";
+
         /// <summary>
         /// 初回起動時のデフォルト値を設定する。
         /// 設定ファイルが存在する場合は JSON デシリアライズ後に上書きされる。
@@ -66,6 +79,8 @@ namespace ComfyUIRunWorkflow.Models
             _windowSetting.State = WindowState.Normal;
             _windowSetting.Theme = ApplicationTheme.Light;
             _windowSetting.IsPaneOpen = false;
+
+            _resultsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Results");
         }
     }
 }
