@@ -61,4 +61,6 @@ ComfyUIRunWorkflow/                     <- ソリューションルート
       anima_rapid/                      <- anima_rapid ワークフロー用（template_lora_0〜4.json）
       sdxl/                             <- sdxl ワークフロー用（template_lora_0〜4.json）
       template_wd14_tagger.json         <- WD14 Tagger ワークフローテンプレート
+  doc/                                <- ドキュメント
+    class_diagram.md                  <- Mermaid 記法によるクラス図（全体・ComfyUIRunWorkflow・ComfyUILibs の3図）
 ```
