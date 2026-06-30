@@ -7,9 +7,10 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Title="実行結果詳細"
     Width="600"
-    Height="500"
     MinWidth="480"
     MinHeight="360"
+    SizeToContent="Height"
+    WindowStartupLocation="CenterOwner"
     ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
     ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     ExtendsContentIntoTitleBar="True"
@@ -27,6 +28,7 @@
         <ui:TitleBar
             Grid.Row="0"
             Title="実行結果詳細"
+            Height="36"
             CloseWindowByDoubleClickOnIcon="False" />
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">

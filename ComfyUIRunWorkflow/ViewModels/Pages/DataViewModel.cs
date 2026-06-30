@@ -114,7 +114,10 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         [RelayCommand]
         private void OpenDetail(WorkflowResult result)
         {
-            var window = new ResultDetailWindow(result);
+            var window = new ResultDetailWindow(result)
+            {
+                Owner = System.Windows.Application.Current.MainWindow
+            };
             window.ShowDialog();
         }
     }
