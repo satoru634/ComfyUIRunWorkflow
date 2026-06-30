@@ -15,6 +15,7 @@ namespace ComfyUIRunWorkflow.Views.Windows
         {
             DataContext = result;
             InitializeComponent();
+            MaxHeight = SystemParameters.WorkArea.Height;
         }
 
         private void OnCloseClick(object sender, System.Windows.RoutedEventArgs e)
