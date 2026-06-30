@@ -26,20 +26,6 @@
                 FontWeight="SemiBold"
                 Text="ワークフロー実行" />
 
-            <!-- config 状態 -->
-            <Border
-                Margin="0,0,0,8"
-                Padding="12,8"
-                Background="{DynamicResource SystemFillColorCriticalBackgroundBrush}"
-                CornerRadius="4"
-                Visibility="{Binding ViewModel.IsConfigLoaded, Converter={StaticResource BoolToVisibilityInverseConverter}}">
-                <TextBlock
-                    FontSize="13"
-                    Foreground="{DynamicResource SystemFillColorCriticalBrush}"
-                    Text="{Binding ViewModel.ConfigStatus}"
-                    TextWrapping="Wrap" />
-            </Border>
-
             <!-- ワークフロー選択 -->
             <Border
                 Margin="0,0,0,8"
@@ -239,26 +225,9 @@
                         Appearance="Primary"
                         Icon="{ui:SymbolIcon Play24}" />
                     <ProgressBar
-                        Margin="0,8,0,4"
+                        Margin="0,8,0,0"
                         Height="4"
                         IsIndeterminate="True"
-                        Visibility="{Binding ViewModel.IsRunning, Converter={StaticResource BoolToVisibilityConverter}}" />
-                    <TextBlock
-                        FontSize="13"
-                        Foreground="{DynamicResource SystemFillColorSuccessBrush}"
-                        Text="{Binding ViewModel.StatusMessage}"
-                        TextWrapping="Wrap"
-                        Visibility="{Binding ViewModel.IsSuccess, Converter={StaticResource BoolToVisibilityConverter}}" />
-                    <TextBlock
-                        FontSize="13"
-                        Foreground="{DynamicResource SystemFillColorCriticalBrush}"
-                        Text="{Binding ViewModel.StatusMessage}"
-                        TextWrapping="Wrap"
-                        Visibility="{Binding ViewModel.IsError, Converter={StaticResource BoolToVisibilityConverter}}" />
-                    <TextBlock
-                        FontSize="13"
-                        Text="{Binding ViewModel.StatusMessage}"
-                        TextWrapping="Wrap"
                         Visibility="{Binding ViewModel.IsRunning, Converter={StaticResource BoolToVisibilityConverter}}" />
                 </StackPanel>
             </Border>

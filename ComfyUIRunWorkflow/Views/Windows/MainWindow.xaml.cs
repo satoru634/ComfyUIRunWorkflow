@@ -22,7 +22,8 @@ namespace ComfyUIRunWorkflow.Views.Windows
         public MainWindow(
             MainWindowViewModel viewModel,
             INavigationViewPageProvider navigationViewPageProvider,
-            INavigationService navigationService
+            INavigationService navigationService,
+            ISnackbarService snackbarService
         )
         {
             ViewModel = viewModel;
@@ -35,6 +36,9 @@ namespace ComfyUIRunWorkflow.Views.Windows
             SetPageService(navigationViewPageProvider);
 
             navigationService.SetNavigationControl(RootNavigation);
+
+            // スナックバー通知サービスにスナックバープレゼンターを設定する
+            snackbarService.SetSnackbarPresenter(SnackbarPresenter);
         }
 
         #region INavigationWindow methods

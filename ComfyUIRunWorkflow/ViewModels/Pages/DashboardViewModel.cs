@@ -1,14 +1,16 @@
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Text.Json;
-using System.Text.Encodings.Web;
-using System.Text.Unicode;
 using ComfyUILibs.Common;
 using ComfyUILibs.Exceptions;
 using ComfyUILibs.Models;
 using ComfyUILibs.Services;
 using ComfyUIRunWorkflow.Models;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.Unicode;
+using Wpf.Ui;
 using Wpf.Ui.Abstractions.Controls;
+using Wpf.Ui.Controls;
 
 namespace ComfyUIRunWorkflow.ViewModels.Pages
 {
@@ -19,6 +21,9 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
     {
         /// <summary>アプリケーション設定。</summary>
         public Setting<AppConfig> Config { get; }
+
+        /// <summary>スナックバー通知サービス。ワークフロー実行中のエラー通知などに使用する。</summary>
+        private readonly ISnackbarService _snackbarService;
 
         // ── config 読み込み状態 ───────────────────────────────────────────────
 
@@ -33,10 +38,6 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         /// <summary>選択中ワークフローで使用可能な LoRA 論理名の一覧。</summary>
         [ObservableProperty]
         private List<string> _availableLoras = new();
-
-        /// <summary>config 読み込みの状態・エラーメッセージ。</summary>
-        [ObservableProperty]
-        private string _configStatus = "";
 
         /// <summary>config が正常に読み込まれているか。</summary>
         [ObservableProperty]
@@ -120,18 +121,6 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         [ObservableProperty]
         private bool _isRunning = false;
 
-        /// <summary>最後の実行結果メッセージ。</summary>
-        [ObservableProperty]
-        private string _statusMessage = "";
-
-        /// <summary>最後の実行が成功したか（ステータス表示の色分けに使用）。</summary>
-        [ObservableProperty]
-        private bool _isSuccess = false;
-
-        /// <summary>最後の実行がエラーだったか（ステータス表示の色分けに使用）。</summary>
-        [ObservableProperty]
-        private bool _isError = false;
-
         // ── 内部状態 ─────────────────────────────────────────────────────────
 
         private WorkflowConfig? _loadedConfig;
@@ -146,9 +135,10 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         // ─────────────────────────────────────────────────────────────────────
 
         /// <summary>DI コンテナから設定を受け取って初期化する。</summary>
-        public DashboardViewModel(Setting<AppConfig> config)
+        public DashboardViewModel(Setting<AppConfig> config, ISnackbarService snackbarService)
         {
             Config = config;
+            _snackbarService = snackbarService;
         }
 
         // ── INavigationAware ─────────────────────────────────────────────────
@@ -167,7 +157,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
         /// <summary>
         /// 設定ページで指定された ConfigPath から config.json を読み込む。
-        /// 失敗した場合は ConfigStatus にエラーメッセージを設定する。
+        /// 失敗した場合はスナックバーでエラーメッセージを表示する。
         /// </summary>
         private void TryLoadConfig()
         {
@@ -176,9 +166,17 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             {
                 _loadedConfig = null;
                 IsConfigLoaded = false;
-                ConfigStatus = "設定ページで config.json のパスを指定してください";
                 WorkflowNames = new List<string>();
                 SelectedWorkflow = "";
+
+                _snackbarService.Show(
+                    "Error",
+                    "設定ページで config.json のパスを指定してください。",
+                    ControlAppearance.Danger,
+                    new SymbolIcon(SymbolRegular.ErrorCircle24),
+                    TimeSpan.FromSeconds(3.0)
+                );
+
                 RunWorkflowCommand.NotifyCanExecuteChanged();
                 return;
             }
@@ -194,15 +192,21 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                     SelectedWorkflow = _loadedConfig.DefaultWorkflow ?? names.FirstOrDefault() ?? "";
 
                 IsConfigLoaded = true;
-                ConfigStatus = "";
             }
             catch (ComfyUIException ex)
             {
                 _loadedConfig = null;
                 IsConfigLoaded = false;
-                ConfigStatus = $"config.json 読み込みエラー: {ex.Message}";
                 WorkflowNames = new List<string>();
                 SelectedWorkflow = "";
+
+                _snackbarService.Show(
+                    "Error",
+                    $"config.json 読み込みエラー: {ex.Message}",
+                    ControlAppearance.Danger,
+                    new SymbolIcon(SymbolRegular.ErrorCircle24),
+                    TimeSpan.FromSeconds(3.0)
+                );
             }
 
             RunWorkflowCommand.NotifyCanExecuteChanged();
@@ -284,9 +288,6 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         private async Task RunWorkflowAsync()
         {
             IsRunning = true;
-            IsSuccess = false;
-            IsError = false;
-            StatusMessage = "実行中...";
 
             WorkflowResult result;
             WorkflowRunner? runner = null;
@@ -332,8 +333,13 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                     Outputs = outputs,
                 };
 
-                StatusMessage = $"完了: {outputs.Count} 件のファイルが生成されました";
-                IsSuccess = true;
+                _snackbarService.Show(
+                    "完了",
+                    $"{outputs.Count} 件のファイルが生成されました",
+                    ControlAppearance.Success,
+                    new SymbolIcon(SymbolRegular.CheckmarkCircle24),
+                    TimeSpan.FromSeconds(4.0)
+                );
             }
             catch (ComfyUIException ex)
             {
@@ -346,8 +352,13 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                     Error = ex.Message,
                 };
 
-                StatusMessage = $"エラー: {ex.Message}";
-                IsError = true;
+                _snackbarService.Show(
+                    "エラー",
+                    ex.Message,
+                    ControlAppearance.Danger,
+                    new SymbolIcon(SymbolRegular.ErrorCircle24),
+                    TimeSpan.FromSeconds(5.0)
+                );
             }
             catch (Exception ex)
             {
@@ -359,8 +370,13 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                     Error = ex.Message,
                 };
 
-                StatusMessage = $"予期しないエラー: {ex.Message}";
-                IsError = true;
+                _snackbarService.Show(
+                    "予期しないエラー",
+                    ex.Message,
+                    ControlAppearance.Caution,
+                    new SymbolIcon(SymbolRegular.Warning24),
+                    TimeSpan.FromSeconds(5.0)
+                );
             }
             finally
             {

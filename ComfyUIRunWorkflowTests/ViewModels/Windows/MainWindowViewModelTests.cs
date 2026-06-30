@@ -92,54 +92,54 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Windows
         // ── MenuItems ─────────────────────────────────────────────────────────
 
         [Fact]
-        public void MenuItems_Contains_HomeItem()
+        public void MenuItems_Contains_RunWorkflowItem()
         {
             RunOnSta(() =>
             {
                 var vm = new MainWindowViewModel(CreateSetting());
 
                 var items = vm.MenuItems.OfType<NavigationViewItem>().ToList();
-                Assert.Contains(items, item => item.Content?.ToString() == "Home");
+                Assert.Contains(items, item => item.Content?.ToString() == "Run workflow");
             });
         }
 
         [Fact]
-        public void MenuItems_Contains_DataItem()
+        public void MenuItems_Contains_ResultsItem()
         {
             RunOnSta(() =>
             {
                 var vm = new MainWindowViewModel(CreateSetting());
 
                 var items = vm.MenuItems.OfType<NavigationViewItem>().ToList();
-                Assert.Contains(items, item => item.Content?.ToString() == "Data");
+                Assert.Contains(items, item => item.Content?.ToString() == "Results");
             });
         }
 
         [Fact]
-        public void MenuItems_HomeItem_TargetPage_IsDashboardPage()
+        public void MenuItems_RunWorkflowItem_TargetPage_IsDashboardPage()
         {
             RunOnSta(() =>
             {
                 var vm = new MainWindowViewModel(CreateSetting());
 
-                var home = vm.MenuItems.OfType<NavigationViewItem>()
-                    .FirstOrDefault(item => item.Content?.ToString() == "Home");
+                var runWorkflow = vm.MenuItems.OfType<NavigationViewItem>()
+                    .FirstOrDefault(item => item.Content?.ToString() == "Run workflow");
 
-                Assert.Equal(typeof(DashboardPage), home?.TargetPageType);
+                Assert.Equal(typeof(DashboardPage), runWorkflow?.TargetPageType);
             });
         }
 
         [Fact]
-        public void MenuItems_DataItem_TargetPage_IsDataPage()
+        public void MenuItems_ResultsItem_TargetPage_IsDataPage()
         {
             RunOnSta(() =>
             {
                 var vm = new MainWindowViewModel(CreateSetting());
 
-                var data = vm.MenuItems.OfType<NavigationViewItem>()
-                    .FirstOrDefault(item => item.Content?.ToString() == "Data");
+                var results = vm.MenuItems.OfType<NavigationViewItem>()
+                    .FirstOrDefault(item => item.Content?.ToString() == "Results");
 
-                Assert.Equal(typeof(DataPage), data?.TargetPageType);
+                Assert.Equal(typeof(DataPage), results?.TargetPageType);
             });
         }
 
