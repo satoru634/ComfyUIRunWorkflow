@@ -22,14 +22,14 @@ namespace ComfyUIRunWorkflow.ViewModels.Windows
         {
             new NavigationViewItem()
             {
-                Content = "Home",
-                Icon = new SymbolIcon { Symbol = SymbolRegular.Home24 },
+                Content = "Run workflow",
+                Icon = new SymbolIcon { Symbol = SymbolRegular.WindowPlay20 },
                 TargetPageType = typeof(Views.Pages.DashboardPage)
             },
             new NavigationViewItem()
             {
-                Content = "Data",
-                Icon = new SymbolIcon { Symbol = SymbolRegular.DataHistogram24 },
+                Content = "Results",
+                Icon = new SymbolIcon { Symbol = SymbolRegular.TaskListLtr20 },
                 TargetPageType = typeof(Views.Pages.DataPage)
             }
         };
@@ -41,7 +41,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Windows
             new NavigationViewItem()
             {
                 Content = "Settings",
-                Icon = new SymbolIcon { Symbol = SymbolRegular.Settings24 },
+                Icon = new SymbolIcon { Symbol = SymbolRegular.Settings20 },
                 TargetPageType = typeof(Views.Pages.SettingsPage)
             }
         };
