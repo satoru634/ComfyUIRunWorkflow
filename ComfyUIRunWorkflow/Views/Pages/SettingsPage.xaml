@@ -8,8 +8,8 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Title="SettingsPage"
     d:DataContext="{d:DesignInstance local:SettingsPage, IsDesignTimeCreatable=False}"
-    d:DesignHeight="600"
-    d:DesignWidth="800"
+    d:DesignHeight="700"
+    d:DesignWidth="1000"
     ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
     ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
@@ -81,7 +81,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="550" />
                     </Grid.ColumnDefinitions>
                     <ui:SymbolIcon
                         Grid.Column="0"
@@ -95,7 +95,8 @@
                         Text="ComfyUI URL" />
                     <ui:TextBox
                         Grid.Column="2"
-                        Width="300"
+                        Width="550"
+                        Height="36"
                         PlaceholderText="http://127.0.0.1:8188"
                         Text="{Binding ViewModel.Config.Data.ComfyUIUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 </Grid>
@@ -111,7 +112,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="550" />
                     </Grid.ColumnDefinitions>
                     <ui:SymbolIcon
                         Grid.Column="0"
@@ -125,13 +126,19 @@
                         Text="config.json パス" />
                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                         <ui:TextBox
-                            Width="240"
+                            Width="506"
+                            Height="36"
                             Margin="0,0,4,0"
                             PlaceholderText="C:\...\config.json"
+                            IsReadOnly="True"
                             Text="{Binding ViewModel.Config.Data.ConfigPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         <ui:Button
                             Command="{Binding ViewModel.BrowseConfigPathCommand}"
-                            Content="参照"
+                            Icon="{ui:SymbolIcon FolderOpen16}"
+                            Width="36"
+                            Height="36"
+                            Margin="4,0,0,0"
+                            ToolTip="参照"
                             Appearance="Secondary" />
                     </StackPanel>
                 </Grid>
@@ -155,7 +162,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="550" />
                     </Grid.ColumnDefinitions>
                     <ui:SymbolIcon
                         Grid.Column="0"
@@ -169,13 +176,19 @@
                         Text="結果出力フォルダ" />
                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                         <ui:TextBox
-                            Width="240"
+                            Width="506"
+                            Height="36"
                             Margin="0,0,4,0"
                             PlaceholderText="C:\...\results"
+                            IsReadOnly="True"
                             Text="{Binding ViewModel.Config.Data.ResultsFolder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         <ui:Button
                             Command="{Binding ViewModel.BrowseResultsFolderCommand}"
-                            Content="参照"
+                            Icon="{ui:SymbolIcon FolderOpen16}"
+                            Width="36"
+                            Height="36"
+                            Margin="4,0,0,0"
+                            ToolTip="参照"
                             Appearance="Secondary" />
                     </StackPanel>
                 </Grid>
