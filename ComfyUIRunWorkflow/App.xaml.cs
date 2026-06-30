@@ -43,6 +43,9 @@ namespace ComfyUIRunWorkflow
                 // タスクバー操作サービス
                 services.AddSingleton<ITaskBarService, TaskBarService>();
 
+                // スナックバー通知サービス
+                services.AddSingleton<ISnackbarService, SnackbarService>();
+
                 // ナビゲーションサービス（ウィンドウを持たない画面遷移制御）
                 services.AddSingleton<INavigationService, NavigationService>();
 

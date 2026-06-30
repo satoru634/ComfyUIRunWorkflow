@@ -1,20 +1,25 @@
 using System.ComponentModel;
 using System.IO;
+using System.Runtime.ExceptionServices;
 using System.Text.Json;
 using ComfyUILibs.Common;
 using ComfyUIRunWorkflow.Models;
 using ComfyUIRunWorkflow.ViewModels.Pages;
+using ComfyUIRunWorkflowTests.Fakes;
+using Wpf.Ui.Controls;
 
 namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 {
     public class DashboardViewModelTests : IDisposable
     {
         private readonly string _tempDir;
+        private readonly FakeSnackbarService _fakeSnackbar;
 
         public DashboardViewModelTests()
         {
             _tempDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             Directory.CreateDirectory(_tempDir);
+            _fakeSnackbar = new FakeSnackbarService();
         }
 
         public void Dispose()
@@ -24,6 +29,27 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 
         private Setting<AppConfig> CreateSetting()
             => new Setting<AppConfig>(Path.Combine(_tempDir, "setting.json"), onLoad: false);
+
+        private DashboardViewModel CreateVm(Setting<AppConfig>? setting = null)
+            => new DashboardViewModel(setting ?? CreateSetting(), _fakeSnackbar);
+
+        /// <summary>
+        /// SymbolIcon など WPF コントロールの生成を含む処理を STA スレッドで実行するヘルパー。
+        /// </summary>
+        private static void RunOnSta(Action action)
+        {
+            Exception? caught = null;
+            var thread = new Thread(() =>
+            {
+                try { action(); }
+                catch (Exception ex) { caught = ex; }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+            if (caught is not null)
+                ExceptionDispatchInfo.Capture(caught).Throw();
+        }
 
         private string CreateConfigJson()
         {
@@ -57,63 +83,63 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         public void Constructor_Config_IsSet()
         {
             var setting = CreateSetting();
-            var vm = new DashboardViewModel(setting);
+            var vm = CreateVm(setting);
             Assert.Same(setting, vm.Config);
         }
 
         [Fact]
         public void Constructor_WorkflowNames_IsEmpty()
         {
-            var vm = new DashboardViewModel(CreateSetting());
+            var vm = CreateVm();
             Assert.Empty(vm.WorkflowNames);
         }
 
         [Fact]
         public void Constructor_AvailableLoras_IsEmpty()
         {
-            var vm = new DashboardViewModel(CreateSetting());
+            var vm = CreateVm();
             Assert.Empty(vm.AvailableLoras);
         }
 
         [Fact]
         public void Constructor_IsRunning_IsFalse()
         {
-            var vm = new DashboardViewModel(CreateSetting());
+            var vm = CreateVm();
             Assert.False(vm.IsRunning);
         }
 
         [Fact]
         public void Constructor_LoraSlots_IsEmpty()
         {
-            var vm = new DashboardViewModel(CreateSetting());
+            var vm = CreateVm();
             Assert.Empty(vm.LoraSlots);
         }
 
         [Fact]
         public void Constructor_IsConfigLoaded_IsFalse()
         {
-            var vm = new DashboardViewModel(CreateSetting());
+            var vm = CreateVm();
             Assert.False(vm.IsConfigLoaded);
         }
 
         [Fact]
         public void Constructor_IsCustomSize_IsFalse()
         {
-            var vm = new DashboardViewModel(CreateSetting());
+            var vm = CreateVm();
             Assert.False(vm.IsCustomSize);
         }
 
         [Fact]
         public void Constructor_CustomWidth_IsDefault()
         {
-            var vm = new DashboardViewModel(CreateSetting());
+            var vm = CreateVm();
             Assert.Equal(832, vm.CustomWidth);
         }
 
         [Fact]
         public void Constructor_CustomHeight_IsDefault()
         {
-            var vm = new DashboardViewModel(CreateSetting());
+            var vm = CreateVm();
             Assert.Equal(1216, vm.CustomHeight);
         }
 
@@ -122,28 +148,28 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         [Fact]
         public void IsVertical_Initial_IsTrue()
         {
-            var vm = new DashboardViewModel(CreateSetting());
+            var vm = CreateVm();
             Assert.True(vm.IsVertical);
         }
 
         [Fact]
         public void IsHorizontal_Initial_IsFalse()
         {
-            var vm = new DashboardViewModel(CreateSetting());
+            var vm = CreateVm();
             Assert.False(vm.IsHorizontal);
         }
 
         [Fact]
         public void IsSquare_Initial_IsFalse()
         {
-            var vm = new DashboardViewModel(CreateSetting());
+            var vm = CreateVm();
             Assert.False(vm.IsSquare);
         }
 
         [Fact]
         public void IsHorizontal_SetTrue_ChangesOrientation()
         {
-            var vm = new DashboardViewModel(CreateSetting());
+            var vm = CreateVm();
             vm.IsHorizontal = true;
             Assert.Equal("horizontal", vm.ImageSizeOrientation);
             Assert.True(vm.IsHorizontal);
@@ -153,7 +179,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         [Fact]
         public void IsSquare_SetTrue_ChangesOrientation()
         {
-            var vm = new DashboardViewModel(CreateSetting());
+            var vm = CreateVm();
             vm.IsSquare = true;
             Assert.Equal("square", vm.ImageSizeOrientation);
             Assert.True(vm.IsSquare);
@@ -163,7 +189,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         [Fact]
         public void ImageSizeOrientation_Change_NotifiesIsVertical()
         {
-            var vm = new DashboardViewModel(CreateSetting());
+            var vm = CreateVm();
             var changed = new List<string?>();
             ((INotifyPropertyChanged)vm).PropertyChanged += (_, e) => changed.Add(e.PropertyName);
 
@@ -177,29 +203,53 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         // ── OnNavigatedToAsync ────────────────────────────────────────────────
 
         [Fact]
-        public async Task OnNavigatedToAsync_EmptyConfigPath_ShowsGuideMessage()
+        public void OnNavigatedToAsync_EmptyConfigPath_IsConfigLoadedFalse()
         {
             var setting = CreateSetting();
             setting.Data.ConfigPath = "";
-            var vm = new DashboardViewModel(setting);
+            var vm = CreateVm(setting);
 
-            await vm.OnNavigatedToAsync();
+            RunOnSta(() => vm.OnNavigatedToAsync().Wait());
 
             Assert.False(vm.IsConfigLoaded);
-            Assert.NotEmpty(vm.ConfigStatus);
         }
 
         [Fact]
-        public async Task OnNavigatedToAsync_InvalidConfigPath_ShowsErrorMessage()
+        public void OnNavigatedToAsync_EmptyConfigPath_ShowsSnackbar()
+        {
+            var setting = CreateSetting();
+            setting.Data.ConfigPath = "";
+            var vm = CreateVm(setting);
+
+            RunOnSta(() => vm.OnNavigatedToAsync().Wait());
+
+            Assert.Single(_fakeSnackbar.Calls);
+            Assert.Equal(ControlAppearance.Danger, _fakeSnackbar.Calls[0].Appearance);
+        }
+
+        [Fact]
+        public void OnNavigatedToAsync_InvalidConfigPath_IsConfigLoadedFalse()
         {
             var setting = CreateSetting();
             setting.Data.ConfigPath = Path.Combine(_tempDir, "nonexistent.json");
-            var vm = new DashboardViewModel(setting);
+            var vm = CreateVm(setting);
 
-            await vm.OnNavigatedToAsync();
+            RunOnSta(() => vm.OnNavigatedToAsync().Wait());
 
             Assert.False(vm.IsConfigLoaded);
-            Assert.NotEmpty(vm.ConfigStatus);
+        }
+
+        [Fact]
+        public void OnNavigatedToAsync_InvalidConfigPath_ShowsSnackbar()
+        {
+            var setting = CreateSetting();
+            setting.Data.ConfigPath = Path.Combine(_tempDir, "nonexistent.json");
+            var vm = CreateVm(setting);
+
+            RunOnSta(() => vm.OnNavigatedToAsync().Wait());
+
+            Assert.Single(_fakeSnackbar.Calls);
+            Assert.Equal(ControlAppearance.Danger, _fakeSnackbar.Calls[0].Appearance);
         }
 
         [Fact]
@@ -207,7 +257,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         {
             var setting = CreateSetting();
             setting.Data.ConfigPath = CreateConfigJson();
-            var vm = new DashboardViewModel(setting);
+            var vm = CreateVm(setting);
 
             await vm.OnNavigatedToAsync();
 
@@ -220,7 +270,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         {
             var setting = CreateSetting();
             setting.Data.ConfigPath = CreateConfigJson();
-            var vm = new DashboardViewModel(setting);
+            var vm = CreateVm(setting);
 
             await vm.OnNavigatedToAsync();
 
@@ -232,7 +282,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         {
             var setting = CreateSetting();
             setting.Data.ConfigPath = CreateConfigJson();
-            var vm = new DashboardViewModel(setting);
+            var vm = CreateVm(setting);
 
             await vm.OnNavigatedToAsync();
 
@@ -244,7 +294,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         {
             var setting = CreateSetting();
             setting.Data.ConfigPath = CreateConfigJson();
-            var vm = new DashboardViewModel(setting);
+            var vm = CreateVm(setting);
 
             await vm.OnNavigatedToAsync();
 
@@ -257,7 +307,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         [Fact]
         public void AddLoraCommand_Execute_AddsSlot()
         {
-            var vm = new DashboardViewModel(CreateSetting());
+            var vm = CreateVm();
             vm.AddLoraCommand.Execute(null);
             Assert.Single(vm.LoraSlots);
         }
@@ -265,7 +315,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         [Fact]
         public void AddLoraCommand_ExecuteThreeTimes_AddThreeSlots()
         {
-            var vm = new DashboardViewModel(CreateSetting());
+            var vm = CreateVm();
             vm.AddLoraCommand.Execute(null);
             vm.AddLoraCommand.Execute(null);
             vm.AddLoraCommand.Execute(null);
@@ -275,7 +325,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         [Fact]
         public void AddLoraCommand_AtMaxFour_DoesNotAddMore()
         {
-            var vm = new DashboardViewModel(CreateSetting());
+            var vm = CreateVm();
             for (int i = 0; i < 5; i++)
                 vm.AddLoraCommand.Execute(null);
             Assert.Equal(4, vm.LoraSlots.Count);
@@ -284,7 +334,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         [Fact]
         public void RemoveLoraCommand_Execute_RemovesSlot()
         {
-            var vm = new DashboardViewModel(CreateSetting());
+            var vm = CreateVm();
             vm.AddLoraCommand.Execute(null);
             var slot = vm.LoraSlots[0];
 
@@ -296,7 +346,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         [Fact]
         public void RemoveLoraCommand_MiddleSlot_RemovesCorrectSlot()
         {
-            var vm = new DashboardViewModel(CreateSetting());
+            var vm = CreateVm();
             vm.AddLoraCommand.Execute(null);
             vm.AddLoraCommand.Execute(null);
             vm.AddLoraCommand.Execute(null);
@@ -313,7 +363,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         [Fact]
         public void RunWorkflowCommand_WithoutConfig_CannotExecute()
         {
-            var vm = new DashboardViewModel(CreateSetting());
+            var vm = CreateVm();
             vm.PositivePrompt = "test";
             Assert.False(vm.RunWorkflowCommand.CanExecute(null));
         }
@@ -323,7 +373,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         {
             var setting = CreateSetting();
             setting.Data.ConfigPath = CreateConfigJson();
-            var vm = new DashboardViewModel(setting);
+            var vm = CreateVm(setting);
             await vm.OnNavigatedToAsync();
 
             Assert.False(vm.RunWorkflowCommand.CanExecute(null));
@@ -334,27 +384,11 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         {
             var setting = CreateSetting();
             setting.Data.ConfigPath = CreateConfigJson();
-            var vm = new DashboardViewModel(setting);
+            var vm = CreateVm(setting);
             await vm.OnNavigatedToAsync();
             vm.PositivePrompt = "masterpiece";
 
             Assert.True(vm.RunWorkflowCommand.CanExecute(null));
-        }
-
-        // ── IsSuccess / IsError 初期値 ────────────────────────────────────────
-
-        [Fact]
-        public void IsSuccess_Initial_IsFalse()
-        {
-            var vm = new DashboardViewModel(CreateSetting());
-            Assert.False(vm.IsSuccess);
-        }
-
-        [Fact]
-        public void IsError_Initial_IsFalse()
-        {
-            var vm = new DashboardViewModel(CreateSetting());
-            Assert.False(vm.IsError);
         }
     }
 }
