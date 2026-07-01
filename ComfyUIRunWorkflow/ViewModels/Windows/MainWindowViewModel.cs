@@ -14,7 +14,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Windows
     {
         /// <summary>タイトルバーに表示するアプリケーション名。</summary>
         [ObservableProperty]
-        private string _applicationTitle = "WPF UI - ComfyUIRunWorkflow";
+        private string _applicationTitle = "ComfyUIRunWorkflow";
 
         /// <summary>ナビゲーションペインのメニュー項目リスト。</summary>
         [ObservableProperty]
