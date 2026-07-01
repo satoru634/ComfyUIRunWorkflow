@@ -341,9 +341,10 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                     Outputs = outputs,
                 };
 
+                int count = outputs.FindAll(o => o.Type == "output").Count;
                 _snackbarService.Show(
                     "完了",
-                    $"{outputs.Count} 件のファイルが生成されました",
+                    $"{count} 件のファイルが生成されました",
                     ControlAppearance.Success,
                     new SymbolIcon(SymbolRegular.CheckmarkCircle24),
                     TimeSpan.FromSeconds(4.0)
