@@ -2,6 +2,7 @@ using ComfyUILibs.Common;
 using ComfyUILibs.Exceptions;
 using ComfyUILibs.Models;
 using ComfyUILibs.Services;
+using ComfyUILibs.Ui;
 using ComfyUIRunWorkflow.Models;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -45,17 +46,12 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
         // ── プリセット画像サイズラベル ────────────────────────────────────────
 
-        /// <summary>vertical プリセットのサイズ表示ラベル（例: "vertical (832×1216)"）。</summary>
-        [ObservableProperty]
-        private string _verticalLabel = "vertical";
+        /// <summary>画像サイズ選択コンボボックスのキー一覧（vertical / horizontal / square / custom）。</summary>
+        private static readonly List<string> _sizeOptionKeys = new() { "vertical", "horizontal", "square", "custom" };
 
-        /// <summary>horizontal プリセットのサイズ表示ラベル。</summary>
+        /// <summary>画像サイズ選択コンボボックスに表示する項目（キー＋表示ラベル）のリスト。</summary>
         [ObservableProperty]
-        private string _horizontalLabel = "horizontal";
-
-        /// <summary>square プリセットのサイズ表示ラベル。</summary>
-        [ObservableProperty]
-        private string _squareLabel = "square";
+        private UIItemBaseModel<SizeOption> _sizeLabelList = new();
 
         // ── プロンプト ────────────────────────────────────────────────────────
 
@@ -89,25 +85,25 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         [ObservableProperty]
         private int _customHeight = 1216;
 
-        /// <summary>vertical ラジオボタンの選択状態。</summary>
-        public bool IsVertical
+        /// <summary>
+        /// 画像サイズ選択コンボボックスの選択値（"vertical" / "horizontal" / "square" / "custom"）。
+        /// ImageSizeOrientation と IsCustomSize を合成した値。
+        /// </summary>
+        public string SelectedSizeOption
         {
-            get => ImageSizeOrientation == "vertical";
-            set { if (value) ImageSizeOrientation = "vertical"; }
-        }
-
-        /// <summary>horizontal ラジオボタンの選択状態。</summary>
-        public bool IsHorizontal
-        {
-            get => ImageSizeOrientation == "horizontal";
-            set { if (value) ImageSizeOrientation = "horizontal"; }
-        }
-
-        /// <summary>square ラジオボタンの選択状態。</summary>
-        public bool IsSquare
-        {
-            get => ImageSizeOrientation == "square";
-            set { if (value) ImageSizeOrientation = "square"; }
+            get => IsCustomSize ? "custom" : ImageSizeOrientation;
+            set
+            {
+                if (value == "custom")
+                {
+                    IsCustomSize = true;
+                }
+                else
+                {
+                    IsCustomSize = false;
+                    ImageSizeOrientation = value;
+                }
+            }
         }
 
         // ── LoRA ──────────────────────────────────────────────────────────────
@@ -221,18 +217,19 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             {
                 AvailableLoras = new List<string>();
                 _presetSizes = new Dictionary<string, ImageSize>();
-                VerticalLabel = "vertical";
-                HorizontalLabel = "horizontal";
-                SquareLabel = "square";
+                var fallbackOptions = _sizeOptionKeys.Select(key => new SizeOption(key, key)).ToList();
+                SizeLabelList.Init(fallbackOptions, fallbackOptions[0]);
                 return;
             }
 
             AvailableLoras = ws.Loras?.Keys.ToList() ?? new List<string>();
 
             _presetSizes = ws.ImageSize ?? new Dictionary<string, ImageSize>();
-            VerticalLabel = FormatSizeLabel("vertical");
-            HorizontalLabel = FormatSizeLabel("horizontal");
-            SquareLabel = FormatSizeLabel("square");
+            var options = _sizeOptionKeys.Select(key => new SizeOption(key, FormatSizeLabel(key))).ToList();
+            SizeLabelList.Init(options, options[0]);
+
+            // デフォルトは最初の項目（vertical）を選択
+            SelectedSizeOption = options[0].Key;
 
             // LoRA スロットの選択が新しいワークフローの LoRA に含まれない場合はリセット
             foreach (var slot in LoraSlots)
@@ -242,6 +239,11 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             }
         }
 
+        /// <summary>
+        /// ラベル文字列を生成する。プリセットサイズが存在する場合は "(width×height)" を付加する。
+        /// </summary>
+        /// <param name="orientation"></param>
+        /// <returns></returns>
         private string FormatSizeLabel(string orientation)
         {
             if (_presetSizes.TryGetValue(orientation, out var size))
@@ -250,13 +252,19 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         }
 
         /// <summary>
-        /// ImageSizeOrientation が変わったとき、RadioButton 向けの derived プロパティを通知する。
+        /// ImageSizeOrientation が変わったとき、RadioButton・ComboBox 向けの derived プロパティを通知する。
         /// </summary>
         partial void OnImageSizeOrientationChanged(string value)
         {
-            OnPropertyChanged(nameof(IsVertical));
-            OnPropertyChanged(nameof(IsHorizontal));
-            OnPropertyChanged(nameof(IsSquare));
+            OnPropertyChanged(nameof(SelectedSizeOption));
+        }
+
+        /// <summary>
+        /// IsCustomSize が変わったとき、ComboBox 向けの derived プロパティを通知する。
+        /// </summary>
+        partial void OnIsCustomSizeChanged(bool value)
+        {
+            OnPropertyChanged(nameof(SelectedSizeOption));
         }
 
         // ── LoRA 操作 ─────────────────────────────────────────────────────────

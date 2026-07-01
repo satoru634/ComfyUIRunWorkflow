@@ -4,6 +4,11 @@
 ComfyUIRunWorkflow/                     <- ソリューションルート
   ComfyUILibs/                          <- サブモジュール（共有ライブラリ）
     ComfyUILibs/
+      Base/                             <- 汎用ジオメトリ値ラッパー（INotifyPropertyChanged 対応）
+        ObservablePoint.cs              <- Point ラッパー（ToPoint / FromPoint）
+        ObservableSize.cs               <- Size ラッパー（ToSize / FromSize）
+      Ui/                               <- UI 選択リスト管理用の汎用ベースクラス（WPF ComboBox 等／将来の Discord ボット選択メニューでも共用想定）
+        UIItemBaseModel.cs              <- アイテムリスト＋選択インデックスを管理するジェネリッククラス（Init/Add/Clear）
       Common/                           <- 汎用ユーティリティ（実装済み）
         JsonLoader.cs                   <- JSON ファイル読み書きユーティリティ（静的クラス）
         Setting.cs                      <- 設定ファイル管理ジェネリッククラス
@@ -24,6 +29,11 @@ ComfyUIRunWorkflow/                     <- ソリューションルート
       Properties/
         AssemblyInfo.cs                 <- InternalsVisibleTo("ComfyUILibsTests") を宣言
   ComfyUILibsTests/                     <- xUnit v3 テストプロジェクト
+    Base/
+      ObservablePointTests.cs           <- ObservablePoint テスト
+      ObservableSizeTests.cs            <- ObservableSize テスト
+    Ui/
+      UIItemBaseModelTests.cs           <- UIItemBaseModel テスト（17件）
     Exceptions/
       ComfyUIExceptionTests.cs          <- ComfyUIException テスト（3件）
     Services/
@@ -36,6 +46,7 @@ ComfyUIRunWorkflow/                     <- ソリューションルート
     Models/
       AppConfig.cs                      <- アプリ設定（ウィンドウ状態・ComfyUIUrl・ConfigPath・ResultsFolder）
       LoraSlot.cs                       <- LoRA 選択スロット（ObservableObject ラッパー）
+      SizeOption.cs                     <- 画像サイズ選択コンボボックスの1項目（Key/Label レコード）
     ViewModels/Pages/
       DashboardViewModel.cs             <- ワークフロー実行 VM（ConfigLoader + WorkflowRunner 使用）
       SettingsViewModel.cs              <- 設定 VM（テーマ・URL・パス管理）
