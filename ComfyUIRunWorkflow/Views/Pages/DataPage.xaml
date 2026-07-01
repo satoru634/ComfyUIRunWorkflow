@@ -7,6 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:ComfyUILibs.Models;assembly=ComfyUILibs"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:helper="clr-namespace:ComfyUIRunWorkflow.Helpers"
     Title="DataPage"
     d:DataContext="{d:DesignInstance local:DataPage, IsDesignTimeCreatable=False}"
     d:DesignHeight="700"
@@ -14,7 +15,12 @@
     ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
     ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    ScrollViewer.CanContentScroll="False"
     mc:Ignorable="d">
+
+    <Page.Resources>
+        <helper:ResultMessageConverter x:Key="ResultMessageConverter"/>
+    </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -132,40 +138,19 @@
                                         FontSize="13"
                                         FontWeight="Medium"
                                         Text="{Binding Timestamp}" />
-                                    <!-- 成功時: 出力ファイル名 -->
+                                    <!-- 成功時: 出力ファイル名, エラー時: エラーメッセージ -->
                                     <TextBlock
                                         FontSize="12"
-                                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                                         TextTrimming="CharacterEllipsis"
-                                        Visibility="{Binding Status, Converter={StaticResource NullToVisibilityConverter}}">
+                                        Text="{Binding Path=., Converter={StaticResource ResultMessageConverter}}">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding Status}" Value="success">
-                                                        <Setter Property="Visibility" Value="Visible" />
+                                                        <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding Status}" Value="error">
-                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                        <Run Text="{Binding Outputs[0].Filename, FallbackValue=''}" />
-                                    </TextBlock>
-                                    <!-- エラー時: エラーメッセージ -->
-                                    <TextBlock
-                                        FontSize="12"
-                                        Foreground="{DynamicResource SystemFillColorCriticalBrush}"
-                                        Text="{Binding Error}"
-                                        TextTrimming="CharacterEllipsis">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Status}" Value="success">
-                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding Status}" Value="error">
-                                                        <Setter Property="Visibility" Value="Visible" />
+                                                        <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCriticalBrush}" />
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
