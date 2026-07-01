@@ -111,53 +111,43 @@
                         FontSize="13"
                         FontWeight="Medium"
                         Text="画像サイズ" />
-                    <WrapPanel>
-                        <RadioButton
-                            Margin="0,0,16,4"
-                            Content="{Binding ViewModel.VerticalLabel, Mode=OneWay}"
-                            IsChecked="{Binding ViewModel.IsVertical, Mode=TwoWay}"
-                            IsEnabled="{Binding ViewModel.IsConfigLoaded}" />
-                        <RadioButton
-                            Margin="0,0,16,4"
-                            Content="{Binding ViewModel.HorizontalLabel, Mode=OneWay}"
-                            IsChecked="{Binding ViewModel.IsHorizontal, Mode=TwoWay}"
-                            IsEnabled="{Binding ViewModel.IsConfigLoaded}" />
-                        <RadioButton
-                            Margin="0,0,16,4"
-                            Content="{Binding ViewModel.SquareLabel, Mode=OneWay}"
-                            IsChecked="{Binding ViewModel.IsSquare, Mode=TwoWay}"
-                            IsEnabled="{Binding ViewModel.IsConfigLoaded}" />
-                        <CheckBox
-                            Margin="0,0,0,4"
-                            Content="カスタム"
-                            IsChecked="{Binding ViewModel.IsCustomSize, Mode=TwoWay}"
-                            IsEnabled="{Binding ViewModel.IsConfigLoaded}" />
-                    </WrapPanel>
                     <StackPanel
                         Margin="0,8,0,0"
-                        Orientation="Horizontal"
-                        Visibility="{Binding ViewModel.IsCustomSize, Converter={StaticResource BoolToVisibilityConverter}}">
+                        Orientation="Horizontal">
+                        <ComboBox
+                            Margin="0,0,8,0"
+                            Width="220"
+                            HorizontalAlignment="Left"
+                            DisplayMemberPath="Label"
+                            ItemsSource="{Binding ViewModel.SizeLabelList.ItemList}"
+                            IsEnabled="{Binding ViewModel.IsConfigLoaded}"
+                            SelectedValue="{Binding ViewModel.SelectedSizeOption, Mode=TwoWay}"
+                            SelectedValuePath="Key" />
                         <TextBlock
                             Margin="0,0,8,0"
                             VerticalAlignment="Center"
-                            Text="Width" />
+                            Text="Width"
+                            Visibility="{Binding ViewModel.IsCustomSize, Converter={StaticResource BoolToVisibilityConverter}}" />
                         <ui:NumberBox
-                            Width="80"
+                            Width="160"
                             Margin="0,0,16,0"
                             Maximum="2048"
                             Minimum="512"
                             SpinButtonPlacementMode="Compact"
-                            Value="{Binding ViewModel.CustomWidth, Mode=TwoWay}" />
+                            Value="{Binding ViewModel.CustomWidth, Mode=TwoWay}"
+                            Visibility="{Binding ViewModel.IsCustomSize, Converter={StaticResource BoolToVisibilityConverter}}" />
                         <TextBlock
                             Margin="0,0,8,0"
                             VerticalAlignment="Center"
-                            Text="Height" />
+                            Text="Height"
+                            Visibility="{Binding ViewModel.IsCustomSize, Converter={StaticResource BoolToVisibilityConverter}}" />
                         <ui:NumberBox
-                            Width="80"
+                            Width="160"
                             Maximum="2048"
                             Minimum="512"
                             SpinButtonPlacementMode="Compact"
-                            Value="{Binding ViewModel.CustomHeight, Mode=TwoWay}" />
+                            Value="{Binding ViewModel.CustomHeight, Mode=TwoWay}"
+                            Visibility="{Binding ViewModel.IsCustomSize, Converter={StaticResource BoolToVisibilityConverter}}" />
                     </StackPanel>
                 </StackPanel>
             </Border>

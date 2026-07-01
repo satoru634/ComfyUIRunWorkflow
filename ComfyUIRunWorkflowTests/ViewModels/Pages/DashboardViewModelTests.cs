@@ -77,6 +77,41 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
             return configPath;
         }
 
+        private string CreateMultiWorkflowConfigJson()
+        {
+            var configPath = Path.Combine(_tempDir, "config.json");
+            var json = """
+                {
+                  "comfyui_url": "http://127.0.0.1:8188",
+                  "default_workflow": "sdxl",
+                  "workflows": {
+                    "sdxl": {
+                      "default_image_size": {"width": 832, "height": 1216},
+                      "image_size": {
+                        "vertical":   {"width": 832,  "height": 1216},
+                        "horizontal": {"width": 1216, "height": 832},
+                        "square":     {"width": 1024, "height": 1024}
+                      },
+                      "loras": {
+                        "my_lora": {"file": "my_lora.safetensors", "strength": 0.8}
+                      }
+                    },
+                    "anima": {
+                      "default_image_size": {"width": 896, "height": 1152},
+                      "image_size": {
+                        "vertical":   {"width": 896,  "height": 1152},
+                        "horizontal": {"width": 1152, "height": 896},
+                        "square":     {"width": 1024, "height": 1024}
+                      },
+                      "loras": {}
+                    }
+                  }
+                }
+                """;
+            File.WriteAllText(configPath, json);
+            return configPath;
+        }
+
         // ── コンストラクター ───────────────────────────────────────────────────
 
         [Fact]
@@ -146,48 +181,60 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         // ── 画像サイズ向き ─────────────────────────────────────────────────────
 
         [Fact]
-        public void IsVertical_Initial_IsTrue()
+        public void SelectedSizeOption_Initial_IsVertical()
         {
             var vm = CreateVm();
-            Assert.True(vm.IsVertical);
+            Assert.Equal("vertical", vm.SelectedSizeOption);
         }
 
         [Fact]
-        public void IsHorizontal_Initial_IsFalse()
+        public void SelectedSizeOption_Initial_IsCustomSizeIsFalse()
         {
             var vm = CreateVm();
-            Assert.False(vm.IsHorizontal);
+            Assert.False(vm.IsCustomSize);
         }
 
         [Fact]
-        public void IsSquare_Initial_IsFalse()
+        public void SelectedSizeOption_SetHorizontal_ChangesOrientation()
         {
             var vm = CreateVm();
-            Assert.False(vm.IsSquare);
-        }
-
-        [Fact]
-        public void IsHorizontal_SetTrue_ChangesOrientation()
-        {
-            var vm = CreateVm();
-            vm.IsHorizontal = true;
+            vm.SelectedSizeOption = "horizontal";
             Assert.Equal("horizontal", vm.ImageSizeOrientation);
-            Assert.True(vm.IsHorizontal);
-            Assert.False(vm.IsVertical);
+            Assert.Equal("horizontal", vm.SelectedSizeOption);
+            Assert.False(vm.IsCustomSize);
         }
 
         [Fact]
-        public void IsSquare_SetTrue_ChangesOrientation()
+        public void SelectedSizeOption_SetSquare_ChangesOrientation()
         {
             var vm = CreateVm();
-            vm.IsSquare = true;
+            vm.SelectedSizeOption = "square";
             Assert.Equal("square", vm.ImageSizeOrientation);
-            Assert.True(vm.IsSquare);
-            Assert.False(vm.IsVertical);
+            Assert.Equal("square", vm.SelectedSizeOption);
+            Assert.False(vm.IsCustomSize);
         }
 
         [Fact]
-        public void ImageSizeOrientation_Change_NotifiesIsVertical()
+        public void SelectedSizeOption_SetCustom_SetsIsCustomSizeTrue()
+        {
+            var vm = CreateVm();
+            vm.SelectedSizeOption = "custom";
+            Assert.True(vm.IsCustomSize);
+            Assert.Equal("custom", vm.SelectedSizeOption);
+        }
+
+        [Fact]
+        public void SelectedSizeOption_SwitchFromCustomToVertical_ClearsIsCustomSize()
+        {
+            var vm = CreateVm();
+            vm.SelectedSizeOption = "custom";
+            vm.SelectedSizeOption = "vertical";
+            Assert.False(vm.IsCustomSize);
+            Assert.Equal("vertical", vm.ImageSizeOrientation);
+        }
+
+        [Fact]
+        public void ImageSizeOrientation_Change_NotifiesSelectedSizeOption()
         {
             var vm = CreateVm();
             var changed = new List<string?>();
@@ -195,9 +242,19 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 
             vm.ImageSizeOrientation = "horizontal";
 
-            Assert.Contains("IsVertical", changed);
-            Assert.Contains("IsHorizontal", changed);
-            Assert.Contains("IsSquare", changed);
+            Assert.Contains("SelectedSizeOption", changed);
+        }
+
+        [Fact]
+        public void IsCustomSize_Change_NotifiesSelectedSizeOption()
+        {
+            var vm = CreateVm();
+            var changed = new List<string?>();
+            ((INotifyPropertyChanged)vm).PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+
+            vm.IsCustomSize = true;
+
+            Assert.Contains("SelectedSizeOption", changed);
         }
 
         // ── OnNavigatedToAsync ────────────────────────────────────────────────
@@ -290,7 +347,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         }
 
         [Fact]
-        public async Task OnNavigatedToAsync_ValidConfig_UpdatesPresetLabels()
+        public async Task OnNavigatedToAsync_ValidConfig_UpdatesSizeLabelList()
         {
             var setting = CreateSetting();
             setting.Data.ConfigPath = CreateConfigJson();
@@ -298,8 +355,47 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 
             await vm.OnNavigatedToAsync();
 
-            Assert.Contains("832", vm.VerticalLabel);
-            Assert.Contains("1216", vm.VerticalLabel);
+            var vertical = vm.SizeLabelList.ItemList.Single(o => o.Key == "vertical");
+            Assert.Contains("832", vertical.Label);
+            Assert.Contains("1216", vertical.Label);
+        }
+
+        [Fact]
+        public async Task OnNavigatedToAsync_ValidConfig_SizeLabelListHasFourOptions()
+        {
+            var setting = CreateSetting();
+            setting.Data.ConfigPath = CreateConfigJson();
+            var vm = CreateVm(setting);
+
+            await vm.OnNavigatedToAsync();
+
+            Assert.Equal(4, vm.SizeLabelList.ItemList.Count);
+        }
+
+        [Fact]
+        public async Task OnNavigatedToAsync_ValidConfig_SelectsVerticalByDefault()
+        {
+            var setting = CreateSetting();
+            setting.Data.ConfigPath = CreateConfigJson();
+            var vm = CreateVm(setting);
+
+            await vm.OnNavigatedToAsync();
+
+            Assert.Equal("vertical", vm.SelectedSizeOption);
+        }
+
+        [Fact]
+        public async Task SelectedWorkflow_ChangedTwice_SizeLabelListDoesNotAccumulateDuplicates()
+        {
+            var setting = CreateSetting();
+            setting.Data.ConfigPath = CreateMultiWorkflowConfigJson();
+            var vm = CreateVm(setting);
+            await vm.OnNavigatedToAsync();
+
+            vm.SelectedWorkflow = "anima";
+            vm.SelectedWorkflow = "sdxl";
+
+            Assert.Equal(4, vm.SizeLabelList.ItemList.Count);
         }
 
         // ── LoRA 操作 ─────────────────────────────────────────────────────────
