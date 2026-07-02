@@ -4,6 +4,7 @@ using ComfyUILibs.Models;
 using ComfyUILibs.Services;
 using ComfyUILibs.Ui;
 using ComfyUIRunWorkflow.Models;
+using ComfyUIRunWorkflow.Services;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Encodings.Web;
@@ -117,7 +118,23 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         [ObservableProperty]
         private bool _isRunning = false;
 
+        /// <summary>直近の実行で生成された出力ファイルのプレビュー一覧。</summary>
+        [ObservableProperty]
+        private ObservableCollection<OutputFilePreview> _previewThumbnails = new();
+
+        /// <summary>プレビューセクションを表示すべきかどうか（PreviewThumbnails が 1 件以上あるか）。</summary>
+        public bool HasPreviewThumbnails => PreviewThumbnails.Count > 0;
+
+        /// <summary>PreviewThumbnails が差し替えられたとき、派生プロパティ HasPreviewThumbnails を通知する。</summary>
+        partial void OnPreviewThumbnailsChanged(ObservableCollection<OutputFilePreview> value)
+            => OnPropertyChanged(nameof(HasPreviewThumbnails));
+
         // ── 内部状態 ─────────────────────────────────────────────────────────
+
+        /// <summary>プレビュー画像のキャッシュ先サブフォルダ名。</summary>
+        private const string PreviewCacheDirectoryName = "preview_cache";
+
+        private readonly PreviewImageLoader _previewLoader = new();
 
         private WorkflowConfig? _loadedConfig;
         private Dictionary<string, ImageSize> _presetSizes = new();
@@ -296,6 +313,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         private async Task RunWorkflowAsync()
         {
             IsRunning = true;
+            PreviewThumbnails = new ObservableCollection<OutputFilePreview>();
 
             WorkflowResult result;
             WorkflowRunner? runner = null;
@@ -349,6 +367,11 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                     new SymbolIcon(SymbolRegular.CheckmarkCircle24),
                     TimeSpan.FromSeconds(4.0)
                 );
+
+                var thumbnails = new ObservableCollection<OutputFilePreview>(
+                    outputs.Where(o => o.Type == "output").Select(o => new OutputFilePreview(o)));
+                PreviewThumbnails = thumbnails;
+                _ = LoadPreviewThumbnailsAsync(thumbnails, runner.PromptId);
             }
             catch (ComfyUIException ex)
             {
@@ -415,6 +438,30 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             catch
             {
                 // 保存失敗は実行結果に影響させない
+            }
+        }
+
+        /// <summary>
+        /// 実行直後のプレビューサムネイルを非同期に取得する。
+        /// ComfyUIUrl・ResultsFolder が未設定の場合は何もしない（テキスト表示のみになる）。
+        /// </summary>
+        private async Task LoadPreviewThumbnailsAsync(ObservableCollection<OutputFilePreview> thumbnails, string? promptId)
+        {
+            var url = Config.Data.ComfyUIUrl;
+            var resultsFolder = Config.Data.ResultsFolder;
+            if (string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(resultsFolder))
+                return;
+
+            var client = new ComfyUIClient(url);
+            var cacheDirectory = Path.Combine(resultsFolder, PreviewCacheDirectoryName);
+
+            try
+            {
+                await Task.WhenAll(thumbnails.Select(t => _previewLoader.LoadAsync(t, client, promptId, cacheDirectory)));
+            }
+            catch
+            {
+                // サムネイル取得失敗は実行結果表示に影響させない
             }
         }
     }

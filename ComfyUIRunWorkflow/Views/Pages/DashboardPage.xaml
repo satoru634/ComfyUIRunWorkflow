@@ -16,212 +16,308 @@
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     mc:Ignorable="d">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="16,8,16,16">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" MinWidth="380" />
+            <ColumnDefinition Width="340" />
+        </Grid.ColumnDefinitions>
 
-            <!-- タイトル -->
-            <TextBlock
-                Margin="0,0,0,12"
-                FontSize="20"
-                FontWeight="SemiBold"
-                Text="ワークフロー実行" />
+        <!-- 左: 設定フォーム（縦スクロール） -->
+        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="16,8,8,16">
 
-            <!-- ワークフロー選択 -->
-            <Border
-                Margin="0,0,0,8"
-                Padding="12"
-                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
-                BorderThickness="1"
-                CornerRadius="4">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <ui:SymbolIcon
-                        Grid.Column="0"
-                        Margin="0,0,8,0"
-                        VerticalAlignment="Center"
-                        Symbol="Flowchart24" />
-                    <TextBlock
-                        Grid.Column="1"
-                        VerticalAlignment="Center"
-                        FontSize="14"
-                        Text="ワークフロー" />
-                    <ComboBox
-                        Grid.Column="2"
-                        Width="200"
-                        IsEnabled="{Binding ViewModel.IsConfigLoaded}"
-                        ItemsSource="{Binding ViewModel.WorkflowNames, Mode=OneWay}"
-                        SelectedItem="{Binding ViewModel.SelectedWorkflow, Mode=TwoWay}" />
-                </Grid>
-            </Border>
+                <!-- タイトル -->
+                <TextBlock
+                    Margin="0,0,0,12"
+                    FontSize="20"
+                    FontWeight="SemiBold"
+                    Text="ワークフロー実行" />
 
-            <!-- プロンプト -->
-            <Border
-                Margin="0,0,0,8"
-                Padding="12"
-                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
-                BorderThickness="1"
-                CornerRadius="4">
-                <StackPanel>
-                    <TextBlock
-                        Margin="0,0,0,4"
-                        FontSize="13"
-                        FontWeight="Medium"
-                        Text="ポジティブプロンプト" />
-                    <ui:TextBox
-                        AcceptsReturn="True"
-                        Height="80"
-                        IsEnabled="{Binding ViewModel.IsConfigLoaded}"
-                        PlaceholderText="masterpiece, best quality, ..."
-                        Text="{Binding ViewModel.PositivePrompt, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        TextWrapping="Wrap"
-                        VerticalScrollBarVisibility="Auto" />
-                    <TextBlock
-                        Margin="0,8,0,4"
-                        FontSize="13"
-                        FontWeight="Medium"
-                        Text="ネガティブプロンプト" />
-                    <ui:TextBox
-                        AcceptsReturn="True"
-                        Height="60"
-                        IsEnabled="{Binding ViewModel.IsConfigLoaded}"
-                        PlaceholderText="worst quality, bad quality, ..."
-                        Text="{Binding ViewModel.NegativePrompt, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        TextWrapping="Wrap"
-                        VerticalScrollBarVisibility="Auto" />
-                </StackPanel>
-            </Border>
-
-            <!-- 画像サイズ -->
-            <Border
-                Margin="0,0,0,8"
-                Padding="12"
-                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
-                BorderThickness="1"
-                CornerRadius="4">
-                <StackPanel>
-                    <TextBlock
-                        Margin="0,0,0,8"
-                        FontSize="13"
-                        FontWeight="Medium"
-                        Text="画像サイズ" />
-                    <StackPanel
-                        Margin="0,8,0,0"
-                        Orientation="Horizontal">
+                <!-- ワークフロー選択 -->
+                <Border
+                    Margin="0,0,0,8"
+                    Padding="12"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:SymbolIcon
+                            Grid.Column="0"
+                            Margin="0,0,8,0"
+                            VerticalAlignment="Center"
+                            Symbol="Flowchart24" />
+                        <TextBlock
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            FontSize="14"
+                            Text="ワークフロー" />
                         <ComboBox
-                            Margin="0,0,8,0"
-                            Width="220"
-                            HorizontalAlignment="Left"
-                            DisplayMemberPath="Label"
-                            ItemsSource="{Binding ViewModel.SizeLabelList.ItemList}"
+                            Grid.Column="2"
+                            Width="200"
                             IsEnabled="{Binding ViewModel.IsConfigLoaded}"
-                            SelectedValue="{Binding ViewModel.SelectedSizeOption, Mode=TwoWay}"
-                            SelectedValuePath="Key" />
-                        <TextBlock
-                            Margin="0,0,8,0"
-                            VerticalAlignment="Center"
-                            Text="Width"
-                            Visibility="{Binding ViewModel.IsCustomSize, Converter={StaticResource BoolToVisibilityConverter}}" />
-                        <ui:NumberBox
-                            Width="160"
-                            Margin="0,0,16,0"
-                            Maximum="2048"
-                            Minimum="512"
-                            SpinButtonPlacementMode="Compact"
-                            Value="{Binding ViewModel.CustomWidth, Mode=TwoWay}"
-                            Visibility="{Binding ViewModel.IsCustomSize, Converter={StaticResource BoolToVisibilityConverter}}" />
-                        <TextBlock
-                            Margin="0,0,8,0"
-                            VerticalAlignment="Center"
-                            Text="Height"
-                            Visibility="{Binding ViewModel.IsCustomSize, Converter={StaticResource BoolToVisibilityConverter}}" />
-                        <ui:NumberBox
-                            Width="160"
-                            Maximum="2048"
-                            Minimum="512"
-                            SpinButtonPlacementMode="Compact"
-                            Value="{Binding ViewModel.CustomHeight, Mode=TwoWay}"
-                            Visibility="{Binding ViewModel.IsCustomSize, Converter={StaticResource BoolToVisibilityConverter}}" />
-                    </StackPanel>
-                </StackPanel>
-            </Border>
+                            ItemsSource="{Binding ViewModel.WorkflowNames, Mode=OneWay}"
+                            SelectedItem="{Binding ViewModel.SelectedWorkflow, Mode=TwoWay}" />
+                    </Grid>
+                </Border>
 
-            <!-- LoRA -->
-            <Border
-                Margin="0,0,0,8"
-                Padding="12"
-                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
-                BorderThickness="1"
-                CornerRadius="4">
-                <StackPanel>
-                    <TextBlock
-                        Margin="0,0,0,8"
-                        FontSize="13"
-                        FontWeight="Medium"
-                        Text="LoRA（0〜4個）" />
-                    <ItemsControl ItemsSource="{Binding ViewModel.LoraSlots}">
+                <!-- プロンプト -->
+                <Border
+                    Margin="0,0,0,8"
+                    Padding="12"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4">
+                    <StackPanel>
+                        <TextBlock
+                            Margin="0,0,0,4"
+                            FontSize="13"
+                            FontWeight="Medium"
+                            Text="ポジティブプロンプト" />
+                        <ui:TextBox
+                            AcceptsReturn="True"
+                            Height="80"
+                            IsEnabled="{Binding ViewModel.IsConfigLoaded}"
+                            PlaceholderText="masterpiece, best quality, ..."
+                            Text="{Binding ViewModel.PositivePrompt, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            TextWrapping="Wrap"
+                            VerticalScrollBarVisibility="Auto" />
+                        <TextBlock
+                            Margin="0,8,0,4"
+                            FontSize="13"
+                            FontWeight="Medium"
+                            Text="ネガティブプロンプト" />
+                        <ui:TextBox
+                            AcceptsReturn="True"
+                            Height="60"
+                            IsEnabled="{Binding ViewModel.IsConfigLoaded}"
+                            PlaceholderText="worst quality, bad quality, ..."
+                            Text="{Binding ViewModel.NegativePrompt, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            TextWrapping="Wrap"
+                            VerticalScrollBarVisibility="Auto" />
+                    </StackPanel>
+                </Border>
+
+                <!-- 画像サイズ -->
+                <Border
+                    Margin="0,0,0,8"
+                    Padding="12"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4">
+                    <StackPanel>
+                        <TextBlock
+                            Margin="0,0,0,8"
+                            FontSize="13"
+                            FontWeight="Medium"
+                            Text="画像サイズ" />
+                        <StackPanel
+                            Margin="0,8,0,0"
+                            Orientation="Horizontal">
+                            <ComboBox
+                                Margin="0,0,8,0"
+                                Width="220"
+                                HorizontalAlignment="Left"
+                                DisplayMemberPath="Label"
+                                ItemsSource="{Binding ViewModel.SizeLabelList.ItemList}"
+                                IsEnabled="{Binding ViewModel.IsConfigLoaded}"
+                                SelectedValue="{Binding ViewModel.SelectedSizeOption, Mode=TwoWay}"
+                                SelectedValuePath="Key" />
+                            <TextBlock
+                                Margin="0,0,8,0"
+                                VerticalAlignment="Center"
+                                Text="Width"
+                                Visibility="{Binding ViewModel.IsCustomSize, Converter={StaticResource BoolToVisibilityConverter}}" />
+                            <ui:NumberBox
+                                Width="160"
+                                Margin="0,0,16,0"
+                                Maximum="2048"
+                                Minimum="512"
+                                SpinButtonPlacementMode="Compact"
+                                Value="{Binding ViewModel.CustomWidth, Mode=TwoWay}"
+                                Visibility="{Binding ViewModel.IsCustomSize, Converter={StaticResource BoolToVisibilityConverter}}" />
+                            <TextBlock
+                                Margin="0,0,8,0"
+                                VerticalAlignment="Center"
+                                Text="Height"
+                                Visibility="{Binding ViewModel.IsCustomSize, Converter={StaticResource BoolToVisibilityConverter}}" />
+                            <ui:NumberBox
+                                Width="160"
+                                Maximum="2048"
+                                Minimum="512"
+                                SpinButtonPlacementMode="Compact"
+                                Value="{Binding ViewModel.CustomHeight, Mode=TwoWay}"
+                                Visibility="{Binding ViewModel.IsCustomSize, Converter={StaticResource BoolToVisibilityConverter}}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- LoRA -->
+                <Border
+                    Margin="0,0,0,8"
+                    Padding="12"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4">
+                    <StackPanel>
+                        <TextBlock
+                            Margin="0,0,0,8"
+                            FontSize="13"
+                            FontWeight="Medium"
+                            Text="LoRA（0〜4個）" />
+                        <ItemsControl ItemsSource="{Binding ViewModel.LoraSlots}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type models:LoraSlot}">
+                                    <StackPanel Margin="0,0,8,4" Orientation="Horizontal">
+                                        <ComboBox
+                                            Width="160"
+                                            IsEnabled="{Binding DataContext.ViewModel.IsConfigLoaded, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                                            ItemsSource="{Binding DataContext.ViewModel.AvailableLoras, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                                            SelectedItem="{Binding SelectedLora, Mode=TwoWay}" />
+                                        <ui:Button
+                                            Margin="4,0,0,0"
+                                            Padding="4,0"
+                                            Command="{Binding DataContext.ViewModel.RemoveLoraCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                                            CommandParameter="{Binding}"
+                                            Appearance="Danger"
+                                            Icon="{ui:SymbolIcon Dismiss12}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <ui:Button
+                            Margin="0,4,0,0"
+                            Command="{Binding ViewModel.AddLoraCommand}"
+                            Content="+ 追加"
+                            IsEnabled="{Binding ViewModel.IsConfigLoaded}"
+                            Appearance="Secondary" />
+                    </StackPanel>
+                </Border>
+
+                <!-- 実行ボタン・進捗 -->
+                <Border
+                    Padding="12"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4">
+                    <StackPanel>
+                        <ui:Button
+                            HorizontalAlignment="Left"
+                            Command="{Binding ViewModel.RunWorkflowCommand}"
+                            Content="実行"
+                            Appearance="Primary"
+                            Icon="{ui:SymbolIcon Play24}" />
+                        <ProgressBar
+                            Margin="0,8,0,0"
+                            Height="4"
+                            IsIndeterminate="True"
+                            Visibility="{Binding ViewModel.IsRunning, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- 右: 生成結果パネル（常時表示・内部スクロール） -->
+        <Border
+            Grid.Column="1"
+            Margin="0,8,16,16"
+            Padding="12"
+            Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1"
+            CornerRadius="4">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <TextBlock
+                    Grid.Row="0"
+                    Margin="0,0,0,8"
+                    FontSize="13"
+                    FontWeight="Medium"
+                    Text="生成結果" />
+
+                <!-- 未実行時のプレースホルダー -->
+                <TextBlock
+                    Grid.Row="1"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    FontSize="12"
+                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                    Text="実行すると&#x0a;ここに生成結果が表示されます"
+                    TextAlignment="Center"
+                    Visibility="{Binding ViewModel.HasPreviewThumbnails, Converter={StaticResource BoolToVisibilityInverseConverter}}" />
+
+                <ScrollViewer
+                    Grid.Row="1"
+                    VerticalScrollBarVisibility="Auto"
+                    Visibility="{Binding ViewModel.HasPreviewThumbnails, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <ItemsControl ItemsSource="{Binding ViewModel.PreviewThumbnails}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel />
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="{x:Type models:LoraSlot}">
-                                <StackPanel Margin="0,0,8,4" Orientation="Horizontal">
-                                    <ComboBox
-                                        Width="160"
-                                        IsEnabled="{Binding DataContext.ViewModel.IsConfigLoaded, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
-                                        ItemsSource="{Binding DataContext.ViewModel.AvailableLoras, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
-                                        SelectedItem="{Binding SelectedLora, Mode=TwoWay}" />
-                                    <ui:Button
-                                        Margin="4,0,0,0"
-                                        Padding="4,0"
-                                        Command="{Binding DataContext.ViewModel.RemoveLoraCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
-                                        CommandParameter="{Binding}"
-                                        Appearance="Danger"
-                                        Icon="{ui:SymbolIcon Dismiss12}" />
-                                </StackPanel>
+                            <DataTemplate DataType="{x:Type models:OutputFilePreview}">
+                                <Border
+                                    Width="140"
+                                    Height="140"
+                                    Margin="0,0,8,8"
+                                    Background="{DynamicResource ControlFillColorDefaultBrush}"
+                                    CornerRadius="4"
+                                    ToolTip="{Binding Output.Filename}">
+                                    <Grid>
+                                        <Image
+                                            Margin="4"
+                                            Source="{Binding Thumbnail}"
+                                            Stretch="Uniform"
+                                            Visibility="{Binding Thumbnail, Converter={StaticResource NullToVisibilityConverter}}" />
+                                        <ui:ProgressRing
+                                            Width="28"
+                                            Height="28"
+                                            IsIndeterminate="True"
+                                            Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                        <ui:SymbolIcon
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="28"
+                                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                            Symbol="ImageOff24"
+                                            Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                        <TextBlock
+                                            Margin="4"
+                                            VerticalAlignment="Bottom"
+                                            FontSize="11"
+                                            Text="{Binding Output.Filename}"
+                                            TextTrimming="CharacterEllipsis"
+                                            TextWrapping="Wrap"
+                                            Visibility="{Binding IsImage, Converter={StaticResource BoolToVisibilityInverseConverter}}" />
+                                    </Grid>
+                                </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                    <ui:Button
-                        Margin="0,4,0,0"
-                        Command="{Binding ViewModel.AddLoraCommand}"
-                        Content="+ 追加"
-                        IsEnabled="{Binding ViewModel.IsConfigLoaded}"
-                        Appearance="Secondary" />
-                </StackPanel>
-            </Border>
+                </ScrollViewer>
+            </Grid>
+        </Border>
 
-            <!-- 実行ボタン・進捗 -->
-            <Border
-                Padding="12"
-                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
-                BorderThickness="1"
-                CornerRadius="4">
-                <StackPanel>
-                    <ui:Button
-                        HorizontalAlignment="Left"
-                        Command="{Binding ViewModel.RunWorkflowCommand}"
-                        Content="実行"
-                        Appearance="Primary"
-                        Icon="{ui:SymbolIcon Play24}" />
-                    <ProgressBar
-                        Margin="0,8,0,0"
-                        Height="4"
-                        IsIndeterminate="True"
-                        Visibility="{Binding ViewModel.IsRunning, Converter={StaticResource BoolToVisibilityConverter}}" />
-                </StackPanel>
-            </Border>
-
-        </StackPanel>
-    </ScrollViewer>
+    </Grid>
 </Page>
