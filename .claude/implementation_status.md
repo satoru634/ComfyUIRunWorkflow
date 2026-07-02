@@ -1,9 +1,10 @@
 # 実装状況
 
-## 現在の状態（2026-06-29 時点）
+## 現在の状態（2026-07-02 時点）
 
 `ComfyUILibs` のフェーズ1実装が完了・master マージ済み。
-`ComfyUIRunWorkflow` のフェーズ2（GUI 実装）が `feature/phase2-gui` ブランチで完了。
+`ComfyUIRunWorkflow` のフェーズ2（GUI 実装）・フェーズ3（テンプレート配置）が完了・master マージ済み。
+フェーズ4（生成画像プレビュー表示）が `feature/preview-image` ブランチで実装中。
 
 ### 存在するファイル（テンプレート由来）
 
@@ -53,16 +54,18 @@
 - [x] `Services/WorkflowBuilder.cs` — テンプレート選択・書き換え（workflow_builder.py 移植）
 - [x] `Services/WorkflowRunner.cs` — 実行ファサード（WorkflowRunner 移植）
 - [x] `Services/Wd14TaggerRunner.cs` — WD14 Tagger（wd14_tagger_runner.py 移植）
+- [x] `Services/PreviewImageCacheService.cs` — 生成画像プレビューのローカルキャッシュ管理（フェーズ4）
 
 **テスト（ComfyUILibsTests）**
 - [x] `Exceptions/ComfyUIExceptionTests.cs` — ComfyUIException テスト
 - [x] `Services/ConfigLoaderTests.cs` — ConfigLoader テスト（38件）
-- [x] `Services/ComfyUIClientTests.cs` — ComfyUIClient テスト（9件、FakeHttpMessageHandler 使用）
+- [x] `Services/ComfyUIClientTests.cs` — ComfyUIClient テスト（13件、FakeHttpMessageHandler 使用、GetImageAsync 含む）
 - [x] `Services/WorkflowBuilderTests.cs` — WorkflowBuilder テスト（14件）
 - [x] `Services/WorkflowRunnerTests.cs` — WorkflowRunner テスト（9件、FakeComfyUIClient 使用）
 - [x] `Services/Wd14TaggerRunnerTests.cs` — Wd14TaggerRunner テスト（5件）
+- [x] `Services/PreviewImageCacheServiceTests.cs` — PreviewImageCacheService テスト（12件）
 
-合計テスト数: 120件（全パス）
+合計テスト数: 151件（全パス）
 
 ### フェーズ 2: ComfyUIRunWorkflow の GUI 実装（完了）
 
@@ -98,9 +101,35 @@
   - Python版の `run_workflow/templates/` をコピー（anima / anima_rapid / sdxl 各5ファイル + template_wd14_tagger.json）
   - csproj に `<Content Include="templates\**\*"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>` を追加
 
+### フェーズ 4: 生成画像プレビュー表示（`feature/preview-image` ブランチ、実装完了）
+
+**ComfyUILibs**
+- [x] `Services/IComfyUIClient.cs` / `ComfyUIClient.cs` — `GetImageAsync`（GET /view）を追加
+- [x] `Services/IPreviewImageCacheService.cs` / `PreviewImageCacheService.cs` — 画像判定・ローカルキャッシュ管理を新規実装
+
+**ComfyUIRunWorkflow**
+- [x] `Models/OutputFilePreview.cs` — 出力ファイル1件分のプレビュー状態（Thumbnail・IsLoading・HasError）
+- [x] `Models/WorkflowResultPreview.cs` — DataPage 一覧行ラッパー（WorkflowResult + サムネイル1枚）
+- [x] `Services/PreviewImageLoader.cs` — BitmapImage 読み込み（サムネイル/原寸）
+- [x] `ViewModels/Windows/ResultDetailViewModel.cs` — 詳細ダイアログの出力ファイル一覧・拡大表示コマンド
+- [x] `Views/Windows/ImagePreviewWindow.xaml` — 画像拡大表示ウィンドウ
+- [x] `ViewModels/Pages/DataViewModel.cs` / `Views/Pages/DataPage.xaml` — 一覧カードへのサムネイル追加
+- [x] `ViewModels/Pages/DashboardViewModel.cs` / `Views/Pages/DashboardPage.xaml` — 実行直後のプレビュー表示
+- [x] `Views/Windows/ResultDetailWindow.xaml` — 出力ファイル欄をサムネイル一覧＋拡大表示に変更
+
+キャッシュ先: `{ResultsFolder}/preview_cache/`（`GET /view` で取得した画像をファイルとして保存し、以降は再取得しない）
+
+**テスト**
+- [x] `ComfyUILibsTests/Services/PreviewImageCacheServiceTests.cs`（12件）
+- [x] `ComfyUIRunWorkflowTests/Models/OutputFilePreviewTests.cs`
+- [x] `ComfyUIRunWorkflowTests/Services/PreviewImageLoaderTests.cs`
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Windows/ResultDetailViewModelTests.cs`
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/DataViewModelTests.cs` — `Results` の型変更（`WorkflowResultPreview`）に追従
+
+合計テスト数: ComfyUILibsTests 151件 / ComfyUIRunWorkflowTests 121件（全パス）
+
 ### 将来的な拡張
 
 - C# 版 Discord ボット（ComfyUILibs を共用）
 - WD14 Tagger 専用ページ
 - 実行履歴の永続化（SQLite 等）
-- 生成画像のプレビュー表示
