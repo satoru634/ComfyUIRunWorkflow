@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <ApplicationIcon>wpfui-icon.ico</ApplicationIcon>
+    <ApplicationIcon>ComfyUIRunWorkflow_icon.ico</ApplicationIcon>
     <UseWPF>true</UseWPF>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="wpfui-icon.ico" />
+    <Content Include="ComfyUIRunWorkflow_icon.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,8 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Assets\wpfui-icon-256.png" />
-    <None Remove="Assets\wpfui-icon-1024.png" />
+    <None Remove="Assets\ComfyUIRunWorkflow_icon_256.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -40,8 +39,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Assets\wpfui-icon-256.png" />
-    <Resource Include="Assets\wpfui-icon-1024.png" />
+    <Resource Include="Assets\ComfyUIRunWorkflow_icon_16.png" />
+    <Resource Include="Assets\ComfyUIRunWorkflow_icon_32.png" />
+    <Resource Include="Assets\ComfyUIRunWorkflow_icon_48.png" />
+    <Resource Include="Assets\ComfyUIRunWorkflow_icon_64.png" />
+    <Resource Include="Assets\ComfyUIRunWorkflow_icon_128.png" />
+    <Resource Include="Assets\ComfyUIRunWorkflow_icon_256.png" />
   </ItemGroup>
 
 </Project>
