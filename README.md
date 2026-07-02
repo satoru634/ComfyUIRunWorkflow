@@ -6,6 +6,7 @@ ComfyUI のワークフローを GUI から実行するツール。[comfyui_tool
 
 - ワークフロー実行（プロンプト・LoRA・画像サイズを GUI で指定）
 - 実行結果の一覧表示と詳細確認
+- 生成画像のプレビュー表示（実行直後・一覧・詳細ダイアログ、クリックで拡大表示）
 - テーマ切り替え・接続設定の永続化
 
 ## 使い方
@@ -28,8 +29,11 @@ ComfyUI のワークフローを GUI から実行するツール。[comfyui_tool
 
 ### 結果確認
 
-- **Data** ページで実行履歴を一覧表示
-- 各行をクリックすると詳細ダイアログが開く
+- **Data** ページで実行履歴を一覧表示（サムネイル付き）
+- 各行をクリックすると詳細ダイアログが開き、出力ファイルのサムネイル一覧を表示
+- サムネイルをクリックすると原寸で拡大表示
+
+サムネイルは ComfyUI の `GET /view` API から取得し、`結果出力フォルダ/preview_cache/` にキャッシュされる（同じ画像は 2 回目以降サーバーへ再アクセスしない）。
 
 ## 技術スタック
 
@@ -46,7 +50,7 @@ ComfyUI のワークフローを GUI から実行するツール。[comfyui_tool
 ```
 ComfyUIRunWorkflow/   ← ソリューションルート
   ComfyUILibs/        ← 共有ライブラリ（サブモジュール）
-  ComfyUILibsTests/   ← ComfyUILibs テスト（120件）
+  ComfyUILibsTests/   ← ComfyUILibs テスト（151件）
   ComfyUIRunWorkflow/ ← WPF GUI プロジェクト
-  ComfyUIRunWorkflowTests/ ← GUI テスト（89件）
+  ComfyUIRunWorkflowTests/ ← GUI テスト（121件）
 ```
