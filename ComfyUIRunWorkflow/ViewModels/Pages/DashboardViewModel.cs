@@ -116,7 +116,16 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
         /// <summary>ワークフローを実行中かどうか。</summary>
         [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(RunWorkflowCommand))]
         private bool _isRunning = false;
+
+        /// <summary>バッチ数（1〜10）。指定回数だけワークフローを繰り返し実行する。</summary>
+        [ObservableProperty]
+        private int _batchCount = 1;
+
+        /// <summary>バッチ実行中の進捗テキスト（例: "2/5件目を実行中"）。バッチ数が1の場合は空文字。</summary>
+        [ObservableProperty]
+        private string _batchProgressText = "";
 
         /// <summary>直近の実行で生成された出力ファイルのプレビュー一覧。</summary>
         [ObservableProperty]
@@ -303,10 +312,14 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
         // ── ワークフロー実行 ──────────────────────────────────────────────────
 
-        private bool CanRun() => _loadedConfig != null && !string.IsNullOrWhiteSpace(PositivePrompt);
+        private bool CanRun() => _loadedConfig != null && !string.IsNullOrWhiteSpace(PositivePrompt) && !IsRunning;
+
+        /// <summary>バッチ実行中の進捗テキストを組み立てる（例: "2/5件目を実行中"）。</summary>
+        internal static string FormatBatchProgress(int current, int total) => $"{current}/{total}件目を実行中";
 
         /// <summary>
-        /// ワークフローを ComfyUI に送信して実行する。
+        /// ワークフローを ComfyUI に送信して実行する。BatchCount が2以上の場合は同じ内容で
+        /// 指定回数分を順番に実行し、結果を1件にまとめる（各回シードは自動で変わる）。
         /// 完了または失敗後、ResultsFolder に result_*.json を保存する。
         /// </summary>
         [RelayCommand(CanExecute = nameof(CanRun))]
@@ -314,6 +327,13 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         {
             IsRunning = true;
             PreviewThumbnails = new ObservableCollection<OutputFilePreview>();
+            BatchProgressText = "";
+
+            var totalBatches = Math.Max(1, BatchCount);
+            var allOutputs = new List<OutputFile>();
+            string? lastSuccessPromptId = null;
+            string? lastSuccessTemplatePath = null;
+            WorkflowParameters? lastSuccessParameters = null;
 
             WorkflowResult result;
             WorkflowRunner? runner = null;
@@ -347,19 +367,42 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                     imageSize = null;
                 }
 
-                var outputs = await runner.ExecuteAsync(loras, prompts, imageSize);
+                for (int i = 1; i <= totalBatches; i++)
+                {
+                    BatchProgressText = totalBatches > 1 ? FormatBatchProgress(i, totalBatches) : "";
+
+                    var outputs = await runner.ExecuteAsync(loras, prompts, imageSize);
+
+                    allOutputs.AddRange(outputs);
+                    lastSuccessPromptId = runner.PromptId;
+                    lastSuccessTemplatePath = runner.TemplatePath;
+                    lastSuccessParameters = runner.Parameters;
+
+                    var newThumbnails = outputs
+                        .Where(o => o.Type == "output")
+                        .Select(o => new OutputFilePreview(o))
+                        .ToList();
+                    foreach (var thumbnail in newThumbnails)
+                        PreviewThumbnails.Add(thumbnail);
+                    // PreviewThumbnails への Add は再代入ではないため OnPreviewThumbnailsChanged が発火しない。
+                    // 派生プロパティ HasPreviewThumbnails を手動で再通知し、右パネルの表示切り替えを反映させる。
+                    if (newThumbnails.Count > 0)
+                        OnPropertyChanged(nameof(HasPreviewThumbnails));
+                    _ = LoadPreviewThumbnailsAsync(
+                        new ObservableCollection<OutputFilePreview>(newThumbnails), runner.PromptId);
+                }
 
                 result = new WorkflowResult
                 {
                     Status = "success",
-                    PromptId = runner.PromptId,
+                    PromptId = lastSuccessPromptId,
                     Timestamp = DateTime.Now.ToString("s"),
-                    Template = runner.TemplatePath,
-                    Parameters = runner.Parameters ?? new WorkflowParameters(),
-                    Outputs = outputs,
+                    Template = lastSuccessTemplatePath,
+                    Parameters = lastSuccessParameters ?? new WorkflowParameters(),
+                    Outputs = allOutputs,
                 };
 
-                int count = outputs.FindAll(o => o.Type == "output").Count;
+                int count = allOutputs.FindAll(o => o.Type == "output").Count;
                 _snackbarService.Show(
                     "完了",
                     $"{count} 件のファイルが生成されました",
@@ -367,20 +410,17 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                     new SymbolIcon(SymbolRegular.CheckmarkCircle24),
                     TimeSpan.FromSeconds(4.0)
                 );
-
-                var thumbnails = new ObservableCollection<OutputFilePreview>(
-                    outputs.Where(o => o.Type == "output").Select(o => new OutputFilePreview(o)));
-                PreviewThumbnails = thumbnails;
-                _ = LoadPreviewThumbnailsAsync(thumbnails, runner.PromptId);
             }
             catch (ComfyUIException ex)
             {
                 result = new WorkflowResult
                 {
                     Status = "error",
+                    PromptId = lastSuccessPromptId,
                     Timestamp = DateTime.Now.ToString("s"),
-                    Template = runner?.TemplatePath,
-                    Parameters = runner?.Parameters ?? new WorkflowParameters(),
+                    Template = lastSuccessTemplatePath ?? runner?.TemplatePath,
+                    Parameters = lastSuccessParameters ?? runner?.Parameters ?? new WorkflowParameters(),
+                    Outputs = allOutputs,
                     Error = ex.Message,
                 };
 
@@ -397,8 +437,11 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                 result = new WorkflowResult
                 {
                     Status = "error",
+                    PromptId = lastSuccessPromptId,
                     Timestamp = DateTime.Now.ToString("s"),
-                    Parameters = new WorkflowParameters(),
+                    Template = lastSuccessTemplatePath,
+                    Parameters = lastSuccessParameters ?? new WorkflowParameters(),
+                    Outputs = allOutputs,
                     Error = ex.Message,
                 };
 
@@ -413,6 +456,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             finally
             {
                 IsRunning = false;
+                BatchProgressText = "";
             }
 
             await TrySaveResultAsync(result);
