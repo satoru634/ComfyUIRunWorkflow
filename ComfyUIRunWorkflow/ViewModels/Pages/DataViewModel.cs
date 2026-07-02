@@ -68,7 +68,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
             if (!Directory.Exists(folder))
             {
-                StatusMessage = $"フォルダが見つかりません: {folder}";
+                StatusMessage = $"フォルダが見つかりません:\n{folder}";
                 Results = new ObservableCollection<WorkflowResult>();
                 return;
             }
