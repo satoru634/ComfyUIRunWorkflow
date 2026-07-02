@@ -113,7 +113,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
             await vm.OnNavigatedToAsync();
 
             Assert.Single(vm.Results);
-            Assert.Equal("success", vm.Results[0].Status);
+            Assert.Equal("success", vm.Results[0].Result.Status);
         }
 
         [Fact]
