@@ -5,7 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-    xmlns:helper="clr-namespace:ComfyUIRunWorkflow.Helpers"
+    xmlns:wpfModels="clr-namespace:ComfyUIRunWorkflow.Models"
     Title="実行結果詳細"
     Width="600"
     MinWidth="480"
@@ -19,10 +19,6 @@
     WindowBackdropType="Mica"
     WindowCornerPreference="Round"
     mc:Ignorable="d">
-
-    <ui:FluentWindow.Resources>
-        <helper:FileTypeToVisibilityConverter x:Key="FileTypeToVisibilityConverter"/>
-    </ui:FluentWindow.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -47,10 +43,10 @@
                     <Border.Style>
                         <Style TargetType="Border">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding Status}" Value="success">
+                                <DataTrigger Binding="{Binding Result.Status}" Value="success">
                                     <Setter Property="Background" Value="{DynamicResource SystemFillColorSuccessBackgroundBrush}" />
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding Status}" Value="error">
+                                <DataTrigger Binding="{Binding Result.Status}" Value="error">
                                     <Setter Property="Background" Value="{DynamicResource SystemFillColorCriticalBackgroundBrush}" />
                                 </DataTrigger>
                             </Style.Triggers>
@@ -60,12 +56,12 @@
                         <TextBlock FontSize="15" FontWeight="SemiBold">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Status}" Value="success">
+                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Result.Status}" Value="success">
                                             <Setter Property="Text" Value="✓ 成功" />
                                             <Setter Property="Foreground" Value="{DynamicResource SystemFillColorSuccessBrush}" />
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding Status}" Value="error">
+                                        <DataTrigger Binding="{Binding Result.Status}" Value="error">
                                             <Setter Property="Text" Value="✗ エラー" />
                                             <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCriticalBrush}" />
                                         </DataTrigger>
@@ -77,7 +73,7 @@
                             Margin="0,2,0,0"
                             FontSize="12"
                             Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                            Text="{Binding Timestamp}" />
+                            Text="{Binding Result.Timestamp}" />
                     </StackPanel>
                 </Border>
 
@@ -87,11 +83,11 @@
                     Padding="10"
                     Background="{DynamicResource SystemFillColorCriticalBackgroundBrush}"
                     CornerRadius="4"
-                    Visibility="{Binding Error, Converter={StaticResource NullToVisibilityConverter}}">
+                    Visibility="{Binding Result.Error, Converter={StaticResource NullToVisibilityConverter}}">
                     <TextBlock
                         FontSize="13"
                         Foreground="{DynamicResource SystemFillColorCriticalBrush}"
-                        Text="{Binding Error}"
+                        Text="{Binding Result.Error}"
                         TextWrapping="Wrap" />
                 </Border>
 
@@ -106,7 +102,7 @@
                     FontSize="12"
                     IsReadOnly="True"
                     MaxHeight="100"
-                    Text="{Binding Parameters.Positive, Mode=OneWay}"
+                    Text="{Binding Result.Parameters.Positive, Mode=OneWay}"
                     TextWrapping="Wrap"
                     VerticalScrollBarVisibility="Auto" />
 
@@ -120,7 +116,7 @@
                     FontSize="12"
                     IsReadOnly="True"
                     MaxHeight="80"
-                    Text="{Binding Parameters.Negative, Mode=OneWay}"
+                    Text="{Binding Result.Parameters.Negative, Mode=OneWay}"
                     TextWrapping="Wrap"
                     VerticalScrollBarVisibility="Auto" />
 
@@ -135,8 +131,8 @@
                     FontSize="13">
                     <TextBlock.Text>
                         <MultiBinding StringFormat="{}{0} × {1}">
-                            <Binding Path="Parameters.ImageSize.Width" />
-                            <Binding Path="Parameters.ImageSize.Height" />
+                            <Binding Path="Result.Parameters.ImageSize.Width" />
+                            <Binding Path="Result.Parameters.ImageSize.Height" />
                         </MultiBinding>
                     </TextBlock.Text>
                 </TextBlock>
@@ -149,7 +145,7 @@
                     Text="LoRA" />
                 <ItemsControl
                     Margin="0,0,0,12"
-                    ItemsSource="{Binding Parameters.Loras}">
+                    ItemsSource="{Binding Result.Parameters.Loras}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <TextBlock FontSize="13">
@@ -171,13 +167,56 @@
                     FontSize="13"
                     FontWeight="Medium"
                     Text="出力ファイル" />
-                <ItemsControl ItemsSource="{Binding Outputs}">
+                <ItemsControl ItemsSource="{Binding Previews}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock
-                                FontSize="13"
-                                Visibility="{Binding Type, Converter={StaticResource FileTypeToVisibilityConverter}}"
-                                Text="{Binding Filename}" />
+                        <DataTemplate DataType="{x:Type wpfModels:OutputFilePreview}">
+                            <Border
+                                Width="96"
+                                Height="96"
+                                Margin="0,0,8,8"
+                                Background="{DynamicResource ControlFillColorDefaultBrush}"
+                                CornerRadius="4"
+                                Cursor="Hand"
+                                ToolTip="{Binding Output.Filename}">
+                                <Border.InputBindings>
+                                    <MouseBinding
+                                        Command="{Binding DataContext.OpenEnlargedCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                        CommandParameter="{Binding}"
+                                        MouseAction="LeftClick" />
+                                </Border.InputBindings>
+                                <Grid>
+                                    <Image
+                                        Margin="4"
+                                        Source="{Binding Thumbnail}"
+                                        Stretch="Uniform"
+                                        Visibility="{Binding Thumbnail, Converter={StaticResource NullToVisibilityConverter}}" />
+                                    <ui:ProgressRing
+                                        Width="24"
+                                        Height="24"
+                                        IsIndeterminate="True"
+                                        Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                    <ui:SymbolIcon
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="24"
+                                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                        Symbol="ImageOff24"
+                                        Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                    <TextBlock
+                                        Margin="4"
+                                        VerticalAlignment="Bottom"
+                                        FontSize="11"
+                                        Text="{Binding Output.Filename}"
+                                        TextTrimming="CharacterEllipsis"
+                                        TextWrapping="Wrap"
+                                        Visibility="{Binding IsImage, Converter={StaticResource BoolToVisibilityInverseConverter}}" />
+                                </Grid>
+                            </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
