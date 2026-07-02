@@ -9,7 +9,7 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Title="DashboardPage"
     d:DataContext="{d:DesignInstance local:DashboardPage, IsDesignTimeCreatable=False}"
-    d:DesignHeight="700"
+    d:DesignHeight="800"
     d:DesignWidth="1000"
     ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
     ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
@@ -215,17 +215,35 @@
                     BorderThickness="1"
                     CornerRadius="4">
                     <StackPanel>
-                        <ui:Button
-                            HorizontalAlignment="Left"
-                            Command="{Binding ViewModel.RunWorkflowCommand}"
-                            Content="実行"
-                            Appearance="Primary"
-                            Icon="{ui:SymbolIcon Play24}" />
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock
+                                Margin="0,0,8,0"
+                                VerticalAlignment="Center"
+                                Text="バッチ数" />
+                            <ui:NumberBox
+                                Width="120"
+                                Margin="0,0,8,0"
+                                Maximum="10"
+                                Minimum="1"
+                                SpinButtonPlacementMode="Compact"
+                                Value="{Binding ViewModel.BatchCount, Mode=TwoWay}" />
+                            <ui:Button
+                                Command="{Binding ViewModel.RunWorkflowCommand}"
+                                Content="実行"
+                                Appearance="Primary"
+                                Icon="{ui:SymbolIcon Play24}" />
+                        </StackPanel>
                         <ProgressBar
                             Margin="0,8,0,0"
                             Height="4"
                             IsIndeterminate="True"
                             Visibility="{Binding ViewModel.IsRunning, Converter={StaticResource BoolToVisibilityConverter}}" />
+                        <TextBlock
+                            Margin="0,4,0,0"
+                            FontSize="12"
+                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                            Text="{Binding ViewModel.BatchProgressText}"
+                            Visibility="{Binding ViewModel.BatchProgressText, Converter={StaticResource NullToVisibilityConverter}}" />
                     </StackPanel>
                 </Border>
 

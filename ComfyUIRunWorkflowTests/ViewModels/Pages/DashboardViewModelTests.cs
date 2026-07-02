@@ -486,5 +486,30 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 
             Assert.True(vm.RunWorkflowCommand.CanExecute(null));
         }
+
+        // ── バッチ数 ─────────────────────────────────────────────────────────
+
+        [Fact]
+        public void BatchCount_DefaultsToOne()
+        {
+            var vm = CreateVm();
+            Assert.Equal(1, vm.BatchCount);
+        }
+
+        [Fact]
+        public void BatchProgressText_DefaultsToEmpty()
+        {
+            var vm = CreateVm();
+            Assert.Equal("", vm.BatchProgressText);
+        }
+
+        [Theory]
+        [InlineData(1, 5, "1/5件目を実行中")]
+        [InlineData(3, 5, "3/5件目を実行中")]
+        [InlineData(1, 1, "1/1件目を実行中")]
+        public void FormatBatchProgress_ReturnsExpectedText(int current, int total, string expected)
+        {
+            Assert.Equal(expected, DashboardViewModel.FormatBatchProgress(current, total));
+        }
     }
 }

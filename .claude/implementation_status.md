@@ -1,10 +1,10 @@
 # 実装状況
 
-## 現在の状態（2026-07-02 時点）
+## 現在の状態（2026-07-03 時点）
 
 `ComfyUILibs` のフェーズ1実装が完了・master マージ済み。
-`ComfyUIRunWorkflow` のフェーズ2（GUI 実装）・フェーズ3（テンプレート配置）が完了・master マージ済み。
-フェーズ4（生成画像プレビュー表示）が `feature/preview-image` ブランチで実装中。
+`ComfyUIRunWorkflow` のフェーズ2（GUI 実装）・フェーズ3（テンプレート配置）・フェーズ4（生成画像プレビュー表示）が完了・master マージ済み。
+フェーズ5（バッチ数指定）が `feature/batch-count` ブランチで実装中。
 
 ### 存在するファイル（テンプレート由来）
 
@@ -127,6 +127,30 @@
 - [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/DataViewModelTests.cs` — `Results` の型変更（`WorkflowResultPreview`）に追従
 
 合計テスト数: ComfyUILibsTests 151件 / ComfyUIRunWorkflowTests 121件（全パス）
+
+### フェーズ 5: バッチ数指定（`feature/batch-count` ブランチ、実装完了）
+
+ComfyUI Web 画面の「バッチ数」と同様、指定回数だけワークフロー実行をキューへ繰り返し送信する機能。
+`EmptyLatentImage.batch_size` は変更せず、`WorkflowRunner.ExecuteAsync` を順番に複数回呼び出す方式で実装（各回シードは既存仕様通り自動採番）。
+
+**ComfyUIRunWorkflow**
+- [x] `ViewModels/Pages/DashboardViewModel.cs`
+  - `BatchCount`（int, 既定 1, 1〜10 を想定）・`BatchProgressText`（例: "2/5件目を実行中"）プロパティを追加
+  - `RunWorkflowAsync` を `BatchCount` 回のループに変更。各回の出力・プレビューサムネイルを累積し、result_*.json は1件にまとめて保存
+  - 途中で `ComfyUIException` が発生した場合はその時点で中断し、成功済み分の出力を含めたエラー結果を保存
+  - 進捗テキスト生成ロジックを `FormatBatchProgress(int, int)`（internal static）として切り出し、単体テスト可能にした
+- [x] `Views/Pages/DashboardPage.xaml` — 実行ボタン左に「バッチ数」`ui:NumberBox`（Minimum=1, Maximum=10）を配置、ProgressBar 下に進捗テキストを表示
+- [x] 実行中の二重実行防止のため `CanRun()` に `!IsRunning` を追加（`IsRunning` に `NotifyCanExecuteChangedFor` を付与）
+
+**実装後に発覚した不具合の修正**
+- [x] `PreviewThumbnails` へのバッチ毎の `Add` が `HasPreviewThumbnails`（右パネルの表示切り替え）の再通知に繋がらず、生成結果が表示されない不具合を修正（`Add` 後に `OnPropertyChanged(nameof(HasPreviewThumbnails))` を明示的に呼び出す）
+- [x] `WorkflowRunner.ExecuteAsync`：`MonitorAsync` の完了検知直後は ComfyUI 側の history 反映がわずかに遅延し `GetOutputsAsync` が空リストを返すことがあり、バッチ実行時に出力件数が欠落する不具合を修正（300ms 間隔で最大3回リトライ）
+
+**テスト**
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/DashboardViewModelTests.cs` — `BatchCount`/`BatchProgressText` 既定値、`FormatBatchProgress` のテストを追加
+- [x] `ComfyUILibsTests/Services/WorkflowRunnerTests.cs` — outputs 空リトライの成功/リトライ上限到達のテストを追加
+
+合計テスト数: ComfyUILibsTests 153件 / ComfyUIRunWorkflowTests 126件（全パス）
 
 ### 将来的な拡張
 
