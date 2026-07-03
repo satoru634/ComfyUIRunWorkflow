@@ -49,7 +49,7 @@
 
 **Services**
 - [x] `Services/IComfyUIClient.cs` — ComfyUIClient インターフェース（テスト用 DI 対応）
-- [x] `Services/ConfigLoader.cs` — config.json ロード・バリデーション（load_files.py 移植）
+- [x] `Services/ConfigLoader.cs` — workflow_config.json ロード・バリデーション（load_files.py 移植）
 - [x] `Services/ComfyUIClient.cs` — REST API + WebSocket クライアント（comfyui_client.py 移植）
 - [x] `Services/WorkflowBuilder.cs` — テンプレート選択・書き換え（workflow_builder.py 移植）
 - [x] `Services/WorkflowRunner.cs` — 実行ファサード（WorkflowRunner 移植）

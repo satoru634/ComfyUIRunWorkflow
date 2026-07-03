@@ -15,7 +15,7 @@ ComfyUIRunWorkflow/                     <- ソリューションルート
       Exceptions/                       <- 独自例外クラス群
         ComfyUIException.cs             <- 基底例外クラス
       Models/                           <- データモデル（WorkflowConfig, WorkflowInput, 等）
-        WorkflowConfig.cs               <- config.json モデル（ImageSize, LoraEntry, WorkflowSettings, Wd14TaggerConfig, WorkflowConfig）
+        WorkflowConfig.cs               <- workflow_config.json モデル（ImageSize, LoraEntry, WorkflowSettings, Wd14TaggerConfig, WorkflowConfig）
         WorkflowInput.cs                <- 入力 JSON モデル（PromptPair, WorkflowInput）
         WorkflowResult.cs               <- 結果モデル（OutputFile, WorkflowParameters, WorkflowResult）
         ResolvedLora.cs                 <- LoRA 解決済みエントリ

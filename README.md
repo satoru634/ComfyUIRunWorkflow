@@ -16,7 +16,7 @@ ComfyUI のワークフローを GUI から実行するツール。[comfyui_tool
 
 1. アプリを起動し、**設定**ページを開く
 2. **ComfyUI URL** を入力（デフォルト: `http://127.0.0.1:8188`）
-3. **config.json パス** で `config.json` ファイルを選択
+3. **workflow_config.json パス** で `workflow_config.json` ファイルを選択
 4. **結果出力フォルダ** で結果 JSON の保存先を選択
 
 ### ワークフロー実行

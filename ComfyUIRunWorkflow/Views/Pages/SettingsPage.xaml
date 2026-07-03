@@ -123,13 +123,13 @@
                         Grid.Column="1"
                         VerticalAlignment="Center"
                         FontSize="14"
-                        Text="config.json パス" />
+                        Text="workflow_config.json パス" />
                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                         <ui:TextBox
                             Width="506"
                             Height="36"
                             Margin="0,0,4,0"
-                            PlaceholderText="C:\...\config.json"
+                            PlaceholderText="C:\...\workflow_config.json"
                             IsReadOnly="True"
                             Text="{Binding ViewModel.Config.Data.ConfigPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         <ui:Button

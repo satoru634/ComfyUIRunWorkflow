@@ -58,7 +58,7 @@ namespace ComfyUIRunWorkflow.Models
         [ObservableProperty]
         private string _comfyUIUrl = "http://127.0.0.1:8188";
 
-        /// <summary>ワークフロー設定ファイル（config.json）のパス。</summary>
+        /// <summary>ワークフロー設定ファイル（workflow_config.json）のパス。</summary>
         [ObservableProperty]
         private string _configPath = "";
 

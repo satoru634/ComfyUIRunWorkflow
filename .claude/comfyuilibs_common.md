@@ -28,7 +28,7 @@ JSON の読み書きを担う静的ユーティリティ。全メソッドに共
 
 ```csharp
 // 型付きモデルの読み込み（ConfigLoader 等で使用）
-var config = JsonLoader.ReadJson<AppConfig>("config.json");
+var config = JsonLoader.ReadJson<AppConfig>("workflow_config.json");
 
 // 型付きモデルの書き込み（結果保存等で使用）
 JsonLoader.WriteJson("result.json", workflowResult);
@@ -85,7 +85,7 @@ appSettings.Save();
 
 | シナリオ | 使用するクラス |
 |---|---|
-| `config.json` のロード・バリデーション（`ConfigLoader`内） | `JsonLoader.ReadJson<AppConfig>()` |
+| `workflow_config.json` のロード・バリデーション（`ConfigLoader`内） | `JsonLoader.ReadJson<AppConfig>()` |
 | GUI アプリ独自設定（URL 保存等）の永続化 | `Setting<T>` |
 | ワークフローテンプレート JSON の読み込み（`WorkflowBuilder`内） | `JsonNode.Parse(File.ReadAllText(...))` を直接使用 |
 | 実行結果 JSON の書き出し | `JsonLoader.WriteJson<WorkflowResult>()` |
