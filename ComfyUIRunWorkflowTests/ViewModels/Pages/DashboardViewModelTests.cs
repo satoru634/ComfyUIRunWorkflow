@@ -53,7 +53,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 
         private string CreateConfigJson()
         {
-            var configPath = Path.Combine(_tempDir, "config.json");
+            var configPath = Path.Combine(_tempDir, "workflow_config.json");
             var json = """
                 {
                   "comfyui_url": "http://127.0.0.1:8188",
@@ -79,7 +79,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 
         private string CreateMultiWorkflowConfigJson()
         {
-            var configPath = Path.Combine(_tempDir, "config.json");
+            var configPath = Path.Combine(_tempDir, "workflow_config.json");
             var json = """
                 {
                   "comfyui_url": "http://127.0.0.1:8188",

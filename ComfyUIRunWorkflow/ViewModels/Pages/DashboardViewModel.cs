@@ -29,7 +29,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
         // ── config 読み込み状態 ───────────────────────────────────────────────
 
-        /// <summary>config.json から読み込んだワークフロー名の一覧。</summary>
+        /// <summary>workflow_config.json から読み込んだワークフロー名の一覧。</summary>
         [ObservableProperty]
         private List<string> _workflowNames = new();
 
@@ -165,7 +165,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
         // ── INavigationAware ─────────────────────────────────────────────────
 
-        /// <summary>ページへ遷移するたびに config.json を再読み込みする。</summary>
+        /// <summary>ページへ遷移するたびに workflow_config.json を再読み込みする。</summary>
         public Task OnNavigatedToAsync()
         {
             TryLoadConfig();
@@ -178,7 +178,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         // ── config 読み込み ───────────────────────────────────────────────────
 
         /// <summary>
-        /// 設定ページで指定された ConfigPath から config.json を読み込む。
+        /// 設定ページで指定された ConfigPath から workflow_config.json を読み込む。
         /// 失敗した場合はスナックバーでエラーメッセージを表示する。
         /// </summary>
         private void TryLoadConfig()
@@ -193,7 +193,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
                 _snackbarService.Show(
                     "Error",
-                    "設定ページで config.json のパスを指定してください。",
+                    "設定ページで workflow_config.json のパスを指定してください。",
                     ControlAppearance.Danger,
                     new SymbolIcon(SymbolRegular.ErrorCircle24),
                     TimeSpan.FromSeconds(3.0)
@@ -224,7 +224,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
                 _snackbarService.Show(
                     "Error",
-                    $"config.json 読み込みエラー: {ex.Message}",
+                    $"workflow_config.json 読み込みエラー: {ex.Message}",
                     ControlAppearance.Danger,
                     new SymbolIcon(SymbolRegular.ErrorCircle24),
                     TimeSpan.FromSeconds(3.0)

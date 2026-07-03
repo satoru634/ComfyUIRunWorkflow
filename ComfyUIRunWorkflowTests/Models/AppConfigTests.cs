@@ -224,7 +224,7 @@ namespace ComfyUIRunWorkflowTests.Models
             var changed = new List<string?>();
             ((INotifyPropertyChanged)config).PropertyChanged += (_, e) => changed.Add(e.PropertyName);
 
-            config.ConfigPath = "C:\\config.json";
+            config.ConfigPath = "C:\\workflow_config.json";
 
             Assert.Contains("ConfigPath", changed);
         }

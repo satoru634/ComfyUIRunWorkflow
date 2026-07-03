@@ -73,13 +73,13 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
         // ── ファイル参照コマンド ──────────────────────────────────────────────
 
-        /// <summary>config.json のファイル選択ダイアログを開く。</summary>
+        /// <summary>workflow_config.json のファイル選択ダイアログを開く。</summary>
         [RelayCommand]
         private void BrowseConfigPath()
         {
             var dialog = new OpenFileDialog
             {
-                Title = "config.json を選択",
+                Title = "workflow_config.json を選択",
                 Filter = "JSON ファイル|*.json|すべてのファイル|*.*",
             };
 
