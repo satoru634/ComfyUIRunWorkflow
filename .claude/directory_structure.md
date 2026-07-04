@@ -19,6 +19,7 @@ ComfyUIRunWorkflow/                     <- ソリューションルート
         WorkflowInput.cs                <- 入力 JSON モデル（PromptPair, WorkflowInput）
         WorkflowResult.cs               <- 結果モデル（OutputFile, WorkflowParameters, WorkflowResult）
         ResolvedLora.cs                 <- LoRA 解決済みエントリ
+        TagResult.cs                    <- WD14 Tagger 実行結果モデル（tag_result_*.json 用）
       Services/                         <- ComfyUI API 通信・ワークフロー制御ロジック
         IComfyUIClient.cs               <- ComfyUIClient インターフェース（DI / テスト用、GetImageAsync を含む）
         ComfyUIClient.cs                <- comfyui_client.py の移植（GET /view による画像取得を含む）
@@ -45,6 +46,8 @@ ComfyUIRunWorkflow/                     <- ソリューションルート
       WorkflowRunnerTests.cs            <- WorkflowRunner テスト（9件、FakeComfyUIClient 使用）
       Wd14TaggerRunnerTests.cs          <- Wd14TaggerRunner テスト（5件）
       PreviewImageCacheServiceTests.cs  <- PreviewImageCacheService テスト（12件）
+    Models/
+      TagResultTests.cs                <- TagResult テスト（3件）
   ComfyUIRunWorkflow/                   <- メイン WPF プロジェクト（GUI のみ）
     Models/
       AppConfig.cs                      <- アプリ設定（ウィンドウ状態・ComfyUIUrl・ConfigPath・ResultsFolder）
@@ -56,6 +59,7 @@ ComfyUIRunWorkflow/                     <- ソリューションルート
       DashboardViewModel.cs             <- ワークフロー実行 VM（ConfigLoader + WorkflowRunner 使用、実行直後のプレビュー表示を含む）
       SettingsViewModel.cs              <- 設定 VM（テーマ・URL・パス管理）
       DataViewModel.cs                  <- 実行結果一覧 VM（result_*.json 読み込み、サムネイル非同期取得）
+      TaggerViewModel.cs                <- WD14 Tagger VM（画像選択・タグ付け実行・tag_result_*.json 保存）
     ViewModels/Windows/
       MainWindowViewModel.cs            <- ナビゲーション定義・ウィンドウ状態保存
       ResultDetailViewModel.cs          <- 実行結果詳細ダイアログ VM（出力ファイルごとのサムネイル取得・拡大表示コマンド）
@@ -63,13 +67,14 @@ ComfyUIRunWorkflow/                     <- ソリューションルート
       DashboardPage.xaml                <- ワークフロー実行 UI（生成結果プレビューを含む）
       SettingsPage.xaml                 <- 設定 UI
       DataPage.xaml                     <- 実行結果一覧 UI（サムネイル付き）
+      TaggerPage.xaml                   <- WD14 Tagger UI（画像選択・ドラッグ&ドロップ・タグ結果表示/コピー）
     Views/Windows/
       MainWindow.xaml                   <- ナビゲーションホスト
       ResultDetailWindow.xaml           <- 実行結果詳細ダイアログ（出力ファイルのサムネイル一覧）
       ImagePreviewWindow.xaml           <- 生成画像の拡大表示ウィンドウ
     Helpers/
       EnumToBooleanConverter.cs         <- テーマ切り替え用列挙型コンバーター
-      BoolToVisibilityConverter.cs      <- bool→Visibility・逆変換・null→Visibility コンバーター
+      BoolToVisibilityConverter.cs      <- bool→Visibility・逆変換・null→Visibility・null→Visibility逆変換 コンバーター
     Services/
       ApplicationHostService.cs         <- 起動時ウィンドウ表示
       PreviewImageLoader.cs             <- サムネイル/原寸画像の BitmapImage 読み込み（PreviewImageCacheService に委譲）
