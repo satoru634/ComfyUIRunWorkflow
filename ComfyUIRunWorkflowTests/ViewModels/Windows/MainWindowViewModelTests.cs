@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.ExceptionServices;
 using ComfyUILibs.Common;
+using ComfyUIRunWorkflow.Helpers;
 using ComfyUIRunWorkflow.Models;
 using ComfyUIRunWorkflow.ViewModels.Windows;
 using ComfyUIRunWorkflow.Views.Pages;
@@ -99,7 +100,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Windows
                 var vm = new MainWindowViewModel(CreateSetting());
 
                 var items = vm.MenuItems.OfType<NavigationViewItem>().ToList();
-                Assert.Contains(items, item => item.Content?.ToString() == "Run workflow");
+                Assert.Contains(items, item => item.Content?.ToString() == LocalizationManager.Instance["MainWindow_MenuDashboard"]);
             });
         }
 
@@ -111,7 +112,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Windows
                 var vm = new MainWindowViewModel(CreateSetting());
 
                 var items = vm.MenuItems.OfType<NavigationViewItem>().ToList();
-                Assert.Contains(items, item => item.Content?.ToString() == "Results");
+                Assert.Contains(items, item => item.Content?.ToString() == LocalizationManager.Instance["MainWindow_MenuResults"]);
             });
         }
 
@@ -123,7 +124,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Windows
                 var vm = new MainWindowViewModel(CreateSetting());
 
                 var runWorkflow = vm.MenuItems.OfType<NavigationViewItem>()
-                    .FirstOrDefault(item => item.Content?.ToString() == "Run workflow");
+                    .FirstOrDefault(item => item.Content?.ToString() == LocalizationManager.Instance["MainWindow_MenuDashboard"]);
 
                 Assert.Equal(typeof(DashboardPage), runWorkflow?.TargetPageType);
             });
@@ -137,7 +138,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Windows
                 var vm = new MainWindowViewModel(CreateSetting());
 
                 var results = vm.MenuItems.OfType<NavigationViewItem>()
-                    .FirstOrDefault(item => item.Content?.ToString() == "Results");
+                    .FirstOrDefault(item => item.Content?.ToString() == LocalizationManager.Instance["MainWindow_MenuResults"]);
 
                 Assert.Equal(typeof(DataPage), results?.TargetPageType);
             });
@@ -153,7 +154,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Windows
                 var vm = new MainWindowViewModel(CreateSetting());
 
                 var items = vm.FooterMenuItems.OfType<NavigationViewItem>().ToList();
-                Assert.Contains(items, item => item.Content?.ToString() == "Settings");
+                Assert.Contains(items, item => item.Content?.ToString() == LocalizationManager.Instance["MainWindow_MenuSettings"]);
             });
         }
 
@@ -165,7 +166,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Windows
                 var vm = new MainWindowViewModel(CreateSetting());
 
                 var settings = vm.FooterMenuItems.OfType<NavigationViewItem>()
-                    .FirstOrDefault(item => item.Content?.ToString() == "Settings");
+                    .FirstOrDefault(item => item.Content?.ToString() == LocalizationManager.Instance["MainWindow_MenuSettings"]);
 
                 Assert.Equal(typeof(SettingsPage), settings?.TargetPageType);
             });
@@ -180,7 +181,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Windows
             {
                 var vm = new MainWindowViewModel(CreateSetting());
 
-                Assert.Contains(vm.TrayMenuItems, item => item.Header?.ToString() == "Home");
+                Assert.Contains(vm.TrayMenuItems, item => item.Header?.ToString() == LocalizationManager.Instance["MainWindow_TrayHome"]);
             });
         }
 

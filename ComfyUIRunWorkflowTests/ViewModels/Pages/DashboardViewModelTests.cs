@@ -1,8 +1,10 @@
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Runtime.ExceptionServices;
 using System.Text.Json;
 using ComfyUILibs.Common;
+using ComfyUIRunWorkflow.Helpers;
 using ComfyUIRunWorkflow.Models;
 using ComfyUIRunWorkflow.ViewModels.Pages;
 using ComfyUIRunWorkflowTests.Fakes;
@@ -504,12 +506,22 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         }
 
         [Theory]
-        [InlineData(1, 5, "1/5件目を実行中")]
-        [InlineData(3, 5, "3/5件目を実行中")]
-        [InlineData(1, 1, "1/1件目を実行中")]
-        public void FormatBatchProgress_ReturnsExpectedText(int current, int total, string expected)
+        [InlineData(1, 5)]
+        [InlineData(3, 5)]
+        [InlineData(1, 1)]
+        public void FormatBatchProgress_ReturnsExpectedText(int current, int total)
         {
-            Assert.Equal(expected, DashboardViewModel.FormatBatchProgress(current, total));
+            var original = LocalizationManager.Instance.CurrentCulture;
+            try
+            {
+                LocalizationManager.Instance.CurrentCulture = new CultureInfo("ja");
+                var expected = $"{current}/{total}件目を実行中";
+                Assert.Equal(expected, DashboardViewModel.FormatBatchProgress(current, total));
+            }
+            finally
+            {
+                LocalizationManager.Instance.CurrentCulture = original;
+            }
         }
     }
 }

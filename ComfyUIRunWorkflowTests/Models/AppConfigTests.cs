@@ -240,5 +240,24 @@ namespace ComfyUIRunWorkflowTests.Models
 
             Assert.Contains("ResultsFolder", changed);
         }
+
+        [Fact]
+        public void AppConfig_Language_DefaultValue_IsJa()
+        {
+            var config = new AppConfig();
+            Assert.Equal("ja", config.Language);
+        }
+
+        [Fact]
+        public void AppConfig_Language_Set_RaisesPropertyChanged()
+        {
+            var config = new AppConfig();
+            var changed = new List<string?>();
+            ((INotifyPropertyChanged)config).PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+
+            config.Language = "en";
+
+            Assert.Contains("Language", changed);
+        }
     }
 }
