@@ -22,7 +22,7 @@
 - `Common/Setting.cs` — 設定ファイル永続化ジェネリッククラス（master マージ済み）
 - `Base/ObservablePoint.cs` — `INotifyPropertyChanged` 対応の Point ラッパー（master マージ済み）
 - `Base/ObservableSize.cs` — `INotifyPropertyChanged` 対応の Size ラッパー（master マージ済み）
-- `ComfyUILibs.csproj` — `net8.0-windows10.0.17763.0` / WPF / `CommunityToolkit.Mvvm 8.4.2` 設定済み
+- `ComfyUILibs.csproj` — `net8.0-windows7.0` / WPF / `CommunityToolkit.Mvvm 8.4.2` 設定済み
 
 ---
 
