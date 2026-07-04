@@ -17,12 +17,8 @@
 - `Models/AppConfig.cs` — スタブ（→ 削除、ComfyUILibs に移管）
 - `Helpers/EnumToBooleanConverter.cs` — テーマ切り替え用（流用可能）
 
-**ComfyUILibs（実装済み）**
-- `Common/JsonLoader.cs` — JSON ファイル読み書き静的ユーティリティ（master マージ済み）
-- `Common/Setting.cs` — 設定ファイル永続化ジェネリッククラス（master マージ済み）
-- `Base/ObservablePoint.cs` — `INotifyPropertyChanged` 対応の Point ラッパー（master マージ済み）
-- `Base/ObservableSize.cs` — `INotifyPropertyChanged` 対応の Size ラッパー（master マージ済み）
-- `ComfyUILibs.csproj` — `net8.0-windows7.0` / WPF / `CommunityToolkit.Mvvm 8.4.2` 設定済み
+**ComfyUILibs（実装済み・別リポジトリ）**
+実装済みクラスの一覧は `ComfyUILibs/.claude/implementation_status.md` を参照。
 
 ---
 
@@ -30,42 +26,7 @@
 
 ### フェーズ 1: ComfyUILibs の実装（Python版移植）
 
-**Common（実装済み・master マージ済み）**
-- [x] `Common/JsonLoader.cs` — JSON ファイル読み書き静的ユーティリティ
-- [x] `Common/Setting.cs` — 設定ファイル永続化ジェネリッククラス
-
-**Base（実装済み・master マージ済み）**
-- [x] `Base/ObservablePoint.cs` — `INotifyPropertyChanged` 対応の Point ラッパー（`ToPoint` / `FromPoint`）
-- [x] `Base/ObservableSize.cs` — `INotifyPropertyChanged` 対応の Size ラッパー（`ToSize` / `FromSize`）
-
-**Exceptions**
-- [x] `Exceptions/ComfyUIException.cs` — 基底例外クラス
-
-**Models**
-- [x] `Models/WorkflowConfig.cs` — 設定 JSON モデル（WorkflowConfig, LoraEntry, ImageSize, WorkflowSettings, Wd14TaggerConfig）
-- [x] `Models/WorkflowInput.cs` — 入力 JSON モデル（WorkflowInput, PromptPair）
-- [x] `Models/WorkflowResult.cs` — 結果モデル（WorkflowResult, OutputFile, WorkflowParameters）
-- [x] `Models/ResolvedLora.cs` — LoRA 解決済みエントリ
-
-**Services**
-- [x] `Services/IComfyUIClient.cs` — ComfyUIClient インターフェース（テスト用 DI 対応）
-- [x] `Services/ConfigLoader.cs` — workflow_config.json ロード・バリデーション（load_files.py 移植）
-- [x] `Services/ComfyUIClient.cs` — REST API + WebSocket クライアント（comfyui_client.py 移植）
-- [x] `Services/WorkflowBuilder.cs` — テンプレート選択・書き換え（workflow_builder.py 移植）
-- [x] `Services/WorkflowRunner.cs` — 実行ファサード（WorkflowRunner 移植）
-- [x] `Services/Wd14TaggerRunner.cs` — WD14 Tagger（wd14_tagger_runner.py 移植）
-- [x] `Services/PreviewImageCacheService.cs` — 生成画像プレビューのローカルキャッシュ管理（フェーズ4）
-
-**テスト（ComfyUILibsTests）**
-- [x] `Exceptions/ComfyUIExceptionTests.cs` — ComfyUIException テスト
-- [x] `Services/ConfigLoaderTests.cs` — ConfigLoader テスト（38件）
-- [x] `Services/ComfyUIClientTests.cs` — ComfyUIClient テスト（13件、FakeHttpMessageHandler 使用、GetImageAsync 含む）
-- [x] `Services/WorkflowBuilderTests.cs` — WorkflowBuilder テスト（14件）
-- [x] `Services/WorkflowRunnerTests.cs` — WorkflowRunner テスト（9件、FakeComfyUIClient 使用）
-- [x] `Services/Wd14TaggerRunnerTests.cs` — Wd14TaggerRunner テスト（5件）
-- [x] `Services/PreviewImageCacheServiceTests.cs` — PreviewImageCacheService テスト（12件）
-
-合計テスト数: 151件（全パス）
+`ComfyUILibs` は別リポジトリ（サブモジュール）に分離されており、実装状況・クラス一覧・テスト件数は `ComfyUILibs/.claude/implementation_status.md` および `ComfyUILibs/README.md` を参照。完了・master マージ済み。
 
 ### フェーズ 2: ComfyUIRunWorkflow の GUI 実装（完了）
 

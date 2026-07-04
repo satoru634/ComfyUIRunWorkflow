@@ -25,10 +25,12 @@
 
 | プロジェクト | 責務 |
 |---|---|
-| `ComfyUILibs`（サブモジュール） | ComfyUI API 通信・ワークフロー制御・設定管理などのビジネスロジック全般。将来の C# Discord ボットでも共用する |
+| `ComfyUILibs`（サブモジュール、別リポジトリ） | ComfyUI API 通信・ワークフロー制御・設定管理などのビジネスロジック全般。将来の C# Discord ボットでも共用する |
 | `ComfyUIRunWorkflow`（本プロジェクト） | GUI のみ。ViewModel・View・UI ヘルパーに限定。ComfyUI API の直接呼び出しは行わない |
 
 **ComfyUIRunWorkflow は ComfyUILibs を参照し、そのサービスを DI 経由で利用する。**
+
+`ComfyUILibs` は独自の Git リポジトリ（Discord ボット等の他プロジェクトからも参照される想定）のため、実装ルール・技術スタック・ディレクトリ構成・クラス図は `ComfyUILibs/CLAUDE.md` および `ComfyUILibs/.claude/` 配下に独立して管理している。ComfyUILibs 配下のファイルを変更する場合は、本 CLAUDE.md ではなく `ComfyUILibs/CLAUDE.md` の開発ルールに従うこと。
 
 ## コーディング規約
 
