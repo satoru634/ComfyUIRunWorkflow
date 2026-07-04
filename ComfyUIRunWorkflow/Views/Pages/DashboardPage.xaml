@@ -6,6 +6,7 @@
     xmlns:local="clr-namespace:ComfyUIRunWorkflow.Views.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:ComfyUIRunWorkflow.Models"
+    xmlns:helpers="clr-namespace:ComfyUIRunWorkflow.Helpers"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Title="DashboardPage"
     d:DataContext="{d:DesignInstance local:DashboardPage, IsDesignTimeCreatable=False}"
@@ -31,7 +32,7 @@
                     Margin="0,0,0,12"
                     FontSize="20"
                     FontWeight="SemiBold"
-                    Text="ワークフロー実行" />
+                    Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Dashboard_Title]}" />
 
                 <!-- ワークフロー選択 -->
                 <Border
@@ -56,7 +57,7 @@
                             Grid.Column="1"
                             VerticalAlignment="Center"
                             FontSize="14"
-                            Text="ワークフロー" />
+                            Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Dashboard_WorkflowLabel]}" />
                         <ComboBox
                             Grid.Column="2"
                             Width="200"
@@ -79,7 +80,7 @@
                             Margin="0,0,0,4"
                             FontSize="13"
                             FontWeight="Medium"
-                            Text="ポジティブプロンプト" />
+                            Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Common_PositivePromptLabel]}" />
                         <ui:TextBox
                             AcceptsReturn="True"
                             Height="80"
@@ -92,7 +93,7 @@
                             Margin="0,8,0,4"
                             FontSize="13"
                             FontWeight="Medium"
-                            Text="ネガティブプロンプト" />
+                            Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Common_NegativePromptLabel]}" />
                         <ui:TextBox
                             AcceptsReturn="True"
                             Height="60"
@@ -117,7 +118,7 @@
                             Margin="0,0,0,8"
                             FontSize="13"
                             FontWeight="Medium"
-                            Text="画像サイズ" />
+                            Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Common_ImageSizeLabel]}" />
                         <StackPanel
                             Margin="0,8,0,0"
                             Orientation="Horizontal">
@@ -172,7 +173,7 @@
                             Margin="0,0,0,8"
                             FontSize="13"
                             FontWeight="Medium"
-                            Text="LoRA（0〜4個）" />
+                            Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Dashboard_LoraSectionLabel]}" />
                         <ItemsControl ItemsSource="{Binding ViewModel.LoraSlots}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -201,7 +202,7 @@
                         <ui:Button
                             Margin="0,4,0,0"
                             Command="{Binding ViewModel.AddLoraCommand}"
-                            Content="+ 追加"
+                            Content="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Dashboard_AddLoraButtonContent]}"
                             IsEnabled="{Binding ViewModel.IsConfigLoaded}"
                             Appearance="Secondary" />
                     </StackPanel>
@@ -219,7 +220,7 @@
                             <TextBlock
                                 Margin="0,0,8,0"
                                 VerticalAlignment="Center"
-                                Text="バッチ数" />
+                                Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Dashboard_BatchCountLabel]}" />
                             <ui:NumberBox
                                 Width="120"
                                 Margin="0,0,8,0"
@@ -229,7 +230,7 @@
                                 Value="{Binding ViewModel.BatchCount, Mode=TwoWay}" />
                             <ui:Button
                                 Command="{Binding ViewModel.RunWorkflowCommand}"
-                                Content="実行"
+                                Content="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Dashboard_RunButtonContent]}"
                                 Appearance="Primary"
                                 Icon="{ui:SymbolIcon Play24}" />
                         </StackPanel>
@@ -270,7 +271,7 @@
                     Margin="0,0,0,8"
                     FontSize="13"
                     FontWeight="Medium"
-                    Text="生成結果" />
+                    Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Common_GeneratedResultsLabel]}" />
 
                 <!-- 未実行時のプレースホルダー -->
                 <TextBlock
@@ -279,7 +280,7 @@
                     VerticalAlignment="Center"
                     FontSize="12"
                     Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                    Text="実行すると&#x0a;ここに生成結果が表示されます"
+                    Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Dashboard_PreviewPlaceholder]}"
                     TextAlignment="Center"
                     Visibility="{Binding ViewModel.HasPreviewThumbnails, Converter={StaticResource BoolToVisibilityInverseConverter}}" />
 

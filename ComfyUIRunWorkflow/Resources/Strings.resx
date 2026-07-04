@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Common -->
+  <data name="Common_ConfigPathNotSet" xml:space="preserve"><value>設定ページで workflow_config.json のパスを指定してください。</value></data>
+  <data name="Common_Completed" xml:space="preserve"><value>完了</value></data>
+  <data name="Common_Error" xml:space="preserve"><value>エラー</value></data>
+  <data name="Common_UnexpectedError" xml:space="preserve"><value>予期しないエラー</value></data>
+  <data name="Common_PositivePromptLabel" xml:space="preserve"><value>ポジティブプロンプト</value></data>
+  <data name="Common_NegativePromptLabel" xml:space="preserve"><value>ネガティブプロンプト</value></data>
+  <data name="Common_ImageSizeLabel" xml:space="preserve"><value>画像サイズ</value></data>
+  <data name="Common_GeneratedResultsLabel" xml:space="preserve"><value>生成結果</value></data>
+  <data name="Common_CloseButtonContent" xml:space="preserve"><value>閉じる</value></data>
+  <data name="Common_BrowseButtonTooltip" xml:space="preserve"><value>参照</value></data>
+
+  <!-- Dashboard -->
+  <data name="Dashboard_Title" xml:space="preserve"><value>ワークフロー実行</value></data>
+  <data name="Dashboard_WorkflowLabel" xml:space="preserve"><value>ワークフロー</value></data>
+  <data name="Dashboard_LoraSectionLabel" xml:space="preserve"><value>LoRA（0〜4個）</value></data>
+  <data name="Dashboard_AddLoraButtonContent" xml:space="preserve"><value>+ 追加</value></data>
+  <data name="Dashboard_BatchCountLabel" xml:space="preserve"><value>バッチ数</value></data>
+  <data name="Dashboard_RunButtonContent" xml:space="preserve"><value>実行</value></data>
+  <data name="Dashboard_PreviewPlaceholder" xml:space="preserve"><value>実行すると&#x0a;ここに生成結果が表示されます</value></data>
+  <data name="Dashboard_OrientationVertical" xml:space="preserve"><value>縦</value></data>
+  <data name="Dashboard_OrientationHorizontal" xml:space="preserve"><value>横</value></data>
+  <data name="Dashboard_OrientationSquare" xml:space="preserve"><value>正方形</value></data>
+  <data name="Dashboard_OrientationCustom" xml:space="preserve"><value>カスタム</value></data>
+  <data name="Dashboard_ConfigLoadError_Format" xml:space="preserve"><value>workflow_config.json 読み込みエラー: {0}</value></data>
+  <data name="Dashboard_BatchProgress_Format" xml:space="preserve"><value>{0}/{1}件目を実行中</value></data>
+  <data name="Dashboard_FilesGenerated_Format" xml:space="preserve"><value>{0} 件のファイルが生成されました</value></data>
+
+  <!-- Settings -->
+  <data name="Settings_Title" xml:space="preserve"><value>設定</value></data>
+  <data name="Settings_DisplaySectionLabel" xml:space="preserve"><value>表示</value></data>
+  <data name="Settings_ThemeLabel" xml:space="preserve"><value>テーマ</value></data>
+  <data name="Settings_LanguageLabel" xml:space="preserve"><value>言語</value></data>
+  <data name="Settings_ConnectionSectionLabel" xml:space="preserve"><value>接続</value></data>
+  <data name="Settings_ConfigPathLabel" xml:space="preserve"><value>workflow_config.json パス</value></data>
+  <data name="Settings_OutputSectionLabel" xml:space="preserve"><value>出力</value></data>
+  <data name="Settings_ResultsFolderLabel" xml:space="preserve"><value>結果出力フォルダ</value></data>
+  <data name="Settings_ConfigFileDialogTitle" xml:space="preserve"><value>workflow_config.json を選択</value></data>
+  <data name="Settings_ConfigFileDialogFilter" xml:space="preserve"><value>JSON ファイル|*.json|すべてのファイル|*.*</value></data>
+  <data name="Settings_ResultsFolderDialogTitle" xml:space="preserve"><value>結果出力フォルダを選択</value></data>
+
+  <!-- Data -->
+  <data name="Data_Title" xml:space="preserve"><value>実行結果</value></data>
+  <data name="Data_RefreshButtonContent" xml:space="preserve"><value>更新</value></data>
+  <data name="Data_TagHistoryTabContent" xml:space="preserve"><value>タグ付け履歴</value></data>
+  <data name="Data_CopyTagsTooltip" xml:space="preserve"><value>タグをコピー</value></data>
+  <data name="Data_ResultsFolderNotSet" xml:space="preserve"><value>設定ページで結果出力フォルダを指定してください</value></data>
+  <data name="Data_FolderNotFound_Format" xml:space="preserve"><value>フォルダが見つかりません:&#x0a;{0}</value></data>
+  <data name="Data_NoResults" xml:space="preserve"><value>結果がありません</value></data>
+  <data name="Data_NoTagHistory" xml:space="preserve"><value>タグ付け履歴がありません</value></data>
+
+  <!-- Tagger -->
+  <data name="Tagger_ImageSectionLabel" xml:space="preserve"><value>画像（ファイル選択 または ドラッグ＆ドロップ）</value></data>
+  <data name="Tagger_BrowseImageButtonContent" xml:space="preserve"><value>画像を選択</value></data>
+  <data name="Tagger_DropHint" xml:space="preserve"><value>ここに画像をドラッグ＆ドロップ</value></data>
+  <data name="Tagger_RunButtonContent" xml:space="preserve"><value>タグ付け実行</value></data>
+  <data name="Tagger_ResultSectionLabel" xml:space="preserve"><value>タグ結果</value></data>
+  <data name="Tagger_ResultPlaceholder" xml:space="preserve"><value>タグ付けを実行すると&#x0a;ここに結果が表示されます</value></data>
+  <data name="Tagger_CopyButtonContent" xml:space="preserve"><value>コピー</value></data>
+  <data name="Tagger_ConfigLoadError_Format" xml:space="preserve"><value>WD14 Tagger 設定の読み込みエラー: {0}</value></data>
+  <data name="Tagger_ImageFileDialogTitle" xml:space="preserve"><value>タグ付けする画像を選択</value></data>
+  <data name="Tagger_ImageFileDialogFilter" xml:space="preserve"><value>画像ファイル|*.png;*.jpg;*.jpeg;*.webp|すべてのファイル|*.*</value></data>
+  <data name="Tagger_TaggingCompleted" xml:space="preserve"><value>タグ付けが完了しました</value></data>
+
+  <!-- MainWindow -->
+  <data name="MainWindow_MenuDashboard" xml:space="preserve"><value>ワークフロー実行</value></data>
+  <data name="MainWindow_MenuResults" xml:space="preserve"><value>結果</value></data>
+  <data name="MainWindow_MenuTagger" xml:space="preserve"><value>タグ付け</value></data>
+  <data name="MainWindow_MenuSettings" xml:space="preserve"><value>設定</value></data>
+  <data name="MainWindow_TrayHome" xml:space="preserve"><value>ホーム</value></data>
+
+  <!-- ResultDetail -->
+  <data name="ResultDetail_Title" xml:space="preserve"><value>実行結果詳細</value></data>
+  <data name="ResultDetail_StatusSuccess" xml:space="preserve"><value>✓ 成功</value></data>
+  <data name="ResultDetail_StatusError" xml:space="preserve"><value>✗ エラー</value></data>
+  <data name="ResultDetail_LoraFormat" xml:space="preserve"><value>{0}  ({1},  強度: {2})</value></data>
+  <data name="ResultDetail_OutputFilesLabel" xml:space="preserve"><value>出力ファイル</value></data>
+
+  <!-- ImagePreview -->
+  <data name="ImagePreview_Title" xml:space="preserve"><value>画像プレビュー</value></data>
+</root>

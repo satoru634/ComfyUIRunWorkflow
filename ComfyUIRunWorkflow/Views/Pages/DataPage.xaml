@@ -41,11 +41,11 @@
                 VerticalAlignment="Center"
                 FontSize="20"
                 FontWeight="SemiBold"
-                Text="実行結果" />
+                Text="{Binding Source={x:Static helper:LocalizationManager.Instance}, Path=[Data_Title]}" />
             <ui:Button
                 Grid.Column="1"
                 Command="{Binding ViewModel.RefreshCommand}"
-                Content="更新"
+                Content="{Binding Source={x:Static helper:LocalizationManager.Instance}, Path=[Data_RefreshButtonContent]}"
                 Appearance="Secondary"
                 Icon="{ui:SymbolIcon ArrowSync24}" />
         </Grid>
@@ -55,7 +55,7 @@
             <ui:Button
                 Margin="0,0,8,0"
                 Command="{Binding ViewModel.ShowResultsTabCommand}"
-                Content="生成結果">
+                Content="{Binding Source={x:Static helper:LocalizationManager.Instance}, Path=[Common_GeneratedResultsLabel]}">
                 <ui:Button.Style>
                     <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
                         <Setter Property="Appearance" Value="Secondary" />
@@ -69,7 +69,7 @@
             </ui:Button>
             <ui:Button
                 Command="{Binding ViewModel.ShowTagHistoryTabCommand}"
-                Content="タグ付け履歴">
+                Content="{Binding Source={x:Static helper:LocalizationManager.Instance}, Path=[Data_TagHistoryTabContent]}">
                 <ui:Button.Style>
                     <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
                         <Setter Property="Appearance" Value="Secondary" />
@@ -332,7 +332,7 @@
                                         Command="{Binding DataContext.ViewModel.CopyTagsCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
                                         CommandParameter="{Binding}"
                                         Icon="{ui:SymbolIcon Copy16}"
-                                        ToolTip="タグをコピー"
+                                        ToolTip="{Binding Source={x:Static helper:LocalizationManager.Instance}, Path=[Data_CopyTagsTooltip]}"
                                         Appearance="Secondary"
                                         Visibility="{Binding Tags, Converter={StaticResource NullToVisibilityConverter}}" />
                                 </Grid>

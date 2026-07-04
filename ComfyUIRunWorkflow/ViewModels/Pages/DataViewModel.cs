@@ -5,6 +5,7 @@ using System.Windows;
 using ComfyUILibs.Common;
 using ComfyUILibs.Models;
 using ComfyUILibs.Services;
+using ComfyUIRunWorkflow.Helpers;
 using ComfyUIRunWorkflow.Models;
 using ComfyUIRunWorkflow.Services;
 using ComfyUIRunWorkflow.Views.Windows;
@@ -89,7 +90,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
             if (string.IsNullOrWhiteSpace(folder))
             {
-                var message = "設定ページで結果出力フォルダを指定してください";
+                var message = LocalizationManager.Instance["Data_ResultsFolderNotSet"];
                 StatusMessage = message;
                 TagStatusMessage = message;
                 Results = new ObservableCollection<WorkflowResultPreview>();
@@ -99,7 +100,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
             if (!Directory.Exists(folder))
             {
-                var message = $"フォルダが見つかりません:\n{folder}";
+                var message = string.Format(LocalizationManager.Instance["Data_FolderNotFound_Format"], folder);
                 StatusMessage = message;
                 TagStatusMessage = message;
                 Results = new ObservableCollection<WorkflowResultPreview>();
@@ -151,7 +152,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             Results = loaded;
 
             if (loaded.Count == 0)
-                StatusMessage = "結果がありません";
+                StatusMessage = LocalizationManager.Instance["Data_NoResults"];
         }
 
         /// <summary>tag_result_*.json を読み込んで TagResults を更新する。</summary>
@@ -181,7 +182,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             TagResults = loaded;
 
             if (loaded.Count == 0)
-                TagStatusMessage = "タグ付け履歴がありません";
+                TagStatusMessage = LocalizationManager.Instance["Data_NoTagHistory"];
         }
 
         /// <summary>

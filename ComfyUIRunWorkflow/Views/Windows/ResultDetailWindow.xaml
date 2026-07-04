@@ -6,7 +6,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:wpfModels="clr-namespace:ComfyUIRunWorkflow.Models"
-    Title="実行結果詳細"
+    xmlns:helpers="clr-namespace:ComfyUIRunWorkflow.Helpers"
+    Title="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ResultDetail_Title]}"
     Width="600"
     MinWidth="480"
     MinHeight="360"
@@ -20,6 +21,10 @@
     WindowCornerPreference="Round"
     mc:Ignorable="d">
 
+    <ui:FluentWindow.Resources>
+        <helpers:LoraDisplayConverter x:Key="LoraDisplayConverter" />
+    </ui:FluentWindow.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -28,7 +33,7 @@
 
         <ui:TitleBar
             Grid.Row="0"
-            Title="実行結果詳細"
+            Title="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ResultDetail_Title]}"
             Height="36"
             CloseWindowByDoubleClickOnIcon="False" />
 
@@ -58,11 +63,11 @@
                                 <Style TargetType="TextBlock">
                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding Result.Status}" Value="success">
-                                            <Setter Property="Text" Value="✓ 成功" />
+                                            <Setter Property="Text" Value="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ResultDetail_StatusSuccess]}" />
                                             <Setter Property="Foreground" Value="{DynamicResource SystemFillColorSuccessBrush}" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding Result.Status}" Value="error">
-                                            <Setter Property="Text" Value="✗ エラー" />
+                                            <Setter Property="Text" Value="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ResultDetail_StatusError]}" />
                                             <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCriticalBrush}" />
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -96,7 +101,7 @@
                     Margin="0,0,0,4"
                     FontSize="13"
                     FontWeight="Medium"
-                    Text="ポジティブプロンプト" />
+                    Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Common_PositivePromptLabel]}" />
                 <TextBox
                     Margin="0,0,0,8"
                     FontSize="12"
@@ -110,7 +115,7 @@
                     Margin="0,0,0,4"
                     FontSize="13"
                     FontWeight="Medium"
-                    Text="ネガティブプロンプト" />
+                    Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Common_NegativePromptLabel]}" />
                 <TextBox
                     Margin="0,0,0,12"
                     FontSize="12"
@@ -125,7 +130,7 @@
                     Margin="0,0,0,4"
                     FontSize="13"
                     FontWeight="Medium"
-                    Text="画像サイズ" />
+                    Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Common_ImageSizeLabel]}" />
                 <TextBlock
                     Margin="0,0,0,12"
                     FontSize="13">
@@ -150,10 +155,10 @@
                         <DataTemplate>
                             <TextBlock FontSize="13">
                                 <TextBlock.Text>
-                                    <MultiBinding StringFormat="{}{0}  ({1},  強度: {2})">
+                                    <MultiBinding Converter="{StaticResource LoraDisplayConverter}">
                                         <Binding Path="Name" />
                                         <Binding Path="File" />
-                                        <Binding Path="Strength" StringFormat="F2" />
+                                        <Binding Path="Strength" />
                                     </MultiBinding>
                                 </TextBlock.Text>
                             </TextBlock>
@@ -166,7 +171,7 @@
                     Margin="0,0,0,4"
                     FontSize="13"
                     FontWeight="Medium"
-                    Text="出力ファイル" />
+                    Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ResultDetail_OutputFilesLabel]}" />
                 <ItemsControl ItemsSource="{Binding Previews}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -226,7 +231,7 @@
                     Margin="0,16,0,0"
                     HorizontalAlignment="Right"
                     Click="OnCloseClick"
-                    Content="閉じる"
+                    Content="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Common_CloseButtonContent]}"
                     Appearance="Secondary" />
 
             </StackPanel>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Common -->
+  <data name="Common_ConfigPathNotSet" xml:space="preserve"><value>Please specify the workflow_config.json path on the Settings page.</value></data>
+  <data name="Common_Completed" xml:space="preserve"><value>Completed</value></data>
+  <data name="Common_Error" xml:space="preserve"><value>Error</value></data>
+  <data name="Common_UnexpectedError" xml:space="preserve"><value>Unexpected Error</value></data>
+  <data name="Common_PositivePromptLabel" xml:space="preserve"><value>Positive Prompt</value></data>
+  <data name="Common_NegativePromptLabel" xml:space="preserve"><value>Negative Prompt</value></data>
+  <data name="Common_ImageSizeLabel" xml:space="preserve"><value>Image Size</value></data>
+  <data name="Common_GeneratedResultsLabel" xml:space="preserve"><value>Generated Results</value></data>
+  <data name="Common_CloseButtonContent" xml:space="preserve"><value>Close</value></data>
+  <data name="Common_BrowseButtonTooltip" xml:space="preserve"><value>Browse</value></data>
+
+  <!-- Dashboard -->
+  <data name="Dashboard_Title" xml:space="preserve"><value>Run Workflow</value></data>
+  <data name="Dashboard_WorkflowLabel" xml:space="preserve"><value>Workflow</value></data>
+  <data name="Dashboard_LoraSectionLabel" xml:space="preserve"><value>LoRA (0-4)</value></data>
+  <data name="Dashboard_AddLoraButtonContent" xml:space="preserve"><value>+ Add</value></data>
+  <data name="Dashboard_BatchCountLabel" xml:space="preserve"><value>Batch Count</value></data>
+  <data name="Dashboard_RunButtonContent" xml:space="preserve"><value>Run</value></data>
+  <data name="Dashboard_PreviewPlaceholder" xml:space="preserve"><value>Results will appear here&#x0a;after running</value></data>
+  <data name="Dashboard_OrientationVertical" xml:space="preserve"><value>Vertical</value></data>
+  <data name="Dashboard_OrientationHorizontal" xml:space="preserve"><value>Horizontal</value></data>
+  <data name="Dashboard_OrientationSquare" xml:space="preserve"><value>Square</value></data>
+  <data name="Dashboard_OrientationCustom" xml:space="preserve"><value>Custom</value></data>
+  <data name="Dashboard_ConfigLoadError_Format" xml:space="preserve"><value>Failed to load workflow_config.json: {0}</value></data>
+  <data name="Dashboard_BatchProgress_Format" xml:space="preserve"><value>Running {0}/{1}</value></data>
+  <data name="Dashboard_FilesGenerated_Format" xml:space="preserve"><value>{0} file(s) generated</value></data>
+
+  <!-- Settings -->
+  <data name="Settings_Title" xml:space="preserve"><value>Settings</value></data>
+  <data name="Settings_DisplaySectionLabel" xml:space="preserve"><value>Display</value></data>
+  <data name="Settings_ThemeLabel" xml:space="preserve"><value>Theme</value></data>
+  <data name="Settings_LanguageLabel" xml:space="preserve"><value>Language</value></data>
+  <data name="Settings_ConnectionSectionLabel" xml:space="preserve"><value>Connection</value></data>
+  <data name="Settings_ConfigPathLabel" xml:space="preserve"><value>workflow_config.json Path</value></data>
+  <data name="Settings_OutputSectionLabel" xml:space="preserve"><value>Output</value></data>
+  <data name="Settings_ResultsFolderLabel" xml:space="preserve"><value>Results Output Folder</value></data>
+  <data name="Settings_ConfigFileDialogTitle" xml:space="preserve"><value>Select workflow_config.json</value></data>
+  <data name="Settings_ConfigFileDialogFilter" xml:space="preserve"><value>JSON files|*.json|All files|*.*</value></data>
+  <data name="Settings_ResultsFolderDialogTitle" xml:space="preserve"><value>Select Results Output Folder</value></data>
+
+  <!-- Data -->
+  <data name="Data_Title" xml:space="preserve"><value>Results</value></data>
+  <data name="Data_RefreshButtonContent" xml:space="preserve"><value>Refresh</value></data>
+  <data name="Data_TagHistoryTabContent" xml:space="preserve"><value>Tag History</value></data>
+  <data name="Data_CopyTagsTooltip" xml:space="preserve"><value>Copy Tags</value></data>
+  <data name="Data_ResultsFolderNotSet" xml:space="preserve"><value>Please specify the results output folder on the Settings page</value></data>
+  <data name="Data_FolderNotFound_Format" xml:space="preserve"><value>Folder not found:&#x0a;{0}</value></data>
+  <data name="Data_NoResults" xml:space="preserve"><value>No results</value></data>
+  <data name="Data_NoTagHistory" xml:space="preserve"><value>No tag history</value></data>
+
+  <!-- Tagger -->
+  <data name="Tagger_ImageSectionLabel" xml:space="preserve"><value>Image (select file or drag &amp; drop)</value></data>
+  <data name="Tagger_BrowseImageButtonContent" xml:space="preserve"><value>Select Image</value></data>
+  <data name="Tagger_DropHint" xml:space="preserve"><value>Drag &amp; drop an image here</value></data>
+  <data name="Tagger_RunButtonContent" xml:space="preserve"><value>Run Tagging</value></data>
+  <data name="Tagger_ResultSectionLabel" xml:space="preserve"><value>Tag Results</value></data>
+  <data name="Tagger_ResultPlaceholder" xml:space="preserve"><value>Results will appear here&#x0a;after tagging</value></data>
+  <data name="Tagger_CopyButtonContent" xml:space="preserve"><value>Copy</value></data>
+  <data name="Tagger_ConfigLoadError_Format" xml:space="preserve"><value>Failed to load WD14 Tagger configuration: {0}</value></data>
+  <data name="Tagger_ImageFileDialogTitle" xml:space="preserve"><value>Select Image to Tag</value></data>
+  <data name="Tagger_ImageFileDialogFilter" xml:space="preserve"><value>Image files|*.png;*.jpg;*.jpeg;*.webp|All files|*.*</value></data>
+  <data name="Tagger_TaggingCompleted" xml:space="preserve"><value>Tagging completed</value></data>
+
+  <!-- MainWindow -->
+  <data name="MainWindow_MenuDashboard" xml:space="preserve"><value>Run workflow</value></data>
+  <data name="MainWindow_MenuResults" xml:space="preserve"><value>Results</value></data>
+  <data name="MainWindow_MenuTagger" xml:space="preserve"><value>Tagger</value></data>
+  <data name="MainWindow_MenuSettings" xml:space="preserve"><value>Settings</value></data>
+  <data name="MainWindow_TrayHome" xml:space="preserve"><value>Home</value></data>
+
+  <!-- ResultDetail -->
+  <data name="ResultDetail_Title" xml:space="preserve"><value>Result Details</value></data>
+  <data name="ResultDetail_StatusSuccess" xml:space="preserve"><value>✓ Success</value></data>
+  <data name="ResultDetail_StatusError" xml:space="preserve"><value>✗ Error</value></data>
+  <data name="ResultDetail_LoraFormat" xml:space="preserve"><value>{0}  ({1}, strength: {2})</value></data>
+  <data name="ResultDetail_OutputFilesLabel" xml:space="preserve"><value>Output Files</value></data>
+
+  <!-- ImagePreview -->
+  <data name="ImagePreview_Title" xml:space="preserve"><value>Image Preview</value></data>
+</root>
