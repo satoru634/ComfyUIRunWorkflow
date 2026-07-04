@@ -213,11 +213,17 @@ classDiagram
             +string ComfyUIUrl
             +string ConfigPath
             +string ResultsFolder
+            +string Language
         }
         class LoraSlot {
             +string SelectedLora
         }
         class SizeOption {
+            <<record>>
+            +string Key
+            +string Label
+        }
+        class LanguageOption {
             <<record>>
             +string Key
             +string Label
@@ -280,6 +286,8 @@ classDiagram
             +string AppVersion
             +ApplicationTheme SelectedTheme
             +List~ApplicationTheme~ ThemeList
+            +string SelectedLanguage
+            +List~LanguageOption~ LanguageList
             +BrowseConfigPathCommand
             +BrowseResultsFolderCommand
             +OnNavigatedToAsync() Task
@@ -379,6 +387,16 @@ classDiagram
             +Convert(object, Type, object, CultureInfo) object
             +ConvertBack(object, Type, object, CultureInfo) object
         }
+        class LoraDisplayConverter {
+            <<IMultiValueConverter>>
+            +Convert(object[], Type, object, CultureInfo) object
+            +ConvertBack(object, Type[], object, CultureInfo) object[]
+        }
+        class LocalizationManager {
+            +LocalizationManager Instance$
+            +CultureInfo CurrentCulture
+            +string this[string key]
+        }
     }
 
     %% ===== 継承・実装 =====
@@ -440,6 +458,12 @@ classDiagram
     DashboardViewModel --> WorkflowRunner : creates
     DashboardViewModel --> WorkflowResult : creates
     DashboardViewModel --> PreviewImageLoader : uses
+    DashboardViewModel --> LocalizationManager : uses
+    MainWindowViewModel --> LocalizationManager : uses
+    SettingsViewModel --> LocalizationManager : uses
+    SettingsViewModel "1" o-- "*" LanguageOption : languageList
+    DataViewModel --> LocalizationManager : uses
+    TaggerViewModel --> LocalizationManager : uses
     SettingsViewModel --> Setting~AppConfig~ : uses
     DataViewModel --> Setting~AppConfig~ : uses
     DataViewModel "1" *-- "*" WorkflowResultPreview : results
