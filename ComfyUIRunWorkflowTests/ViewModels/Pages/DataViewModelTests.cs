@@ -32,6 +32,13 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
             File.WriteAllText(path, json);
         }
 
+        private void WriteTagResultFile(string folder, TagResult result, string filename)
+        {
+            var path = Path.Combine(folder, filename);
+            var json = JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(path, json);
+        }
+
         // ── コンストラクター ───────────────────────────────────────────────────
 
         [Fact]
@@ -54,6 +61,39 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         {
             var vm = new DataViewModel(CreateSetting());
             Assert.False(vm.IsLoading);
+        }
+
+        [Fact]
+        public void Constructor_TagResults_IsEmpty()
+        {
+            var vm = new DataViewModel(CreateSetting());
+            Assert.Empty(vm.TagResults);
+        }
+
+        [Fact]
+        public void Constructor_IsTagHistorySelected_IsFalse()
+        {
+            var vm = new DataViewModel(CreateSetting());
+            Assert.False(vm.IsTagHistorySelected);
+        }
+
+        // ── タブ切り替え ──────────────────────────────────────────────────────
+
+        [Fact]
+        public void ShowTagHistoryTabCommand_Execute_SetsIsTagHistorySelectedTrue()
+        {
+            var vm = new DataViewModel(CreateSetting());
+            vm.ShowTagHistoryTabCommand.Execute(null);
+            Assert.True(vm.IsTagHistorySelected);
+        }
+
+        [Fact]
+        public void ShowResultsTabCommand_Execute_SetsIsTagHistorySelectedFalse()
+        {
+            var vm = new DataViewModel(CreateSetting());
+            vm.ShowTagHistoryTabCommand.Execute(null);
+            vm.ShowResultsTabCommand.Execute(null);
+            Assert.False(vm.IsTagHistorySelected);
         }
 
         // ── OnNavigatedToAsync ────────────────────────────────────────────────
@@ -195,6 +235,107 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
             await vm.RefreshCommand.ExecuteAsync(null);
 
             Assert.Single(vm.Results);
+        }
+
+        // ── タグ付け履歴の読み込み ────────────────────────────────────────────
+
+        [Fact]
+        public async Task OnNavigatedToAsync_WithTagResultFiles_LoadsTagResults()
+        {
+            var folder = Path.Combine(_tempDir, "results");
+            Directory.CreateDirectory(folder);
+            WriteTagResultFile(
+                folder,
+                new TagResult { Status = "success", Timestamp = "2026-07-04T12:00:00", InputFilename = "photo.jpg", Tags = "1girl, solo" },
+                "tag_result_20260704_120000.json");
+
+            var setting = CreateSetting();
+            setting.Data.ResultsFolder = folder;
+            var vm = new DataViewModel(setting);
+
+            await vm.OnNavigatedToAsync();
+
+            Assert.Single(vm.TagResults);
+            Assert.Equal("1girl, solo", vm.TagResults[0].Tags);
+        }
+
+        [Fact]
+        public async Task OnNavigatedToAsync_TagResultFilesDoNotAffectResults()
+        {
+            var folder = Path.Combine(_tempDir, "results");
+            Directory.CreateDirectory(folder);
+            WriteTagResultFile(folder, new TagResult { Status = "success" }, "tag_result_20260704_120000.json");
+
+            var setting = CreateSetting();
+            setting.Data.ResultsFolder = folder;
+            var vm = new DataViewModel(setting);
+
+            await vm.OnNavigatedToAsync();
+
+            Assert.Empty(vm.Results);
+            Assert.Single(vm.TagResults);
+        }
+
+        [Fact]
+        public async Task OnNavigatedToAsync_EmptyFolder_ShowsTagStatusMessage()
+        {
+            var folder = Path.Combine(_tempDir, "results");
+            Directory.CreateDirectory(folder);
+            var setting = CreateSetting();
+            setting.Data.ResultsFolder = folder;
+            var vm = new DataViewModel(setting);
+
+            await vm.OnNavigatedToAsync();
+
+            Assert.NotEmpty(vm.TagStatusMessage);
+            Assert.Empty(vm.TagResults);
+        }
+
+        [Fact]
+        public async Task OnNavigatedToAsync_WithInvalidTagResultJson_SkipsInvalidFiles()
+        {
+            var folder = Path.Combine(_tempDir, "results");
+            Directory.CreateDirectory(folder);
+            WriteTagResultFile(folder, new TagResult { Status = "success" }, "tag_result_20260704_120000.json");
+            File.WriteAllText(Path.Combine(folder, "tag_result_20260704_110000.json"), "invalid json {{{");
+
+            var setting = CreateSetting();
+            setting.Data.ResultsFolder = folder;
+            var vm = new DataViewModel(setting);
+
+            await vm.OnNavigatedToAsync();
+
+            Assert.Single(vm.TagResults);
+        }
+
+        [Fact]
+        public async Task RefreshAsyncCommand_AfterAddingTagResultFile_ReloadsTagResults()
+        {
+            var folder = Path.Combine(_tempDir, "results");
+            Directory.CreateDirectory(folder);
+
+            var setting = CreateSetting();
+            setting.Data.ResultsFolder = folder;
+            var vm = new DataViewModel(setting);
+            await vm.OnNavigatedToAsync();
+
+            WriteTagResultFile(folder, new TagResult { Status = "success" }, "tag_result_20260704_120000.json");
+            await vm.RefreshCommand.ExecuteAsync(null);
+
+            Assert.Single(vm.TagResults);
+        }
+
+        // ── CopyTagsCommand ──────────────────────────────────────────────────
+
+        [Fact]
+        public void CopyTagsCommand_WithEmptyTags_DoesNotThrow()
+        {
+            var vm = new DataViewModel(CreateSetting());
+            var result = new TagResult { Status = "error", Error = "失敗" };
+
+            var ex = Record.Exception(() => vm.CopyTagsCommand.Execute(result));
+
+            Assert.Null(ex);
         }
     }
 }
