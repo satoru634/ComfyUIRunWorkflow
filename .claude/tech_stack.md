@@ -1,8 +1,5 @@
 # ComfyUILibs
-- .NET 8 クラスライブラリ
-- `System.Net.Http.HttpClient` — REST API 呼び出し
-- `System.Net.WebSockets.ClientWebSocket` — WebSocket 監視
-- `System.Text.Json` — JSON 操作（`JsonLoader` / `Setting<T>` 経由）
+別リポジトリ（サブモジュール）のため、技術スタックは `ComfyUILibs/.claude/tech_stack.md` を参照。
 
 # ComfyUIRunWorkflow
 - .NET 8 / WPF
