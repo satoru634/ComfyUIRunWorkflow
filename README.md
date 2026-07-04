@@ -4,6 +4,8 @@
 
 ComfyUI のワークフローを GUI から実行するツール。[comfyui_tools](https://github.com/satoru634/comfyui_tools) の C# WPF 移植版。
 
+![Home ページ](doc/images/dashboard_page.png)
+
 ## 機能
 
 - ワークフロー実行（プロンプト・LoRA・画像サイズを GUI で指定）
@@ -50,8 +52,6 @@ dotnet run --project ComfyUIRunWorkflow
 1. **Home** ページでワークフロー・プロンプト・画像サイズを選択します
 2. **実行** ボタンをクリックします
 3. **Data** ページで結果とプレビュー画像を確認します
-
-![Home ページ](doc/images/dashboard_page.png)
 
 各ページの詳しい使い方（LoRA・バッチ数・WD14 Tagger・タグ付け履歴タブなど）は [doc/usage.md](doc/usage.md) を参照してください。
 
