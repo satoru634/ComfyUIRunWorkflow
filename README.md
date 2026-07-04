@@ -8,6 +8,7 @@ ComfyUI のワークフローを GUI から実行するツール。[comfyui_tool
 - バッチ数指定（1〜10、実行ボタン左のバッチ数欄で指定した回数だけ連続実行）
 - 実行結果の一覧表示と詳細確認
 - 生成画像のプレビュー表示（実行直後・一覧・詳細ダイアログ、クリックで拡大表示）
+- WD14 Tagger による画像タグ付け（画像を選択してタグ文字列を取得・コピー）
 - テーマ切り替え・接続設定の永続化
 
 ## 使い方
@@ -39,6 +40,15 @@ ComfyUI のワークフローを GUI から実行するツール。[comfyui_tool
 
 サムネイルは ComfyUI の `GET /view` API から取得し、`結果出力フォルダ/preview_cache/` にキャッシュされる（同じ画像は 2 回目以降サーバーへ再アクセスしない）。
 
+### WD14 Tagger
+
+1. **Tagger** ページを開く
+2. 「画像を選択」ボタン、またはドラッグ＆ドロップで画像を指定
+3. **タグ付け実行** ボタンをクリック
+4. 右パネルにタグ（カンマ区切り）が表示されるので、**コピー** ボタンでクリップボードにコピー
+
+モデル名・しきい値（general/character threshold）は `workflow_config.json` の `wd14_tagger` セクションの値が使用される（ページ上での変更不可）。タグ付け結果は `結果出力フォルダ/tag_result_{timestamp}.json` に保存される（ワークフロー実行結果 `result_*.json` とは別管理）。
+
 ## 技術スタック
 
 | 項目 | 内容 |
@@ -54,7 +64,7 @@ ComfyUI のワークフローを GUI から実行するツール。[comfyui_tool
 ```
 ComfyUIRunWorkflow/   ← ソリューションルート
   ComfyUILibs/        ← 共有ライブラリ（サブモジュール）
-  ComfyUILibsTests/   ← ComfyUILibs テスト（153件）
+  ComfyUILibsTests/   ← ComfyUILibs テスト（156件）
   ComfyUIRunWorkflow/ ← WPF GUI プロジェクト
-  ComfyUIRunWorkflowTests/ ← GUI テスト（126件）
+  ComfyUIRunWorkflowTests/ ← GUI テスト（147件）
 ```
