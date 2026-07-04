@@ -26,6 +26,21 @@ classDiagram
         }
     }
 
+    %% ===== ComfyUILibs / Ui =====
+
+    namespace ComfyUILibs_Ui {
+        class UIItemBaseModel~T~ {
+            +ObservableCollection~T~ ItemList
+            +int SelectedIndex
+            +bool Enable
+            +UIItemBaseModel()
+            +UIItemBaseModel(UIItemBaseModel~T~)
+            +Init(List~T~, T) void
+            +Add(T, bool) void
+            +Clear() void
+        }
+    }
+
     %% ===== ComfyUILibs / Common =====
 
     namespace ComfyUILibs_Common {
@@ -113,6 +128,13 @@ classDiagram
             +List~OutputFile~ Outputs
             +string? Error
         }
+        class TagResult {
+            +string Status
+            +string Timestamp
+            +string? InputFilename
+            +string? Tags
+            +string? Error
+        }
     }
 
     %% ===== ComfyUILibs / Services =====
@@ -125,38 +147,54 @@ classDiagram
             +UploadImageAsync(byte[], string) Task~string~
             +GetHistoryAsync(string) Task~JsonElement~
             +GetOutputsAsync(string) Task~List~OutputFile~~
+            +GetImageAsync(string, string, string) Task~byte[]~
         }
         class ComfyUIClient {
-            -string _baseUrl
+            -string _url
+            -HttpClient _httpClient
+            +ComfyUIClient(string, HttpClient)
             +SubmitAsync(JsonObject, string) Task~string~
             +MonitorAsync(string, string) Task
             +UploadImageAsync(byte[], string) Task~string~
             +GetHistoryAsync(string) Task~JsonElement~
             +GetOutputsAsync(string) Task~List~OutputFile~~
+            +GetImageAsync(string, string, string) Task~byte[]~
         }
         class WorkflowBuilder {
             -string _templatesDir
             +SelectTemplate(int, string) string
             +LoadTemplate(string) JsonObject
-            +Apply(JsonObject, PromptPair, List~ResolvedLora~, ImageSize) JsonObject
+            +Apply(JsonObject, PromptPair, List~ResolvedLora~, long?, ImageSize?) JsonObject
         }
         class WorkflowRunner {
             +string? TemplatePath
             +string? PromptId
             +WorkflowParameters? Parameters
             +WorkflowRunner(string, string)
+            +GetImageSize(string) ImageSize
             +ExecuteAsync(List~string~, PromptPair, ImageSize?) Task~List~OutputFile~~
             +RunAsync(string, string) Task
         }
         class ConfigLoader {
             <<static>>
             +LoadConfig(string) WorkflowConfig
+            +LoadTaggerConfig(string) WorkflowConfig
             +LoadAndValidateInput(string) WorkflowInput
             +ValidateInputs(List~string~, PromptPair, ImageSize?) void
+            +ValidateWd14TaggerConfig(WorkflowConfig) void
         }
         class Wd14TaggerRunner {
             -IComfyUIClient _client
-            +RunAsync(string, Wd14TaggerConfig) Task~string~
+            +Wd14TaggerRunner(string)
+            +TagAsync(byte[], string) Task~string~
+        }
+        class IPreviewImageCacheService {
+            <<interface>>
+            +GetOrFetchAsync(IComfyUIClient, string?, OutputFile, string) Task~string?~
+        }
+        class PreviewImageCacheService {
+            +IsImageFile(string) bool$
+            +GetOrFetchAsync(IComfyUIClient, string?, OutputFile, string) Task~string?~
         }
     }
 
@@ -179,6 +217,25 @@ classDiagram
         class LoraSlot {
             +string SelectedLora
         }
+        class SizeOption {
+            <<record>>
+            +string Key
+            +string Label
+        }
+        class OutputFilePreview {
+            +OutputFile Output
+            +bool IsImage
+            +string? CachedFilePath
+            +BitmapImage? Thumbnail
+            +bool IsLoading
+            +bool HasError
+            +OutputFilePreview(OutputFile)
+        }
+        class WorkflowResultPreview {
+            +WorkflowResult Result
+            +OutputFilePreview? Preview
+            +WorkflowResultPreview(WorkflowResult)
+        }
     }
 
     %% ===== ComfyUIRunWorkflow / ViewModels =====
@@ -198,18 +255,25 @@ classDiagram
             +string SelectedWorkflow
             +List~string~ AvailableLoras
             +bool IsConfigLoaded
+            +UIItemBaseModel~SizeOption~ SizeLabelList
             +string PositivePrompt
             +string NegativePrompt
             +string ImageSizeOrientation
             +bool IsCustomSize
             +int CustomWidth
             +int CustomHeight
+            +string SelectedSizeOption
             +ObservableCollection~LoraSlot~ LoraSlots
             +bool IsRunning
-            +string StatusMessage
+            +int BatchCount
+            +string BatchProgressText
+            +ObservableCollection~OutputFilePreview~ PreviewThumbnails
+            +bool HasPreviewThumbnails
             +RunWorkflowCommand
             +AddLoraCommand
             +RemoveLoraCommand
+            +OnNavigatedToAsync() Task
+            +OnNavigatedFromAsync() Task
         }
         class SettingsViewModel {
             +Setting~AppConfig~ Config
@@ -218,14 +282,45 @@ classDiagram
             +List~ApplicationTheme~ ThemeList
             +BrowseConfigPathCommand
             +BrowseResultsFolderCommand
+            +OnNavigatedToAsync() Task
+            +OnNavigatedFromAsync() Task
         }
         class DataViewModel {
             +Setting~AppConfig~ Config
-            +ObservableCollection~WorkflowResult~ Results
+            +ObservableCollection~WorkflowResultPreview~ Results
             +string StatusMessage
+            +ObservableCollection~TagResult~ TagResults
+            +string TagStatusMessage
+            +bool IsTagHistorySelected
             +bool IsLoading
             +RefreshCommand
+            +ShowResultsTabCommand
+            +ShowTagHistoryTabCommand
             +OpenDetailCommand
+            +CopyTagsCommand
+            +OnNavigatedToAsync() Task
+            +OnNavigatedFromAsync() Task
+        }
+        class TaggerViewModel {
+            +Setting~AppConfig~ Config
+            +bool IsConfigLoaded
+            +string? SelectedImagePath
+            +BitmapImage? SelectedImagePreview
+            +bool IsRunning
+            +string ResultTags
+            +bool HasResult
+            +BrowseImageCommand
+            +SetSelectedImage(string) void
+            +TagImageCommand
+            +CopyTagsCommand
+            +OnNavigatedToAsync() Task
+            +OnNavigatedFromAsync() Task
+        }
+        class ResultDetailViewModel {
+            +WorkflowResult Result
+            +ObservableCollection~OutputFilePreview~ Previews
+            +ResultDetailViewModel(WorkflowResult, Setting~AppConfig~)
+            +OpenEnlargedCommand
         }
     }
 
@@ -237,6 +332,12 @@ classDiagram
             -Setting~AppConfig~ _config
             +StartAsync(CancellationToken) Task
             +StopAsync(CancellationToken) Task
+        }
+        class PreviewImageLoader {
+            -IPreviewImageCacheService _cacheService
+            +PreviewImageLoader()
+            +LoadAsync(OutputFilePreview, IComfyUIClient, string?, string) Task
+            +LoadFullSize(string) BitmapImage$
         }
     }
 
@@ -263,24 +364,46 @@ classDiagram
             +Convert(object, Type, object, CultureInfo) object
             +ConvertBack(object, Type, object, CultureInfo) object
         }
+        class NullToVisibilityInverseConverter {
+            <<IValueConverter>>
+            +Convert(object, Type, object, CultureInfo) object
+            +ConvertBack(object, Type, object, CultureInfo) object
+        }
+        class FileTypeToVisibilityConverter {
+            <<IValueConverter>>
+            +Convert(object, Type, object, CultureInfo) object
+            +ConvertBack(object, Type, object, CultureInfo) object
+        }
+        class ResultMessageConverter {
+            <<IValueConverter>>
+            +Convert(object, Type, object, CultureInfo) object
+            +ConvertBack(object, Type, object, CultureInfo) object
+        }
     }
 
     %% ===== 継承・実装 =====
 
     ObservableObject_lib <|-- ObservablePoint
     ObservableObject_lib <|-- ObservableSize
+    ObservableObject_lib <|-- UIItemBaseModel~T~
     Exception <|-- ComfyUIException
     IComfyUIClient <|.. ComfyUIClient
+    IPreviewImageCacheService <|.. PreviewImageCacheService
     ObservableObject_lib <|-- WindowSettingData
     ObservableObject_lib <|-- AppConfig
     ObservableObject_lib <|-- LoraSlot
+    ObservableObject_lib <|-- OutputFilePreview
+    ObservableObject_lib <|-- WorkflowResultPreview
     ObservableObject_lib <|-- MainWindowViewModel
     ObservableObject_lib <|-- DashboardViewModel
     ObservableObject_lib <|-- SettingsViewModel
     ObservableObject_lib <|-- DataViewModel
+    ObservableObject_lib <|-- TaggerViewModel
+    ObservableObject_lib <|-- ResultDetailViewModel
     INavigationAware <|.. DashboardViewModel
     INavigationAware <|.. SettingsViewModel
     INavigationAware <|.. DataViewModel
+    INavigationAware <|.. TaggerViewModel
     IHostedService <|.. ApplicationHostService
 
     %% ===== 関連・依存 =====
@@ -300,19 +423,35 @@ classDiagram
     WorkflowRunner --> WorkflowBuilder : uses
     WorkflowRunner --> IComfyUIClient : uses
     Wd14TaggerRunner --> IComfyUIClient : uses
+    Wd14TaggerRunner --> ConfigLoader : uses
+    PreviewImageCacheService --> IComfyUIClient : uses
+    PreviewImageCacheService ..> OutputFile : uses
 
     AppConfig "1" *-- "1" WindowSettingData : windowSetting
     WindowSettingData "1" *-- "1" ObservablePoint : windowPos
     WindowSettingData "1" *-- "1" ObservableSize : windowSize
+    WorkflowResultPreview "1" o-- "0..1" OutputFilePreview : preview
 
     MainWindowViewModel --> Setting~AppConfig~ : uses
     DashboardViewModel --> Setting~AppConfig~ : uses
     DashboardViewModel "1" o-- "*" LoraSlot : loraSlots
+    DashboardViewModel "1" o-- "1" UIItemBaseModel~SizeOption~ : sizeLabelList
+    DashboardViewModel "1" *-- "*" OutputFilePreview : previewThumbnails
     DashboardViewModel --> WorkflowRunner : creates
     DashboardViewModel --> WorkflowResult : creates
+    DashboardViewModel --> PreviewImageLoader : uses
     SettingsViewModel --> Setting~AppConfig~ : uses
     DataViewModel --> Setting~AppConfig~ : uses
-    DataViewModel --> WorkflowResult : loads
+    DataViewModel "1" *-- "*" WorkflowResultPreview : results
+    DataViewModel "1" *-- "*" TagResult : tagResults
+    DataViewModel --> PreviewImageLoader : uses
+    DataViewModel --> ResultDetailViewModel : opens
+    TaggerViewModel --> Setting~AppConfig~ : uses
+    TaggerViewModel --> Wd14TaggerRunner : creates
+    TaggerViewModel ..> TagResult : creates
+    ResultDetailViewModel "1" *-- "*" OutputFilePreview : previews
+    ResultDetailViewModel --> PreviewImageLoader : uses
+    PreviewImageLoader --> IPreviewImageCacheService : uses
     ApplicationHostService --> Setting~AppConfig~ : uses
     Setting~AppConfig~ --> AppConfig : manages
 ```
@@ -350,6 +489,28 @@ classDiagram
         +string SelectedLora
     }
 
+    class SizeOption {
+        <<record>>
+        +string Key
+        +string Label
+    }
+
+    class OutputFilePreview {
+        +OutputFile Output
+        +bool IsImage
+        +string? CachedFilePath
+        +BitmapImage? Thumbnail
+        +bool IsLoading
+        +bool HasError
+        +OutputFilePreview(OutputFile)
+    }
+
+    class WorkflowResultPreview {
+        +WorkflowResult Result
+        +OutputFilePreview? Preview
+        +WorkflowResultPreview(WorkflowResult)
+    }
+
     %% ----- ViewModels -----
 
     class MainWindowViewModel {
@@ -366,25 +527,21 @@ classDiagram
         +List~string~ WorkflowNames
         +string SelectedWorkflow
         +List~string~ AvailableLoras
-        +string ConfigStatus
         +bool IsConfigLoaded
-        +string VerticalLabel
-        +string HorizontalLabel
-        +string SquareLabel
+        +UIItemBaseModel~SizeOption~ SizeLabelList
         +string PositivePrompt
         +string NegativePrompt
         +string ImageSizeOrientation
-        +bool IsVertical
-        +bool IsHorizontal
-        +bool IsSquare
         +bool IsCustomSize
         +int CustomWidth
         +int CustomHeight
+        +string SelectedSizeOption
         +ObservableCollection~LoraSlot~ LoraSlots
         +bool IsRunning
-        +string StatusMessage
-        +bool IsSuccess
-        +bool IsError
+        +int BatchCount
+        +string BatchProgressText
+        +ObservableCollection~OutputFilePreview~ PreviewThumbnails
+        +bool HasPreviewThumbnails
         +RunWorkflowCommand
         +AddLoraCommand
         +RemoveLoraCommand
@@ -405,13 +562,42 @@ classDiagram
 
     class DataViewModel {
         +Setting~AppConfig~ Config
-        +ObservableCollection~WorkflowResult~ Results
+        +ObservableCollection~WorkflowResultPreview~ Results
         +string StatusMessage
+        +ObservableCollection~TagResult~ TagResults
+        +string TagStatusMessage
+        +bool IsTagHistorySelected
         +bool IsLoading
         +RefreshCommand
+        +ShowResultsTabCommand
+        +ShowTagHistoryTabCommand
         +OpenDetailCommand
+        +CopyTagsCommand
         +OnNavigatedToAsync() Task
         +OnNavigatedFromAsync() Task
+    }
+
+    class TaggerViewModel {
+        +Setting~AppConfig~ Config
+        +bool IsConfigLoaded
+        +string? SelectedImagePath
+        +BitmapImage? SelectedImagePreview
+        +bool IsRunning
+        +string ResultTags
+        +bool HasResult
+        +BrowseImageCommand
+        +SetSelectedImage(string) void
+        +TagImageCommand
+        +CopyTagsCommand
+        +OnNavigatedToAsync() Task
+        +OnNavigatedFromAsync() Task
+    }
+
+    class ResultDetailViewModel {
+        +WorkflowResult Result
+        +ObservableCollection~OutputFilePreview~ Previews
+        +ResultDetailViewModel(WorkflowResult, Setting~AppConfig~)
+        +OpenEnlargedCommand
     }
 
     %% ----- Services -----
@@ -421,6 +607,13 @@ classDiagram
         -Setting~AppConfig~ _config
         +StartAsync(CancellationToken) Task
         +StopAsync(CancellationToken) Task
+    }
+
+    class PreviewImageLoader {
+        -IPreviewImageCacheService _cacheService
+        +PreviewImageLoader()
+        +LoadAsync(OutputFilePreview, IComfyUIClient, string?, string) Task
+        +LoadFullSize(string) BitmapImage$
     }
 
     %% ----- Helpers -----
@@ -449,28 +642,62 @@ classDiagram
         +ConvertBack(object, Type, object, CultureInfo) object
     }
 
+    class NullToVisibilityInverseConverter {
+        <<IValueConverter>>
+        +Convert(object, Type, object, CultureInfo) object
+        +ConvertBack(object, Type, object, CultureInfo) object
+    }
+
+    class FileTypeToVisibilityConverter {
+        <<IValueConverter>>
+        +Convert(object, Type, object, CultureInfo) object
+        +ConvertBack(object, Type, object, CultureInfo) object
+    }
+
+    class ResultMessageConverter {
+        <<IValueConverter>>
+        +Convert(object, Type, object, CultureInfo) object
+        +ConvertBack(object, Type, object, CultureInfo) object
+    }
+
     %% ----- 継承・実装 -----
 
     ObservableObject <|-- WindowSettingData
     ObservableObject <|-- AppConfig
     ObservableObject <|-- LoraSlot
+    ObservableObject <|-- OutputFilePreview
+    ObservableObject <|-- WorkflowResultPreview
     ObservableObject <|-- MainWindowViewModel
     ObservableObject <|-- DashboardViewModel
     ObservableObject <|-- SettingsViewModel
     ObservableObject <|-- DataViewModel
+    ObservableObject <|-- TaggerViewModel
+    ObservableObject <|-- ResultDetailViewModel
     INavigationAware <|.. DashboardViewModel
     INavigationAware <|.. SettingsViewModel
     INavigationAware <|.. DataViewModel
+    INavigationAware <|.. TaggerViewModel
     IHostedService <|.. ApplicationHostService
 
     %% ----- 関連 -----
 
     AppConfig "1" *-- "1" WindowSettingData : windowSetting
+    WorkflowResultPreview "1" o-- "0..1" OutputFilePreview : preview
     MainWindowViewModel --> Setting~AppConfig~ : uses
     DashboardViewModel --> Setting~AppConfig~ : uses
     DashboardViewModel "1" o-- "*" LoraSlot : loraSlots
+    DashboardViewModel "1" o-- "1" UIItemBaseModel~SizeOption~ : sizeLabelList
+    DashboardViewModel "1" *-- "*" OutputFilePreview : previewThumbnails
+    DashboardViewModel --> PreviewImageLoader : uses
     SettingsViewModel --> Setting~AppConfig~ : uses
     DataViewModel --> Setting~AppConfig~ : uses
+    DataViewModel "1" *-- "*" WorkflowResultPreview : results
+    DataViewModel "1" *-- "*" TagResult : tagResults
+    DataViewModel --> PreviewImageLoader : uses
+    DataViewModel --> ResultDetailViewModel : opens
+    TaggerViewModel --> Setting~AppConfig~ : uses
+    ResultDetailViewModel "1" *-- "*" OutputFilePreview : previews
+    ResultDetailViewModel --> PreviewImageLoader : uses
     Setting~AppConfig~ --> AppConfig : manages
 ```
 
@@ -504,6 +731,19 @@ classDiagram
         +ObservableSize(double, double)
         +ToSize() Size
         +FromSize(Size) void
+    }
+
+    %% ----- Ui -----
+
+    class UIItemBaseModel~T~ {
+        +ObservableCollection~T~ ItemList
+        +int SelectedIndex
+        +bool Enable
+        +UIItemBaseModel()
+        +UIItemBaseModel(UIItemBaseModel~T~)
+        +Init(List~T~, T) void
+        +Add(T, bool) void
+        +Clear() void
     }
 
     %% ----- Common -----
@@ -600,6 +840,14 @@ classDiagram
         +string? Error
     }
 
+    class TagResult {
+        +string Status
+        +string Timestamp
+        +string? InputFilename
+        +string? Tags
+        +string? Error
+    }
+
     %% ----- Services -----
 
     class IComfyUIClient {
@@ -609,22 +857,26 @@ classDiagram
         +UploadImageAsync(byte[], string) Task~string~
         +GetHistoryAsync(string) Task~JsonElement~
         +GetOutputsAsync(string) Task~List~OutputFile~~
+        +GetImageAsync(string, string, string) Task~byte[]~
     }
 
     class ComfyUIClient {
-        -string _baseUrl
+        -string _url
+        -HttpClient _httpClient
+        +ComfyUIClient(string, HttpClient)
         +SubmitAsync(JsonObject, string) Task~string~
         +MonitorAsync(string, string) Task
         +UploadImageAsync(byte[], string) Task~string~
         +GetHistoryAsync(string) Task~JsonElement~
         +GetOutputsAsync(string) Task~List~OutputFile~~
+        +GetImageAsync(string, string, string) Task~byte[]~
     }
 
     class WorkflowBuilder {
         -string _templatesDir
         +SelectTemplate(int, string) string
         +LoadTemplate(string) JsonObject
-        +Apply(JsonObject, PromptPair, List~ResolvedLora~, ImageSize) JsonObject
+        +Apply(JsonObject, PromptPair, List~ResolvedLora~, long?, ImageSize?) JsonObject
     }
 
     class WorkflowRunner {
@@ -632,6 +884,7 @@ classDiagram
         +string? PromptId
         +WorkflowParameters? Parameters
         +WorkflowRunner(string, string)
+        +GetImageSize(string) ImageSize
         +ExecuteAsync(List~string~, PromptPair, ImageSize?) Task~List~OutputFile~~
         +RunAsync(string, string) Task
     }
@@ -639,21 +892,36 @@ classDiagram
     class ConfigLoader {
         <<static>>
         +LoadConfig(string) WorkflowConfig
+        +LoadTaggerConfig(string) WorkflowConfig
         +LoadAndValidateInput(string) WorkflowInput
         +ValidateInputs(List~string~, PromptPair, ImageSize?) void
+        +ValidateWd14TaggerConfig(WorkflowConfig) void
     }
 
     class Wd14TaggerRunner {
         -IComfyUIClient _client
-        +RunAsync(string, Wd14TaggerConfig) Task~string~
+        +Wd14TaggerRunner(string)
+        +TagAsync(byte[], string) Task~string~
+    }
+
+    class IPreviewImageCacheService {
+        <<interface>>
+        +GetOrFetchAsync(IComfyUIClient, string?, OutputFile, string) Task~string?~
+    }
+
+    class PreviewImageCacheService {
+        +IsImageFile(string) bool$
+        +GetOrFetchAsync(IComfyUIClient, string?, OutputFile, string) Task~string?~
     }
 
     %% ----- 継承・実装 -----
 
     ObservableObject <|-- ObservablePoint
     ObservableObject <|-- ObservableSize
+    ObservableObject <|-- UIItemBaseModel~T~
     Exception <|-- ComfyUIException
     IComfyUIClient <|.. ComfyUIClient
+    IPreviewImageCacheService <|.. PreviewImageCacheService
 
     %% ----- 関連 -----
 
@@ -681,5 +949,9 @@ classDiagram
     WorkflowRunner ..> OutputFile : returns
 
     Wd14TaggerRunner --> IComfyUIClient : uses
+    Wd14TaggerRunner --> ConfigLoader : uses
     Wd14TaggerRunner ..> Wd14TaggerConfig : uses
+
+    PreviewImageCacheService --> IComfyUIClient : uses
+    PreviewImageCacheService ..> OutputFile : uses
 ```

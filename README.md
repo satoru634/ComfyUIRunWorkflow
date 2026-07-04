@@ -1,5 +1,7 @@
 # ComfyUIRunWorkflow
 
+✨ [English](doc/README_english.md)
+
 ComfyUI のワークフローを GUI から実行するツール。[comfyui_tools](https://github.com/satoru634/comfyui_tools) の C# WPF 移植版。
 
 ## 機能
@@ -12,45 +14,46 @@ ComfyUI のワークフローを GUI から実行するツール。[comfyui_tool
 - Data ページでのタグ付け履歴表示（生成結果とタブで切り替え）
 - テーマ切り替え・接続設定の永続化
 
-## 使い方
+## クイックスタート
+
+### 必要環境
+
+- Windows 10/11
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) （Visual Studio 2022以上）
+- 起動済みの [ComfyUI](https://github.com/comfyanonymous/ComfyUI) サーバー
+
+※本プロジェクト同梱のワークフローテンプレートが使用する、以下のカスタムノード（ComfyUI 側に事前インストールが必要です）
+
+- [ComfyUI-Impact-Pack](https://github.com/ltdrdata/ComfyUI-Impact-Pack)
+- [ComfyUI-Impact-Subpack](https://github.com/ltdrdata/ComfyUI-Impact-Subpack)
+- [ComfyUI-WD-Timm-Tagger](https://github.com/bedovyy/ComfyUI-WD-Timm-Tagger)
+
+### ビルド・起動
+
+```bash
+git clone --recursive https://github.com/satoru634/ComfyUIRunWorkflow.git
+cd ComfyUIRunWorkflow
+dotnet run --project ComfyUIRunWorkflow
+```
 
 ### 初回設定
 
-1. アプリを起動し、**設定**ページを開く
-2. **ComfyUI URL** を入力（デフォルト: `http://127.0.0.1:8188`）
-3. **workflow_config.json パス** で `workflow_config.json` ファイルを選択
-4. **結果出力フォルダ** で結果 JSON の保存先を選択
+1. **設定** ページを開きます
+2. **ComfyUI URL**（デフォルト: `http://127.0.0.1:8188`）・**workflow_config.json パス**・**結果出力フォルダ** を設定します
 
-### ワークフロー実行
+リポジトリ直下にサンプルの [`workflow_config.json`](workflow_config.json) を配置しています。LoRA のファイル名など環境に合わせて内容を編集のうえ、**workflow_config.json パス** にこのファイルを指定してください。
 
-1. **Home** ページを開く
-2. ワークフローを選択
-3. ポジティブ・ネガティブプロンプトを入力
-4. 画像サイズ（プリセット or カスタム）を選択
-5. LoRA を追加（任意）
-6. 必要に応じて **バッチ数**（1〜10、既定 1）を指定
-7. **実行** ボタンをクリック
+![設定ページ](doc/images/settings_page.png)
 
-バッチ数を2以上に指定すると、同じ内容（シードのみ自動更新）で指定回数分を順番に実行する。実行中は「N/M件目を実行中」の進捗が表示され、全出力ファイルはまとめて1件の実行結果として保存される。途中で ComfyUI 側のエラーが発生した場合は、その時点で中断し、それまでに成功した分だけをエラー付きの結果として保存する。
+### ワークフローを実行してみる
 
-### 結果確認
+1. **Home** ページでワークフロー・プロンプト・画像サイズを選択します
+2. **実行** ボタンをクリックします
+3. **Data** ページで結果とプレビュー画像を確認します
 
-- **Data** ページで実行履歴を一覧表示（サムネイル付き）
-- 各行をクリックすると詳細ダイアログが開き、出力ファイルのサムネイル一覧を表示
-- サムネイルをクリックすると原寸で拡大表示
-- ページ上部の「生成結果」「タグ付け履歴」タブで表示を切り替え可能
-  - タグ付け履歴タブでは、`結果出力フォルダ/tag_result_*.json` を新しい順に一覧表示（入力ファイル名・タグ全文・コピーボタン）。サムネイルや詳細ダイアログはなく、カード上で完結する
+![Home ページ](doc/images/dashboard_page.png)
 
-サムネイルは ComfyUI の `GET /view` API から取得し、`結果出力フォルダ/preview_cache/` にキャッシュされる（同じ画像は 2 回目以降サーバーへ再アクセスしない）。
-
-### WD14 Tagger
-
-1. **Tagger** ページを開く
-2. 「画像を選択」ボタン、またはドラッグ＆ドロップで画像を指定
-3. **タグ付け実行** ボタンをクリック
-4. 右パネルにタグ（カンマ区切り）が表示されるので、**コピー** ボタンでクリップボードにコピー
-
-モデル名・しきい値（general/character threshold）は `workflow_config.json` の `wd14_tagger` セクションの値が使用される（ページ上での変更不可）。タグ付け結果は `結果出力フォルダ/tag_result_{timestamp}.json` に保存される（ワークフロー実行結果 `result_*.json` とは別管理）。
+各ページの詳しい使い方（LoRA・バッチ数・WD14 Tagger・タグ付け履歴タブなど）は [doc/usage.md](doc/usage.md) を参照してください。
 
 ## 技術スタック
 
@@ -70,4 +73,14 @@ ComfyUIRunWorkflow/   ← ソリューションルート
   ComfyUILibsTests/   ← ComfyUILibs テスト（156件）
   ComfyUIRunWorkflow/ ← WPF GUI プロジェクト
   ComfyUIRunWorkflowTests/ ← GUI テスト（157件）
+  doc/                ← ドキュメント（使い方・英語版・クラス図）
 ```
+
+## ドキュメント
+
+- [使い方（詳細）](doc/usage.md)
+- [クラス図](doc/class_diagram.md)
+
+## ライセンス
+
+[LICENSE](LICENSE) を参照してください。
