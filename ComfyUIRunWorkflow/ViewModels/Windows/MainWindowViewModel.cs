@@ -31,6 +31,12 @@ namespace ComfyUIRunWorkflow.ViewModels.Windows
                 Content = "Results",
                 Icon = new SymbolIcon { Symbol = SymbolRegular.TaskListLtr20 },
                 TargetPageType = typeof(Views.Pages.DataPage)
+            },
+            new NavigationViewItem()
+            {
+                Content = "Tagger",
+                Icon = new SymbolIcon { Symbol = SymbolRegular.TagSearch20 },
+                TargetPageType = typeof(Views.Pages.TaggerPage)
             }
         };
 
