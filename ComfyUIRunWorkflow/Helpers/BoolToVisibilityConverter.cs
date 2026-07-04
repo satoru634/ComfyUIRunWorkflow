@@ -22,6 +22,22 @@ namespace ComfyUIRunWorkflow.Helpers
 
 
     /// <summary>
+    /// null または空文字を逆転した <see cref="Visibility"/> に変換する。
+    /// null/空文字 → Visible、それ以外 → Collapsed。
+    /// </summary>
+    [ValueConversion(typeof(object), typeof(Visibility))]
+    internal class NullToVisibilityInverseConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            => value is null || (value is string s && string.IsNullOrEmpty(s))
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => throw new NotSupportedException();
+    }
+
+    /// <summary>
     /// bool 値を <see cref="Visibility"/> に変換する。true → Visible、false → Collapsed。
     /// </summary>
     [ValueConversion(typeof(bool), typeof(Visibility))]
