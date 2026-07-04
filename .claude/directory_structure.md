@@ -58,7 +58,7 @@ ComfyUIRunWorkflow/                     <- ソリューションルート
     ViewModels/Pages/
       DashboardViewModel.cs             <- ワークフロー実行 VM（ConfigLoader + WorkflowRunner 使用、実行直後のプレビュー表示を含む）
       SettingsViewModel.cs              <- 設定 VM（テーマ・URL・パス管理）
-      DataViewModel.cs                  <- 実行結果一覧 VM（result_*.json 読み込み、サムネイル非同期取得）
+      DataViewModel.cs                  <- 実行結果一覧 VM（result_*.json / tag_result_*.json 読み込み、サムネイル非同期取得、生成結果⇔タグ付け履歴のタブ切り替え）
       TaggerViewModel.cs                <- WD14 Tagger VM（画像選択・タグ付け実行・tag_result_*.json 保存）
     ViewModels/Windows/
       MainWindowViewModel.cs            <- ナビゲーション定義・ウィンドウ状態保存
@@ -66,7 +66,7 @@ ComfyUIRunWorkflow/                     <- ソリューションルート
     Views/Pages/
       DashboardPage.xaml                <- ワークフロー実行 UI（生成結果プレビューを含む）
       SettingsPage.xaml                 <- 設定 UI
-      DataPage.xaml                     <- 実行結果一覧 UI（サムネイル付き）
+      DataPage.xaml                     <- 実行結果一覧 UI（サムネイル付き、生成結果⇔タグ付け履歴のタブ切り替え）
       TaggerPage.xaml                   <- WD14 Tagger UI（画像選択・ドラッグ&ドロップ・タグ結果表示/コピー）
     Views/Windows/
       MainWindow.xaml                   <- ナビゲーションホスト
