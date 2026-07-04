@@ -26,6 +26,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -49,145 +50,298 @@
                 Icon="{ui:SymbolIcon ArrowSync24}" />
         </Grid>
 
-        <!-- 状態メッセージ -->
-        <TextBlock
-            Grid.Row="1"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            FontSize="14"
-            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-            Text="{Binding ViewModel.StatusMessage}"
-            Visibility="{Binding ViewModel.StatusMessage, Converter={StaticResource NullToVisibilityConverter}}" />
+        <!-- タブ切り替え -->
+        <StackPanel Grid.Row="1" Margin="16,0,16,8" Orientation="Horizontal">
+            <ui:Button
+                Margin="0,0,8,0"
+                Command="{Binding ViewModel.ShowResultsTabCommand}"
+                Content="生成結果">
+                <ui:Button.Style>
+                    <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                        <Setter Property="Appearance" Value="Secondary" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ViewModel.IsTagHistorySelected}" Value="False">
+                                <Setter Property="Appearance" Value="Primary" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ui:Button.Style>
+            </ui:Button>
+            <ui:Button
+                Command="{Binding ViewModel.ShowTagHistoryTabCommand}"
+                Content="タグ付け履歴">
+                <ui:Button.Style>
+                    <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                        <Setter Property="Appearance" Value="Secondary" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ViewModel.IsTagHistorySelected}" Value="True">
+                                <Setter Property="Appearance" Value="Primary" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ui:Button.Style>
+            </ui:Button>
+        </StackPanel>
 
-        <!-- 読み込み中インジケーター -->
+        <!-- 読み込み中インジケーター（両タブ共通） -->
         <ProgressBar
-            Grid.Row="1"
+            Grid.Row="2"
             Height="4"
             VerticalAlignment="Top"
             IsIndeterminate="True"
             Visibility="{Binding ViewModel.IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" />
 
-        <!-- 結果リスト -->
-        <ScrollViewer
-            Grid.Row="1"
-            Margin="16,0,16,16"
-            VerticalScrollBarVisibility="Auto">
-            <ItemsControl ItemsSource="{Binding ViewModel.Results, Mode=OneWay}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="{x:Type wpfModels:WorkflowResultPreview}">
-                        <Border
-                            Margin="0,0,0,6"
-                            Padding="12"
-                            Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-                            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="4"
-                            Cursor="Hand">
-                            <Border.InputBindings>
-                                <MouseBinding
-                                    Command="{Binding DataContext.ViewModel.OpenDetailCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
-                                    CommandParameter="{Binding Result}"
-                                    MouseAction="LeftClick" />
-                            </Border.InputBindings>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
+        <!-- 生成結果タブ -->
+        <Grid Grid.Row="2" Visibility="{Binding ViewModel.IsTagHistorySelected, Converter={StaticResource BoolToVisibilityInverseConverter}}">
 
-                                <!-- ステータスアイコン -->
-                                <Border
-                                    Grid.Column="0"
-                                    Width="32"
-                                    Height="32"
-                                    Margin="0,0,12,0"
-                                    CornerRadius="16"
-                                    VerticalAlignment="Center">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Result.Status}" Value="success">
-                                                    <Setter Property="Background" Value="{DynamicResource SystemFillColorSuccessBackgroundBrush}" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Result.Status}" Value="error">
-                                                    <Setter Property="Background" Value="{DynamicResource SystemFillColorCriticalBackgroundBrush}" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
+            <!-- 状態メッセージ -->
+            <TextBlock
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                FontSize="14"
+                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                Text="{Binding ViewModel.StatusMessage}"
+                Visibility="{Binding ViewModel.StatusMessage, Converter={StaticResource NullToVisibilityConverter}}" />
+
+            <!-- 結果リスト -->
+            <ScrollViewer
+                Margin="16,0,16,16"
+                VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding ViewModel.Results, Mode=OneWay}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type wpfModels:WorkflowResultPreview}">
+                            <Border
+                                Margin="0,0,0,6"
+                                Padding="12"
+                                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                Cursor="Hand">
+                                <Border.InputBindings>
+                                    <MouseBinding
+                                        Command="{Binding DataContext.ViewModel.OpenDetailCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                                        CommandParameter="{Binding Result}"
+                                        MouseAction="LeftClick" />
+                                </Border.InputBindings>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- ステータスアイコン -->
+                                    <Border
+                                        Grid.Column="0"
+                                        Width="32"
+                                        Height="32"
+                                        Margin="0,0,12,0"
+                                        CornerRadius="16"
+                                        VerticalAlignment="Center">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding Result.Status}" Value="success">
-                                                        <Setter Property="Text" Value="✓" />
-                                                        <Setter Property="Foreground" Value="{DynamicResource SystemFillColorSuccessBrush}" />
+                                                        <Setter Property="Background" Value="{DynamicResource SystemFillColorSuccessBackgroundBrush}" />
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding Result.Status}" Value="error">
-                                                        <Setter Property="Text" Value="✗" />
-                                                        <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCriticalBrush}" />
+                                                        <Setter Property="Background" Value="{DynamicResource SystemFillColorCriticalBackgroundBrush}" />
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </Border>
+                                        </Border.Style>
+                                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Result.Status}" Value="success">
+                                                            <Setter Property="Text" Value="✓" />
+                                                            <Setter Property="Foreground" Value="{DynamicResource SystemFillColorSuccessBrush}" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Result.Status}" Value="error">
+                                                            <Setter Property="Text" Value="✗" />
+                                                            <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCriticalBrush}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Border>
 
-                                <!-- サムネイル -->
-                                <Border
-                                    Grid.Column="1"
-                                    Width="48"
-                                    Height="48"
-                                    Margin="0,0,12,0"
-                                    Background="{DynamicResource ControlFillColorDefaultBrush}"
-                                    CornerRadius="4"
-                                    Visibility="{Binding Preview, Converter={StaticResource NullToVisibilityConverter}}">
-                                    <Grid>
-                                        <Image
-                                            Stretch="UniformToFill"
-                                            Source="{Binding Preview.Thumbnail}"
-                                            Visibility="{Binding Preview.Thumbnail, Converter={StaticResource NullToVisibilityConverter}}" />
-                                        <ui:SymbolIcon
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                            FontSize="18"
+                                    <!-- サムネイル -->
+                                    <Border
+                                        Grid.Column="1"
+                                        Width="48"
+                                        Height="48"
+                                        Margin="0,0,12,0"
+                                        Background="{DynamicResource ControlFillColorDefaultBrush}"
+                                        CornerRadius="4"
+                                        Visibility="{Binding Preview, Converter={StaticResource NullToVisibilityConverter}}">
+                                        <Grid>
+                                            <Image
+                                                Stretch="UniformToFill"
+                                                Source="{Binding Preview.Thumbnail}"
+                                                Visibility="{Binding Preview.Thumbnail, Converter={StaticResource NullToVisibilityConverter}}" />
+                                            <ui:SymbolIcon
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                FontSize="18"
+                                                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                                Symbol="ImageOff24"
+                                                Visibility="{Binding Preview.HasError, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                        </Grid>
+                                    </Border>
+
+                                    <!-- 情報 -->
+                                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                        <TextBlock
+                                            FontSize="13"
+                                            FontWeight="Medium"
+                                            Text="{Binding Result.Timestamp}" />
+                                        <!-- 成功時: 出力ファイル名, エラー時: エラーメッセージ -->
+                                        <TextBlock
+                                            FontSize="12"
+                                            TextTrimming="CharacterEllipsis"
+                                            Text="{Binding Result, Converter={StaticResource ResultMessageConverter}}">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Result.Status}" Value="success">
+                                                            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Result.Status}" Value="error">
+                                                            <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCriticalBrush}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- タグ付け履歴タブ -->
+        <Grid Grid.Row="2" Visibility="{Binding ViewModel.IsTagHistorySelected, Converter={StaticResource BoolToVisibilityConverter}}">
+
+            <!-- 状態メッセージ -->
+            <TextBlock
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                FontSize="14"
+                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                Text="{Binding ViewModel.TagStatusMessage}"
+                Visibility="{Binding ViewModel.TagStatusMessage, Converter={StaticResource NullToVisibilityConverter}}" />
+
+            <!-- タグ付け履歴リスト -->
+            <ScrollViewer
+                Margin="16,0,16,16"
+                VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding ViewModel.TagResults, Mode=OneWay}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type models:TagResult}">
+                            <Border
+                                Margin="0,0,0,6"
+                                Padding="12"
+                                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="4">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- ステータスアイコン -->
+                                    <Border
+                                        Grid.Column="0"
+                                        Width="32"
+                                        Height="32"
+                                        Margin="0,0,12,0"
+                                        VerticalAlignment="Top"
+                                        CornerRadius="16">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Status}" Value="success">
+                                                        <Setter Property="Background" Value="{DynamicResource SystemFillColorSuccessBackgroundBrush}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="error">
+                                                        <Setter Property="Background" Value="{DynamicResource SystemFillColorCriticalBackgroundBrush}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Status}" Value="success">
+                                                            <Setter Property="Text" Value="✓" />
+                                                            <Setter Property="Foreground" Value="{DynamicResource SystemFillColorSuccessBrush}" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Status}" Value="error">
+                                                            <Setter Property="Text" Value="✗" />
+                                                            <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCriticalBrush}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Border>
+
+                                    <!-- 情報 -->
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock
+                                            FontSize="13"
+                                            FontWeight="Medium"
+                                            Text="{Binding Timestamp}" />
+                                        <TextBlock
+                                            Margin="0,2,0,0"
+                                            FontSize="12"
                                             Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                                            Symbol="ImageOff24"
-                                            Visibility="{Binding Preview.HasError, Converter={StaticResource BoolToVisibilityConverter}}" />
-                                    </Grid>
-                                </Border>
+                                            Text="{Binding InputFilename}" />
+                                        <!-- 成功時: タグ全文, エラー時: エラーメッセージ -->
+                                        <TextBlock
+                                            Margin="0,4,0,0"
+                                            FontSize="12"
+                                            TextWrapping="Wrap"
+                                            Visibility="{Binding Tags, Converter={StaticResource NullToVisibilityConverter}}"
+                                            Text="{Binding Tags}" />
+                                        <TextBlock
+                                            Margin="0,4,0,0"
+                                            FontSize="12"
+                                            Foreground="{DynamicResource SystemFillColorCriticalBrush}"
+                                            TextWrapping="Wrap"
+                                            Visibility="{Binding Error, Converter={StaticResource NullToVisibilityConverter}}"
+                                            Text="{Binding Error}" />
+                                    </StackPanel>
 
-                                <!-- 情報 -->
-                                <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                    <TextBlock
-                                        FontSize="13"
-                                        FontWeight="Medium"
-                                        Text="{Binding Result.Timestamp}" />
-                                    <!-- 成功時: 出力ファイル名, エラー時: エラーメッセージ -->
-                                    <TextBlock
-                                        FontSize="12"
-                                        TextTrimming="CharacterEllipsis"
-                                        Text="{Binding Result, Converter={StaticResource ResultMessageConverter}}">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Result.Status}" Value="success">
-                                                        <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding Result.Status}" Value="error">
-                                                        <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCriticalBrush}" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
+                                    <!-- コピーボタン -->
+                                    <ui:Button
+                                        Grid.Column="2"
+                                        Margin="8,0,0,0"
+                                        VerticalAlignment="Top"
+                                        Command="{Binding DataContext.ViewModel.CopyTagsCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                                        CommandParameter="{Binding}"
+                                        Icon="{ui:SymbolIcon Copy16}"
+                                        ToolTip="タグをコピー"
+                                        Appearance="Secondary"
+                                        Visibility="{Binding Tags, Converter={StaticResource NullToVisibilityConverter}}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+
     </Grid>
 </Page>

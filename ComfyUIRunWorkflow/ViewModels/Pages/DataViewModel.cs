@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
+using System.Windows;
 using ComfyUILibs.Common;
 using ComfyUILibs.Models;
 using ComfyUILibs.Services;
@@ -13,7 +14,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 {
     /// <summary>
     /// 実行結果一覧ページの ViewModel。
-    /// ResultsFolder 内の result_*.json を読み込んで一覧表示する。
+    /// ResultsFolder 内の result_*.json（生成結果）・tag_result_*.json（タグ付け履歴）を読み込んで一覧表示する。
     /// </summary>
     public partial class DataViewModel : ObservableObject, INavigationAware
     {
@@ -27,9 +28,21 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         [ObservableProperty]
         private ObservableCollection<WorkflowResultPreview> _results = new();
 
-        /// <summary>現在の状態メッセージ（空ならメッセージなし）。</summary>
+        /// <summary>現在の状態メッセージ（空ならメッセージなし）。「生成結果」タブに対応する。</summary>
         [ObservableProperty]
         private string _statusMessage = "";
+
+        /// <summary>読み込んだタグ付け履歴のリスト（新しい順）。</summary>
+        [ObservableProperty]
+        private ObservableCollection<TagResult> _tagResults = new();
+
+        /// <summary>タグ付け履歴タブの状態メッセージ（空ならメッセージなし）。</summary>
+        [ObservableProperty]
+        private string _tagStatusMessage = "";
+
+        /// <summary>「タグ付け履歴」タブを表示中かどうか（false の場合は「生成結果」タブ）。</summary>
+        [ObservableProperty]
+        private bool _isTagHistorySelected = false;
 
         /// <summary>読み込み中かどうか。</summary>
         [ObservableProperty]
@@ -58,9 +71,17 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         [RelayCommand]
         private Task RefreshAsync() => LoadResultsAsync();
 
+        /// <summary>「生成結果」タブを表示する。</summary>
+        [RelayCommand]
+        private void ShowResultsTab() => IsTagHistorySelected = false;
+
+        /// <summary>「タグ付け履歴」タブを表示する。</summary>
+        [RelayCommand]
+        private void ShowTagHistoryTab() => IsTagHistorySelected = true;
+
         /// <summary>
-        /// ResultsFolder 内の result_*.json を読み込んで Results を更新する。
-        /// フォルダが未設定または存在しない場合はエラーメッセージを表示する。
+        /// ResultsFolder 内の result_*.json（生成結果）と tag_result_*.json（タグ付け履歴）を読み込んで更新する。
+        /// フォルダが未設定または存在しない場合は両タブにエラーメッセージを表示する。
         /// </summary>
         private async Task LoadResultsAsync()
         {
@@ -68,48 +89,32 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
             if (string.IsNullOrWhiteSpace(folder))
             {
-                StatusMessage = "設定ページで結果出力フォルダを指定してください";
+                var message = "設定ページで結果出力フォルダを指定してください";
+                StatusMessage = message;
+                TagStatusMessage = message;
                 Results = new ObservableCollection<WorkflowResultPreview>();
+                TagResults = new ObservableCollection<TagResult>();
                 return;
             }
 
             if (!Directory.Exists(folder))
             {
-                StatusMessage = $"フォルダが見つかりません:\n{folder}";
+                var message = $"フォルダが見つかりません:\n{folder}";
+                StatusMessage = message;
+                TagStatusMessage = message;
                 Results = new ObservableCollection<WorkflowResultPreview>();
+                TagResults = new ObservableCollection<TagResult>();
                 return;
             }
 
             IsLoading = true;
             StatusMessage = "";
+            TagStatusMessage = "";
 
             try
             {
-                var files = await Task.Run(() =>
-                    Directory.GetFiles(folder, "result_*.json")
-                        .OrderByDescending(f => f)
-                        .ToArray());
-
-                var loaded = new ObservableCollection<WorkflowResultPreview>();
-                foreach (var file in files)
-                {
-                    try
-                    {
-                        var json = await File.ReadAllTextAsync(file);
-                        var result = JsonSerializer.Deserialize<WorkflowResult>(json, _jsonOptions);
-                        if (result != null)
-                            loaded.Add(new WorkflowResultPreview(result));
-                    }
-                    catch
-                    {
-                        // 読み込めないファイルはスキップする
-                    }
-                }
-
-                Results = loaded;
-
-                if (loaded.Count == 0)
-                    StatusMessage = "結果がありません";
+                await LoadWorkflowResultsAsync(folder);
+                await LoadTagHistoryAsync(folder);
             }
             finally
             {
@@ -117,6 +122,66 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             }
 
             _ = LoadThumbnailsAsync(Results, folder);
+        }
+
+        /// <summary>result_*.json を読み込んで Results を更新する。</summary>
+        private async Task LoadWorkflowResultsAsync(string folder)
+        {
+            var files = await Task.Run(() =>
+                Directory.GetFiles(folder, "result_*.json")
+                    .OrderByDescending(f => f)
+                    .ToArray());
+
+            var loaded = new ObservableCollection<WorkflowResultPreview>();
+            foreach (var file in files)
+            {
+                try
+                {
+                    var json = await File.ReadAllTextAsync(file);
+                    var result = JsonSerializer.Deserialize<WorkflowResult>(json, _jsonOptions);
+                    if (result != null)
+                        loaded.Add(new WorkflowResultPreview(result));
+                }
+                catch
+                {
+                    // 読み込めないファイルはスキップする
+                }
+            }
+
+            Results = loaded;
+
+            if (loaded.Count == 0)
+                StatusMessage = "結果がありません";
+        }
+
+        /// <summary>tag_result_*.json を読み込んで TagResults を更新する。</summary>
+        private async Task LoadTagHistoryAsync(string folder)
+        {
+            var files = await Task.Run(() =>
+                Directory.GetFiles(folder, "tag_result_*.json")
+                    .OrderByDescending(f => f)
+                    .ToArray());
+
+            var loaded = new ObservableCollection<TagResult>();
+            foreach (var file in files)
+            {
+                try
+                {
+                    var json = await File.ReadAllTextAsync(file);
+                    var result = JsonSerializer.Deserialize<TagResult>(json, _jsonOptions);
+                    if (result != null)
+                        loaded.Add(result);
+                }
+                catch
+                {
+                    // 読み込めないファイルはスキップする
+                }
+            }
+
+            TagResults = loaded;
+
+            if (loaded.Count == 0)
+                TagStatusMessage = "タグ付け履歴がありません";
         }
 
         /// <summary>
@@ -167,6 +232,14 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                 Owner = System.Windows.Application.Current.MainWindow
             };
             window.ShowDialog();
+        }
+
+        /// <summary>タグ付け履歴のタグ文字列をクリップボードにコピーする。</summary>
+        [RelayCommand]
+        private void CopyTags(TagResult result)
+        {
+            if (!string.IsNullOrEmpty(result.Tags))
+                Clipboard.SetText(result.Tags);
         }
     }
 }
