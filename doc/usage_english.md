@@ -26,6 +26,7 @@ Open this page first after launching the app and configure the following.
 | workflow_config.json path | The JSON file defining workflows, LoRA, and WD14 Tagger settings |
 | Results folder | Where execution results (`result_*.json`), tag history (`tag_result_*.json`), and the preview image cache (`preview_cache/`) are stored |
 | Theme | Switch between light and dark |
+| Language | Switch the display language between Japanese and English (default: Japanese; applies immediately, no restart required) |
 
 Settings persist across app restarts.
 
@@ -92,7 +93,7 @@ A dedicated page for selecting a single image, running the WD14 Tagger workflow,
 ### Steps
 
 1. Select an image via the "Select Image" button or by dragging and dropping it — a preview appears
-2. Click **Tag Image**
+2. Click **Run Tagging**
 3. The tags (comma-separated) appear in the right panel; click **Copy** to copy them to the clipboard
 
 ### Model and Thresholds

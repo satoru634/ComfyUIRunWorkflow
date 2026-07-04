@@ -15,6 +15,7 @@ A tool for running ComfyUI workflows from a GUI. A C# WPF port of [comfyui_tools
 - WD14 Tagger image tagging (select an image, get and copy a tag string)
 - Tag history display on the Data page (switch between it and results via tabs)
 - Theme switching and persisted connection settings
+- Japanese/English display language switching (Settings page, applies immediately, no restart required)
 
 ## Quick Start
 
@@ -70,9 +71,9 @@ For detailed, page-by-page usage (LoRA, batch count, WD14 Tagger, tag history ta
 ```
 ComfyUIRunWorkflow/   ← solution root
   ComfyUILibs/        ← shared library (submodule)
-  ComfyUILibsTests/   ← ComfyUILibs tests (156)
+  ComfyUILibsTests/   ← ComfyUILibs tests (162)
   ComfyUIRunWorkflow/ ← WPF GUI project
-  ComfyUIRunWorkflowTests/ ← GUI tests (157)
+  ComfyUIRunWorkflowTests/ ← GUI tests (173)
   doc/                ← documentation (usage, English versions, class diagram)
 ```
 

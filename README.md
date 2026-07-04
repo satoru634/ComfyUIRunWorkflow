@@ -15,6 +15,7 @@ ComfyUI のワークフローを GUI から実行するツール。[comfyui_tool
 - WD14 Tagger による画像タグ付け（画像を選択してタグ文字列を取得・コピー）
 - Data ページでのタグ付け履歴表示（生成結果とタブで切り替え）
 - テーマ切り替え・接続設定の永続化
+- 日本語/英語の表示言語切替（設定ページ、再起動不要で即時反映）
 
 ## クイックスタート
 
@@ -70,9 +71,9 @@ dotnet run --project ComfyUIRunWorkflow
 ```
 ComfyUIRunWorkflow/   ← ソリューションルート
   ComfyUILibs/        ← 共有ライブラリ（サブモジュール）
-  ComfyUILibsTests/   ← ComfyUILibs テスト（156件）
+  ComfyUILibsTests/   ← ComfyUILibs テスト（162件）
   ComfyUIRunWorkflow/ ← WPF GUI プロジェクト
-  ComfyUIRunWorkflowTests/ ← GUI テスト（157件）
+  ComfyUIRunWorkflowTests/ ← GUI テスト（173件）
   doc/                ← ドキュメント（使い方・英語版・クラス図）
 ```
 
