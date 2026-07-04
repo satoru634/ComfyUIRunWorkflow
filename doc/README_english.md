@@ -4,6 +4,8 @@
 
 A tool for running ComfyUI workflows from a GUI. A C# WPF port of [comfyui_tools](https://github.com/satoru634/comfyui_tools).
 
+![Home page](images/dashboard_page.png)
+
 ## Features
 
 - Run workflows (specify prompts, LoRA, and image size from the GUI)
@@ -50,8 +52,6 @@ A sample [`workflow_config.json`](../workflow_config.json) is included at the re
 1. On the **Home** page, choose a workflow, prompts, and image size
 2. Click **Run**
 3. Check the results and preview images on the **Data** page
-
-![Home page](images/dashboard_page.png)
 
 For detailed, page-by-page usage (LoRA, batch count, WD14 Tagger, tag history tab, etc.), see [doc/usage_english.md](usage_english.md).
 
