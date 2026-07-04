@@ -1,4 +1,6 @@
-﻿using ComfyUILibs.Common;
+﻿using System.Globalization;
+using ComfyUILibs.Common;
+using ComfyUIRunWorkflow.Helpers;
 using ComfyUIRunWorkflow.Models;
 using ComfyUIRunWorkflow.Views.Pages;
 using ComfyUIRunWorkflow.Views.Windows;
@@ -34,7 +36,18 @@ namespace ComfyUIRunWorkflow.Services
         /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            ApplyCulture();
             await HandleActivationAsync();
+        }
+
+        /// <summary>
+        /// 保存済みの Config.Data.Language から表示言語を適用する。
+        /// OS ロケールに関わらず、既定値（"ja"）に固定するため起動時に明示的に設定する。
+        /// </summary>
+        private void ApplyCulture()
+        {
+            var culture = new CultureInfo(_config.Data.Language);
+            LocalizationManager.Instance.CurrentCulture = culture;
         }
 
         /// <summary>

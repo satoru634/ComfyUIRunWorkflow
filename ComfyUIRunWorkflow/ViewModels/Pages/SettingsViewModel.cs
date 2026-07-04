@@ -1,4 +1,6 @@
+using System.Globalization;
 using ComfyUILibs.Common;
+using ComfyUIRunWorkflow.Helpers;
 using ComfyUIRunWorkflow.Models;
 using Microsoft.Win32;
 using Wpf.Ui.Abstractions.Controls;
@@ -31,6 +33,19 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             ApplicationTheme.Dark
         };
 
+        /// <summary>選択中の表示言語（"ja" / "en"）。変更時に即時適用される。</summary>
+        [ObservableProperty]
+        private string _selectedLanguage = "ja";
+
+        /// <summary>
+        /// 言語選択コンボボックスに表示する選択肢。ラベルは翻訳せず現地語表記のまま固定する。
+        /// </summary>
+        public List<LanguageOption> LanguageList { get; } = new List<LanguageOption>
+        {
+            new("ja", "日本語"),
+            new("en", "English"),
+        };
+
         /// <summary>DI コンテナから設定を受け取って初期化する。</summary>
         public SettingsViewModel(Setting<AppConfig> config)
         {
@@ -57,6 +72,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         {
             AppVersion = $"ComfyUIRunWorkflow - {GetAssemblyVersion()}";
             SelectedTheme = Config.Data.WindowSetting.Theme;
+            SelectedLanguage = Config.Data.Language;
             _isInitialized = true;
         }
 
@@ -71,6 +87,13 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             ApplicationThemeManager.Apply(value);
         }
 
+        /// <summary>言語が変更されたとき、設定へ保存してアプリに即時適用する（再起動不要）。</summary>
+        partial void OnSelectedLanguageChanged(string value)
+        {
+            Config.Data.Language = value;
+            LocalizationManager.Instance.CurrentCulture = new CultureInfo(value);
+        }
+
         // ── ファイル参照コマンド ──────────────────────────────────────────────
 
         /// <summary>workflow_config.json のファイル選択ダイアログを開く。</summary>
@@ -79,8 +102,8 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         {
             var dialog = new OpenFileDialog
             {
-                Title = "workflow_config.json を選択",
-                Filter = "JSON ファイル|*.json|すべてのファイル|*.*",
+                Title = LocalizationManager.Instance["Settings_ConfigFileDialogTitle"],
+                Filter = LocalizationManager.Instance["Settings_ConfigFileDialogFilter"],
             };
 
             if (!string.IsNullOrWhiteSpace(Config.Data.ConfigPath))
@@ -100,7 +123,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         {
             var dialog = new OpenFolderDialog
             {
-                Title = "結果出力フォルダを選択",
+                Title = LocalizationManager.Instance["Settings_ResultsFolderDialogTitle"],
             };
 
             if (!string.IsNullOrWhiteSpace(Config.Data.ResultsFolder))

@@ -7,6 +7,7 @@ using ComfyUILibs.Common;
 using ComfyUILibs.Exceptions;
 using ComfyUILibs.Models;
 using ComfyUILibs.Services;
+using ComfyUIRunWorkflow.Helpers;
 using ComfyUIRunWorkflow.Models;
 using ComfyUIRunWorkflow.Services;
 using Wpf.Ui;
@@ -98,7 +99,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
                 _snackbarService.Show(
                     "Error",
-                    "設定ページで workflow_config.json のパスを指定してください。",
+                    LocalizationManager.Instance["Common_ConfigPathNotSet"],
                     ControlAppearance.Danger,
                     new SymbolIcon(SymbolRegular.ErrorCircle24),
                     TimeSpan.FromSeconds(3.0)
@@ -118,7 +119,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
                 _snackbarService.Show(
                     "Error",
-                    $"WD14 Tagger 設定の読み込みエラー: {ex.Message}",
+                    string.Format(LocalizationManager.Instance["Tagger_ConfigLoadError_Format"], ex.Message),
                     ControlAppearance.Danger,
                     new SymbolIcon(SymbolRegular.ErrorCircle24),
                     TimeSpan.FromSeconds(3.0)
@@ -134,8 +135,8 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         {
             var dialog = new Microsoft.Win32.OpenFileDialog
             {
-                Title = "タグ付けする画像を選択",
-                Filter = "画像ファイル|*.png;*.jpg;*.jpeg;*.webp|すべてのファイル|*.*",
+                Title = LocalizationManager.Instance["Tagger_ImageFileDialogTitle"],
+                Filter = LocalizationManager.Instance["Tagger_ImageFileDialogFilter"],
             };
 
             if (dialog.ShowDialog() == true)
@@ -193,8 +194,8 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                 };
 
                 _snackbarService.Show(
-                    "完了",
-                    "タグ付けが完了しました",
+                    LocalizationManager.Instance["Common_Completed"],
+                    LocalizationManager.Instance["Tagger_TaggingCompleted"],
                     ControlAppearance.Success,
                     new SymbolIcon(SymbolRegular.CheckmarkCircle24),
                     TimeSpan.FromSeconds(4.0)
@@ -211,7 +212,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                 };
 
                 _snackbarService.Show(
-                    "エラー",
+                    LocalizationManager.Instance["Common_Error"],
                     ex.Message,
                     ControlAppearance.Danger,
                     new SymbolIcon(SymbolRegular.ErrorCircle24),

@@ -5,7 +5,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-    Title="画像プレビュー"
+    xmlns:helpers="clr-namespace:ComfyUIRunWorkflow.Helpers"
+    Title="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ImagePreview_Title]}"
     Width="900"
     Height="700"
     MinWidth="320"
@@ -27,7 +28,7 @@
 
         <ui:TitleBar
             Grid.Row="0"
-            Title="画像プレビュー"
+            Title="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ImagePreview_Title]}"
             Height="36"
             CloseWindowByDoubleClickOnIcon="False" />
 

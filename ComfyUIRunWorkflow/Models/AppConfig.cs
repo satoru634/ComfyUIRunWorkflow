@@ -66,6 +66,10 @@ namespace ComfyUIRunWorkflow.Models
         [ObservableProperty]
         private string _resultsFolder = "";
 
+        /// <summary>GUI の表示言語（"ja" / "en"）。OS ロケールに関わらず既定は "ja"。</summary>
+        [ObservableProperty]
+        private string _language = "ja";
+
         /// <summary>
         /// 初回起動時のデフォルト値を設定する。
         /// 設定ファイルが存在する場合は JSON デシリアライズ後に上書きされる。

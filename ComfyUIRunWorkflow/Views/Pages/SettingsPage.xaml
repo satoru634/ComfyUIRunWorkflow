@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:ComfyUIRunWorkflow.Views.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:helpers="clr-namespace:ComfyUIRunWorkflow.Helpers"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Title="SettingsPage"
     d:DataContext="{d:DesignInstance local:SettingsPage, IsDesignTimeCreatable=False}"
@@ -23,7 +24,7 @@
                 Margin="0,0,0,12"
                 FontSize="20"
                 FontWeight="SemiBold"
-                Text="設定" />
+                Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Settings_Title]}" />
 
             <!-- 表示 -->
             <TextBlock
@@ -31,9 +32,9 @@
                 FontSize="14"
                 FontWeight="Medium"
                 Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                Text="表示" />
+                Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Settings_DisplaySectionLabel]}" />
             <Border
-                Margin="0,0,0,12"
+                Margin="0,0,0,4"
                 Padding="12"
                 Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
                 BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
@@ -54,12 +55,46 @@
                         Grid.Column="1"
                         VerticalAlignment="Center"
                         FontSize="14"
-                        Text="テーマ" />
+                        Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Settings_ThemeLabel]}" />
                     <ComboBox
                         Grid.Column="2"
                         Width="200"
                         ItemsSource="{Binding ViewModel.ThemeList, Mode=OneWay}"
                         SelectedItem="{Binding ViewModel.SelectedTheme, Mode=TwoWay}" />
+                </Grid>
+            </Border>
+
+            <!-- 言語 -->
+            <Border
+                Margin="0,0,0,12"
+                Padding="12"
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="4">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon
+                        Grid.Column="0"
+                        Margin="0,0,8,0"
+                        VerticalAlignment="Center"
+                        Symbol="LocalLanguage24" />
+                    <TextBlock
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        FontSize="14"
+                        Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Settings_LanguageLabel]}" />
+                    <ComboBox
+                        Grid.Column="2"
+                        Width="200"
+                        DisplayMemberPath="Label"
+                        ItemsSource="{Binding ViewModel.LanguageList}"
+                        SelectedValue="{Binding ViewModel.SelectedLanguage, Mode=TwoWay}"
+                        SelectedValuePath="Key" />
                 </Grid>
             </Border>
 
@@ -69,7 +104,7 @@
                 FontSize="14"
                 FontWeight="Medium"
                 Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                Text="接続" />
+                Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Settings_ConnectionSectionLabel]}" />
             <Border
                 Margin="0,0,0,4"
                 Padding="12"
@@ -123,7 +158,7 @@
                         Grid.Column="1"
                         VerticalAlignment="Center"
                         FontSize="14"
-                        Text="workflow_config.json パス" />
+                        Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Settings_ConfigPathLabel]}" />
                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                         <ui:TextBox
                             Width="506"
@@ -138,7 +173,7 @@
                             Width="36"
                             Height="36"
                             Margin="4,0,0,0"
-                            ToolTip="参照"
+                            ToolTip="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Common_BrowseButtonTooltip]}"
                             Appearance="Secondary" />
                     </StackPanel>
                 </Grid>
@@ -150,7 +185,7 @@
                 FontSize="14"
                 FontWeight="Medium"
                 Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                Text="出力" />
+                Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Settings_OutputSectionLabel]}" />
             <Border
                 Margin="0,0,0,12"
                 Padding="12"
@@ -173,7 +208,7 @@
                         Grid.Column="1"
                         VerticalAlignment="Center"
                         FontSize="14"
-                        Text="結果出力フォルダ" />
+                        Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Settings_ResultsFolderLabel]}" />
                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                         <ui:TextBox
                             Width="506"
@@ -188,7 +223,7 @@
                             Width="36"
                             Height="36"
                             Margin="4,0,0,0"
-                            ToolTip="参照"
+                            ToolTip="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Common_BrowseButtonTooltip]}"
                             Appearance="Secondary" />
                     </StackPanel>
                 </Grid>

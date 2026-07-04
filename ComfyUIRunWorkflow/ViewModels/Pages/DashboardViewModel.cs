@@ -3,6 +3,7 @@ using ComfyUILibs.Exceptions;
 using ComfyUILibs.Models;
 using ComfyUILibs.Services;
 using ComfyUILibs.Ui;
+using ComfyUIRunWorkflow.Helpers;
 using ComfyUIRunWorkflow.Models;
 using ComfyUIRunWorkflow.Services;
 using System.Collections.ObjectModel;
@@ -156,12 +157,20 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
         // ─────────────────────────────────────────────────────────────────────
 
-        /// <summary>DI コンテナから設定を受け取って初期化する。</summary>
+        /// <summary>
+        /// DI コンテナから設定を受け取って初期化する。
+        /// 本 ViewModel はシングルトン登録されているため、言語切替時に画像サイズラベルを
+        /// 再生成できるよう <see cref="LocalizationManager"/> の変更通知を購読し続ける。
+        /// </summary>
         public DashboardViewModel(Setting<AppConfig> config, ISnackbarService snackbarService)
         {
             Config = config;
             _snackbarService = snackbarService;
+            LocalizationManager.Instance.PropertyChanged += (_, _) => RefreshSizeLabels();
         }
+
+        /// <summary>言語切替時に画像サイズラベル（vertical/horizontal/square/custom の表示名）を再生成する。</summary>
+        private void RefreshSizeLabels() => OnSelectedWorkflowChanged(SelectedWorkflow);
 
         // ── INavigationAware ─────────────────────────────────────────────────
 
@@ -193,7 +202,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
                 _snackbarService.Show(
                     "Error",
-                    "設定ページで workflow_config.json のパスを指定してください。",
+                    LocalizationManager.Instance["Common_ConfigPathNotSet"],
                     ControlAppearance.Danger,
                     new SymbolIcon(SymbolRegular.ErrorCircle24),
                     TimeSpan.FromSeconds(3.0)
@@ -224,7 +233,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
                 _snackbarService.Show(
                     "Error",
-                    $"workflow_config.json 読み込みエラー: {ex.Message}",
+                    string.Format(LocalizationManager.Instance["Dashboard_ConfigLoadError_Format"], ex.Message),
                     ControlAppearance.Danger,
                     new SymbolIcon(SymbolRegular.ErrorCircle24),
                     TimeSpan.FromSeconds(3.0)
@@ -243,7 +252,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             {
                 AvailableLoras = new List<string>();
                 _presetSizes = new Dictionary<string, ImageSize>();
-                var fallbackOptions = _sizeOptionKeys.Select(key => new SizeOption(key, key)).ToList();
+                var fallbackOptions = _sizeOptionKeys.Select(key => new SizeOption(key, OrientationLabel(key))).ToList();
                 SizeLabelList.Init(fallbackOptions, fallbackOptions[0]);
                 return;
             }
@@ -272,10 +281,21 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         /// <returns></returns>
         private string FormatSizeLabel(string orientation)
         {
+            var label = OrientationLabel(orientation);
             if (_presetSizes.TryGetValue(orientation, out var size))
-                return $"{orientation} ({size.Width}×{size.Height})";
-            return orientation;
+                return $"{label} ({size.Width}×{size.Height})";
+            return label;
         }
+
+        /// <summary>向きキー（"vertical"/"horizontal"/"square"/"custom"）を現在の言語の表示名に変換する。</summary>
+        private static string OrientationLabel(string orientation) => orientation switch
+        {
+            "vertical" => LocalizationManager.Instance["Dashboard_OrientationVertical"],
+            "horizontal" => LocalizationManager.Instance["Dashboard_OrientationHorizontal"],
+            "square" => LocalizationManager.Instance["Dashboard_OrientationSquare"],
+            "custom" => LocalizationManager.Instance["Dashboard_OrientationCustom"],
+            _ => orientation,
+        };
 
         /// <summary>
         /// ImageSizeOrientation が変わったとき、RadioButton・ComboBox 向けの derived プロパティを通知する。
@@ -315,7 +335,8 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         private bool CanRun() => _loadedConfig != null && !string.IsNullOrWhiteSpace(PositivePrompt) && !IsRunning;
 
         /// <summary>バッチ実行中の進捗テキストを組み立てる（例: "2/5件目を実行中"）。</summary>
-        internal static string FormatBatchProgress(int current, int total) => $"{current}/{total}件目を実行中";
+        internal static string FormatBatchProgress(int current, int total) =>
+            string.Format(LocalizationManager.Instance["Dashboard_BatchProgress_Format"], current, total);
 
         /// <summary>
         /// ワークフローを ComfyUI に送信して実行する。BatchCount が2以上の場合は同じ内容で
@@ -404,8 +425,8 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
                 int count = allOutputs.FindAll(o => o.Type == "output").Count;
                 _snackbarService.Show(
-                    "完了",
-                    $"{count} 件のファイルが生成されました",
+                    LocalizationManager.Instance["Common_Completed"],
+                    string.Format(LocalizationManager.Instance["Dashboard_FilesGenerated_Format"], count),
                     ControlAppearance.Success,
                     new SymbolIcon(SymbolRegular.CheckmarkCircle24),
                     TimeSpan.FromSeconds(4.0)
@@ -425,7 +446,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                 };
 
                 _snackbarService.Show(
-                    "エラー",
+                    LocalizationManager.Instance["Common_Error"],
                     ex.Message,
                     ControlAppearance.Danger,
                     new SymbolIcon(SymbolRegular.ErrorCircle24),
@@ -446,7 +467,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                 };
 
                 _snackbarService.Show(
-                    "予期しないエラー",
+                    LocalizationManager.Instance["Common_UnexpectedError"],
                     ex.Message,
                     ControlAppearance.Caution,
                     new SymbolIcon(SymbolRegular.Warning24),
