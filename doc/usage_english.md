@@ -16,7 +16,7 @@ For setup instructions, see the [Quick Start](README_english.md) section of the 
 
 ## Settings Page
 
-![Settings page](images/settings_page.png)
+![Settings page](images/settings_page_en.png)
 
 Open this page first after launching the app and configure the following.
 
@@ -30,11 +30,18 @@ Open this page first after launching the app and configure the following.
 
 Settings persist across app restarts.
 
+### Switching the Display Language
+
+- Options: "日本語" / "English"
+- Scope: the entire GUI — screen text, messages, navigation menu, tray menu, etc.
+- When it applies: instantly across every screen as soon as you select it (no app restart required)
+- Default language: Japanese (always Japanese on first launch, regardless of the OS locale)
+
 ---
 
 ## Home Page (Running Workflows)
 
-![Home page](images/dashboard_page.png)
+![Home page](images/dashboard_page_en.png)
 
 ### Steps
 
@@ -61,7 +68,7 @@ Once execution finishes, thumbnails of the generated images appear in the right 
 
 ## Data Page (Results / Tag History)
 
-![Data page](images/data_page.png)
+![Data page](images/data_page_en.png)
 
 Switch views using the "Results" / "Tag History" tabs at the top of the page.
 
@@ -86,7 +93,7 @@ The **Refresh** button reloads both tabs.
 
 ## Tagger Page (WD14 Tagger)
 
-![Tagger page](images/tagger_page.png)
+![Tagger page](images/tagger_page_en.png)
 
 A dedicated page for selecting a single image, running the WD14 Tagger workflow, and getting/copying the resulting tag string.
 

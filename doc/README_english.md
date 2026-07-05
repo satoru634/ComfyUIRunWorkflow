@@ -4,7 +4,7 @@
 
 A tool for running ComfyUI workflows from a GUI. A C# WPF port of [comfyui_tools](https://github.com/satoru634/comfyui_tools).
 
-![Home page](images/dashboard_page.png)
+![Home page](images/dashboard_page_en.png)
 
 ## Features
 
@@ -46,7 +46,7 @@ dotnet run --project ComfyUIRunWorkflow
 
 A sample [`workflow_config.json`](../workflow_config.json) is included at the repository root. Edit it to match your environment (e.g. LoRA filenames), then point the **workflow_config.json path** setting at this file.
 
-![Settings page](images/settings_page.png)
+![Settings page](images/settings_page_en.png)
 
 ### Running Your First Workflow
 
@@ -55,6 +55,15 @@ A sample [`workflow_config.json`](../workflow_config.json) is included at the re
 3. Check the results and preview images on the **Data** page
 
 For detailed, page-by-page usage (LoRA, batch count, WD14 Tagger, tag history tab, etc.), see [doc/usage_english.md](usage_english.md).
+
+## Localization
+
+The entire GUI (screen text, messages, navigation menu, tray menu, etc.) can be switched between Japanese and English.
+
+- How to switch: select "日本語" / "English" from the language selector on the **Settings** page
+- When it applies: instantly across every screen as soon as you select it (no app restart required)
+- Default language: Japanese (always Japanese on first launch, regardless of the OS locale)
+- Your selected language is saved and carried over the next time you start the app
 
 ## Tech Stack
 
