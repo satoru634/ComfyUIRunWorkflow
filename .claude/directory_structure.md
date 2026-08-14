@@ -7,7 +7,7 @@ ComfyUIRunWorkflow/                     <- ソリューションルート
   ComfyUILibsTests/                     <- xUnit v3 テストプロジェクト（ComfyUILibs リポジトリに含まれる）
   ComfyUIRunWorkflow/                   <- メイン WPF プロジェクト（GUI のみ）
     Models/
-      AppConfig.cs                      <- アプリ設定（ウィンドウ状態・ComfyUIUrl・ConfigPath・ResultsFolder・Language・QueueJobs）
+      AppConfig.cs                      <- アプリ設定（ウィンドウ状態・ComfyUIUrl・ConfigPath・ResultsFolder・Language）
       LoraSlot.cs                       <- LoRA 選択スロット（ObservableObject ラッパー）
       SizeOption.cs                     <- 画像サイズ選択コンボボックスの1項目（Key/Label レコード）
       LanguageOption.cs                 <- 言語選択コンボボックスの1項目（Key/Label レコード、ラベルは現地語表記固定）
@@ -16,13 +16,14 @@ ComfyUIRunWorkflow/                     <- ソリューションルート
       WorkflowBatchOutcome.cs           <- WorkflowExecutionService.RunBatchAsync の戻り値（WorkflowResult + 発生した例外）
       QueueJobStatus.cs                 <- QueuePage の1ジョブの実行状態列挙体（Pending/Running/Success/Error/Cancelled）
       QueueJobData.cs                   <- QueuePage の1ジョブ分の永続化用データ（ワークフロー・プロンプト・LoRA・画像サイズ・バッチ数。実行状態は含まない）
+      QueueJobListData.cs               <- QueueJobData のリストを保持する永続化ルートクラス。Setting&lt;QueueJobListData&gt; 経由でアプリのカレントディレクトリ直下の queue_jobs.json に保存（AppConfig とは別ファイル。ファイル未存在時は空リストとして扱われる）
     ViewModels/Pages/
       DashboardViewModel.cs             <- ワークフロー実行 VM（ConfigLoader + WorkflowExecutionService 使用、実行直後のプレビュー表示を含む）
       SettingsViewModel.cs              <- 設定 VM（テーマ・URL・パス管理）
       DataViewModel.cs                  <- 実行結果一覧 VM（result_*.json / tag_result_*.json 読み込み、サムネイル非同期取得、生成結果⇔タグ付け履歴のタブ切り替え）
       TaggerViewModel.cs                <- WD14 Tagger VM（画像選択・タグ付け実行・tag_result_*.json 保存）
       QueueJobViewModel.cs              <- QueuePage の1ジョブ分の編集状態・実行状態 VM（ワークフロー選択に連動した LoRA/画像サイズ一覧更新、ToData/FromData で永続化データと相互変換）
-      QueueViewModel.cs                 <- QueuePage 全体の VM（ジョブ一覧・追加削除・すべて実行（協調的キャンセル対応）・実行結果詳細ダイアログ表示・ジョブ定義の永続化）
+      QueueViewModel.cs                 <- QueuePage 全体の VM（ジョブ一覧・追加削除・すべて実行（協調的キャンセル対応）・実行結果詳細ダイアログ表示・queue_jobs.json へのジョブ定義永続化）
     ViewModels/Windows/
       MainWindowViewModel.cs            <- ナビゲーション定義・ウィンドウ状態保存
     ViewModels/Controls/

@@ -30,12 +30,18 @@ namespace ComfyUIRunWorkflow
             {
                 // 設定ファイルを実行ディレクトリ直下の JSON に永続化するシングルトン
                 var setting = new Setting<AppConfig>(Path.GetFullPath("ComfyUIRunWorkflow_setting.json"));
+
+                // Queue ページのジョブ定義一覧を実行ディレクトリ直下の別ファイルに永続化するシングルトン
+                // （ファイルが存在しない場合は Setting<T> が空の QueueJobListData で自動作成する）
+                var queueJobsSetting = new Setting<QueueJobListData>(Path.GetFullPath("queue_jobs.json"));
+
                 services.AddNavigationViewPageProvider();
 
                 // アプリ起動時にメインウィンドウを表示するホステッドサービス
                 services.AddHostedService<ApplicationHostService>();
 
                 services.AddSingleton(setting);
+                services.AddSingleton(queueJobsSetting);
 
                 // テーマ（ライト／ダーク）切り替えサービス
                 services.AddSingleton<IThemeService, ThemeService>();

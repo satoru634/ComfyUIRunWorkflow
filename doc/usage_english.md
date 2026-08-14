@@ -102,7 +102,7 @@ Each job shows its current execution status.
 
 ### Job List Persistence
 
-The job definitions (workflow, prompts, LoRA, image size, batch count) persist across app restarts. However, execution status and results are session-only — after restarting, every job starts over as "Pending" (the results themselves remain available as `result_*.json` files).
+The job definitions (workflow, prompts, LoRA, image size, batch count) are saved to `queue_jobs.json` in the app's current directory and persist across restarts (a separate file from `ComfyUIRunWorkflow_setting.json`). If `queue_jobs.json` doesn't exist, the workflow queue starts as an empty list. Execution status and results, however, are session-only — after restarting, every job starts over as "Pending" (the results themselves remain available as `result_*.json` files).
 
 ---
 

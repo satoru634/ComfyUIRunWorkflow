@@ -22,6 +22,9 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         /// <summary>アプリケーション設定。</summary>
         public Setting<AppConfig> Config { get; }
 
+        /// <summary>Queue ジョブ定義一覧の永続化先（queue_jobs.json）。</summary>
+        private readonly Setting<QueueJobListData> _queueJobsSetting;
+
         private readonly ISnackbarService _snackbarService;
         private readonly IContentDialogService _contentDialogService;
         private readonly WorkflowExecutionService _executionService = new();
@@ -67,10 +70,12 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         /// <summary>DI コンテナから設定を受け取って初期化する。</summary>
         public QueueViewModel(
             Setting<AppConfig> config,
+            Setting<QueueJobListData> queueJobsSetting,
             ISnackbarService snackbarService,
             IContentDialogService contentDialogService)
         {
             Config = config;
+            _queueJobsSetting = queueJobsSetting;
             _snackbarService = snackbarService;
             _contentDialogService = contentDialogService;
         }
@@ -150,7 +155,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         {
             if (Jobs.Count > 0) return;
 
-            foreach (var data in Config.Data.QueueJobs)
+            foreach (var data in _queueJobsSetting.Data.Jobs)
             {
                 var job = QueueJobViewModel.FromData(data);
                 job.ApplyWorkflowConfig(_loadedConfig);
@@ -279,11 +284,11 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
         // ── 永続化 ────────────────────────────────────────────────────────────
 
-        /// <summary>現在のジョブ定義（実行状態を除く）を AppConfig に反映して保存する。</summary>
+        /// <summary>現在のジョブ定義（実行状態を除く）を queue_jobs.json に保存する。</summary>
         private void PersistJobs()
         {
-            Config.Data.QueueJobs = new ObservableCollection<QueueJobData>(Jobs.Select(j => j.ToData()));
-            Config.Save();
+            _queueJobsSetting.Data.Jobs = new ObservableCollection<QueueJobData>(Jobs.Select(j => j.ToData()));
+            _queueJobsSetting.Save();
         }
     }
 }

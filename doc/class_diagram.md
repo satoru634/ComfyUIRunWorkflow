@@ -214,7 +214,6 @@ classDiagram
             +string ConfigPath
             +string ResultsFolder
             +string Language
-            +ObservableCollection~QueueJobData~ QueueJobs
         }
         class LoraSlot {
             +string SelectedLora
@@ -265,6 +264,9 @@ classDiagram
             +int CustomWidth
             +int CustomHeight
             +int BatchCount
+        }
+        class QueueJobListData {
+            +ObservableCollection~QueueJobData~ Jobs
         }
     }
 
@@ -492,6 +494,7 @@ classDiagram
     ObservableObject_lib <|-- OutputFilePreview
     ObservableObject_lib <|-- WorkflowResultPreview
     ObservableObject_lib <|-- QueueJobData
+    ObservableObject_lib <|-- QueueJobListData
     ObservableObject_lib <|-- MainWindowViewModel
     ObservableObject_lib <|-- DashboardViewModel
     ObservableObject_lib <|-- SettingsViewModel
@@ -562,7 +565,8 @@ classDiagram
     ApplicationHostService --> Setting~AppConfig~ : uses
     Setting~AppConfig~ --> AppConfig : manages
 
-    AppConfig "1" *-- "*" QueueJobData : queueJobs
+    QueueJobListData "1" *-- "*" QueueJobData : jobs
+    Setting~QueueJobListData~ --> QueueJobListData : manages
     DashboardViewModel --> WorkflowExecutionService : uses
     DashboardViewModel --> WorkflowSizeOptionBuilder : uses
     DashboardViewModel ..> WorkflowBatchOutcome : receives
@@ -570,6 +574,7 @@ classDiagram
     WorkflowExecutionService ..> WorkflowBatchOutcome : creates
     WorkflowBatchOutcome "1" *-- "1" WorkflowResult : result
     QueueViewModel --> Setting~AppConfig~ : uses
+    QueueViewModel --> Setting~QueueJobListData~ : uses
     QueueViewModel --> WorkflowExecutionService : uses
     QueueViewModel --> ConfigLoader : uses
     QueueViewModel "1" *-- "*" QueueJobViewModel : jobs
@@ -610,7 +615,6 @@ classDiagram
         +string ComfyUIUrl
         +string ConfigPath
         +string ResultsFolder
-        +ObservableCollection~QueueJobData~ QueueJobs
     }
 
     class LoraSlot {
@@ -663,6 +667,10 @@ classDiagram
         +int CustomWidth
         +int CustomHeight
         +int BatchCount
+    }
+
+    class QueueJobListData {
+        +ObservableCollection~QueueJobData~ Jobs
     }
 
     %% ----- ViewModels -----
@@ -872,6 +880,7 @@ classDiagram
     ObservableObject <|-- OutputFilePreview
     ObservableObject <|-- WorkflowResultPreview
     ObservableObject <|-- QueueJobData
+    ObservableObject <|-- QueueJobListData
     ObservableObject <|-- MainWindowViewModel
     ObservableObject <|-- DashboardViewModel
     ObservableObject <|-- SettingsViewModel
@@ -890,7 +899,7 @@ classDiagram
     %% ----- 関連 -----
 
     AppConfig "1" *-- "1" WindowSettingData : windowSetting
-    AppConfig "1" *-- "*" QueueJobData : queueJobs
+    QueueJobListData "1" *-- "*" QueueJobData : jobs
     WorkflowResultPreview "1" o-- "0..1" OutputFilePreview : preview
     MainWindowViewModel --> Setting~AppConfig~ : uses
     DashboardViewModel --> Setting~AppConfig~ : uses
@@ -910,6 +919,7 @@ classDiagram
     ResultDetailViewModel "1" *-- "*" OutputFilePreview : previews
     ResultDetailViewModel --> PreviewImageLoader : uses
     QueueViewModel --> Setting~AppConfig~ : uses
+    QueueViewModel --> Setting~QueueJobListData~ : uses
     QueueViewModel --> WorkflowExecutionService : uses
     QueueViewModel "1" *-- "*" QueueJobViewModel : jobs
     QueueViewModel --> ResultDetailViewModel : opens
@@ -920,6 +930,7 @@ classDiagram
     WorkflowExecutionService ..> WorkflowBatchOutcome : creates
     WorkflowBatchOutcome "1" *-- "1" WorkflowResult : result
     Setting~AppConfig~ --> AppConfig : manages
+    Setting~QueueJobListData~ --> QueueJobListData : manages
 ```
 
 ---
