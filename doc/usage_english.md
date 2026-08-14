@@ -50,8 +50,13 @@ Settings persist across app restarts.
 2. Enter the positive and negative prompts
 3. Choose an image size — a preset (vertical / horizontal / square) or a custom size
 4. Add LoRAs (optional, up to 4)
-5. Set the **batch count** if needed (1–10, default 1)
-6. Click **Run**
+5. Set the **filename prefix** if needed (optional — if left blank, the value written in the workflow is used as-is)
+6. Set the **batch count** if needed (1–10, default 1)
+7. Click **Run**
+
+### Filename Prefix
+
+You can override the beginning of the generated image filenames (the `filename_prefix` on ComfyUI's `SaveImage` node). If left blank when running, the prefix already written in the selected workflow template is used as-is.
 
 ### Batch Count
 
@@ -69,12 +74,12 @@ Once execution finishes, thumbnails of the generated images appear in the right 
 
 ## Queue Page (Running Multiple Workflows in Sequence)
 
-This page lets you register multiple "jobs" — each a combination of workflow, prompts, LoRA, image size, and batch count — in a list, and run them automatically one after another from the top. Use it when you want to run several workflows (e.g. `sdxl` and `anima`) together in one operation.
+This page lets you register multiple "jobs" — each a combination of workflow, prompts, LoRA, image size, filename prefix, and batch count — in a list, and run them automatically one after another from the top. Use it when you want to run several workflows (e.g. `sdxl` and `anima`) together in one operation.
 
 ### Steps
 
 1. Click "+ Add Job" to add a job to the list (repeat as many times as needed)
-2. Selecting a job in the list lets you edit its content (workflow, prompts, image size, LoRA, batch count) in the panel on the right, just like on the Home page — each job can be configured independently
+2. Selecting a job in the list lets you edit its content (workflow, prompts, image size, LoRA, filename prefix, batch count) in the panel on the right, just like on the Home page — each job can be configured independently (an empty filename prefix uses the workflow's value, same as on the Home page)
 3. Click **Run All** to execute the jobs one by one, starting from the top of the list
 
 ### Status Display
@@ -102,7 +107,7 @@ Each job shows its current execution status.
 
 ### Job List Persistence
 
-The job definitions (workflow, prompts, LoRA, image size, batch count) are saved to `queue_jobs.json` in the app's current directory and persist across restarts (a separate file from `ComfyUIRunWorkflow_setting.json`). If `queue_jobs.json` doesn't exist, the workflow queue starts as an empty list. Execution status and results, however, are session-only — after restarting, every job starts over as "Pending" (the results themselves remain available as `result_*.json` files).
+The job definitions (workflow, prompts, LoRA, image size, filename prefix, batch count) are saved to `queue_jobs.json` in the app's current directory and persist across restarts (a separate file from `ComfyUIRunWorkflow_setting.json`). If `queue_jobs.json` doesn't exist, the workflow queue starts as an empty list. Execution status and results, however, are session-only — after restarting, every job starts over as "Pending" (the results themselves remain available as `result_*.json` files).
 
 ---
 

@@ -67,6 +67,8 @@
   <data name="Common_PositivePromptLabel" xml:space="preserve"><value>ポジティブプロンプト</value></data>
   <data name="Common_NegativePromptLabel" xml:space="preserve"><value>ネガティブプロンプト</value></data>
   <data name="Common_ImageSizeLabel" xml:space="preserve"><value>画像サイズ</value></data>
+  <data name="Common_FilenamePrefixLabel" xml:space="preserve"><value>ファイル名プレフィックス</value></data>
+  <data name="Common_FilenamePrefixPlaceholder" xml:space="preserve"><value>未入力の場合はワークフローの設定値を使用</value></data>
   <data name="Common_GeneratedResultsLabel" xml:space="preserve"><value>生成結果</value></data>
   <data name="Common_CloseButtonContent" xml:space="preserve"><value>閉じる</value></data>
   <data name="Common_BrowseButtonTooltip" xml:space="preserve"><value>参照</value></data>

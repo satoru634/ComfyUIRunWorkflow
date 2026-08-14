@@ -400,7 +400,7 @@
                     </Grid>
                 </Border>
 
-                <!-- バッチ数 -->
+                <!-- バッチ数・ファイル名プレフィックス -->
                 <Border
                     Grid.Row="4"
                     Margin="0,8,0,0"
@@ -411,6 +411,8 @@
                     CornerRadius="4">
                     <Grid>
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
@@ -428,6 +430,16 @@
                             HorizontalAlignment="Left"
                             SpinButtonPlacementMode="Compact"
                             Value="{Binding BatchCount, Mode=TwoWay}" />
+                        <TextBlock
+                            Grid.Column="2"
+                            VerticalAlignment="Center"
+                            Margin="8,0,0,0"
+                            Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Common_FilenamePrefixLabel]}" />
+                        <ui:TextBox
+                            Grid.Column="3"
+                            Margin="8,0,0,0"
+                            PlaceholderText="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Common_FilenamePrefixPlaceholder]}"
+                            Text="{Binding FilenamePrefix, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                     </Grid>
                 </Border>
             </Grid>

@@ -33,6 +33,9 @@ namespace ComfyUIRunWorkflow.Services
         /// <param name="prompts">正・負プロンプトのペア。</param>
         /// <param name="imageSize">画像サイズ。null の場合はワークフローの既定サイズを使用する。</param>
         /// <param name="batchCount">バッチ数（1未満は1として扱う）。</param>
+        /// <param name="filenamePrefix">
+        /// 出力ファイル名のプレフィックス。null または空白のみの場合はテンプレートに記述された値をそのまま使用する。
+        /// </param>
         /// <param name="onBatchStart">各バッチ開始直前に呼ばれるコールバック（現在の回数, 総回数）。</param>
         /// <param name="onBatchCompleted">各バッチ完了直後に呼ばれるコールバック（出力ファイル一覧, prompt_id）。</param>
         public async Task<WorkflowBatchOutcome> RunBatchAsync(
@@ -42,6 +45,7 @@ namespace ComfyUIRunWorkflow.Services
             PromptPair prompts,
             ImageSize? imageSize,
             int batchCount,
+            string? filenamePrefix = null,
             Action<int, int>? onBatchStart = null,
             Action<List<OutputFile>, string?>? onBatchCompleted = null)
         {
@@ -61,7 +65,7 @@ namespace ComfyUIRunWorkflow.Services
                 {
                     onBatchStart?.Invoke(i, totalBatches);
 
-                    var outputs = await runner.ExecuteAsync(loras, prompts, imageSize);
+                    var outputs = await runner.ExecuteAsync(loras, prompts, imageSize, filenamePrefix);
 
                     allOutputs.AddRange(outputs);
                     lastSuccessPromptId = runner.PromptId;

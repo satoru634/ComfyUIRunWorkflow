@@ -20,6 +20,12 @@ namespace ComfyUIRunWorkflow.Models
         [ObservableProperty]
         private string _negativePrompt = "";
 
+        /// <summary>
+        /// 出力ファイル名のプレフィックス。空文字の場合はワークフローに記述された値をそのまま使用する。
+        /// </summary>
+        [ObservableProperty]
+        private string _filenamePrefix = "";
+
         /// <summary>選択済み LoRA 論理名の一覧。</summary>
         [ObservableProperty]
         private List<string> _loraFiles = new();
