@@ -112,8 +112,12 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         private WorkflowConfig? _loadedConfig;
         private Dictionary<string, ImageSize> _presetSizes = new();
 
-        /// <summary>ワークフロー選択が変わったとき、LoRA 一覧と画像サイズ選択肢を更新する。</summary>
-        partial void OnWorkflowNameChanged(string value) => RefreshForWorkflow();
+        /// <summary>
+        /// ワークフロー選択が変わったとき、LoRA 一覧と画像サイズ選択肢を更新する。
+        /// ワークフロー種別が実際に変わった場合のみ、画像サイズ選択をプリセット既定値にリセットする
+        /// （異なるワークフローでは有効なプリセットサイズが異なりうるため）。
+        /// </summary>
+        partial void OnWorkflowNameChanged(string value) => RefreshForWorkflow(resetSizeSelection: true);
 
         /// <summary>ImageSizeOrientation が変わったとき、ComboBox 向けの derived プロパティを通知する。</summary>
         partial void OnImageSizeOrientationChanged(string value) => OnPropertyChanged(nameof(SelectedSizeOption));
@@ -123,15 +127,25 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
         /// <summary>
         /// workflow_config.json の内容を適用し、現在の WorkflowName に基づいて LoRA 一覧・画像サイズ選択肢を再構築する。
-        /// QueueViewModel が config 読み込み（再読み込み含む）のたびに呼び出す。
+        /// QueueViewModel がページ遷移のたびに全ジョブへ呼び出す想定のため、ワークフロー名自体は変わっていない
+        /// （config の再読み込みだけの）ケースがほとんどであり、その場合はユーザーが選択済みの画像サイズ
+        /// （プリセット/カスタムの別・向き・カスタム幅高さ）を保持する。
         /// </summary>
         public void ApplyWorkflowConfig(WorkflowConfig? config)
         {
             _loadedConfig = config;
-            RefreshForWorkflow();
+            RefreshForWorkflow(resetSizeSelection: false);
         }
 
-        private void RefreshForWorkflow()
+        /// <summary>
+        /// LoRA 一覧・画像サイズ選択肢を再構築する。
+        /// </summary>
+        /// <param name="resetSizeSelection">
+        /// true の場合、画像サイズ選択をこのワークフローのプリセット既定値（先頭のオプション）にリセットする。
+        /// ワークフロー種別が実際に切り替わったときのみ true にする（異なるワークフローでは有効なプリセット
+        /// サイズが異なりうるため）。config の再読み込みだけの場合は false にし、ユーザーの選択を保持する。
+        /// </param>
+        private void RefreshForWorkflow(bool resetSizeSelection)
         {
             if (_loadedConfig?.Workflows == null || !_loadedConfig.Workflows.TryGetValue(WorkflowName, out var ws))
             {
@@ -147,7 +161,9 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             var (options, presetSizes) = WorkflowSizeOptionBuilder.Build(ws);
             _presetSizes = presetSizes;
             SizeLabelList.Init(options, options[0]);
-            SelectedSizeOption = options[0].Key;
+
+            if (resetSizeSelection)
+                SelectedSizeOption = options[0].Key;
 
             foreach (var slot in LoraSlots)
             {

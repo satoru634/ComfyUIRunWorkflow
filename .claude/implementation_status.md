@@ -249,7 +249,15 @@ ComfyUIException がスローするメッセージを `.resx` ベースのリソ
 - [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/QueueViewModelTests.cs`（新規） — config 読み込み・ジョブ追加削除・`queue_jobs.json`（`Setting<QueueJobListData>`）からの復元（重複復元防止・ファイル未存在時は空リストになることを含む）・RunAll/CancelQueue の CanExecute を検証
 - [x] `ComfyUIRunWorkflowTests/Helpers/CultureCollection.cs`（新規） — `LocalizationManager.Instance.CurrentCulture` を書き換えるテストクラス群（新規3件＋既存の `LocalizationManagerTests`/`DashboardViewModelTests`/`SettingsViewModelTests`）が並列実行で相互に干渉しないよう、xUnit の `[Collection("Culture")]` でシリアライズするコレクション定義を追加（テスト追加によって顕在化した既存の flaky 要因を解消）
 
-合計テスト数: ComfyUILibsTests 162件 / ComfyUIRunWorkflowTests 235件（全パス）
+**不具合修正: QueueJobViewModel の画像サイズ選択がページ再訪問のたびにリセットされる問題**
+
+`QueueViewModel.TryLoadConfig()` は Queue ページへ遷移するたびに、既存の全ジョブへ `QueueJobViewModel.ApplyWorkflowConfig()` を呼び出す。内部の `RefreshForWorkflow()` が、ワークフロー名が変わっていない場合でも画像サイズ選択（プリセット/カスタムの別・向き）を無条件に既定値へリセットしていたため、`queue_jobs.json` から復元した直後や、Queue ページを再訪問するたびにユーザーが選択した「カスタムサイズ」が外れてプリセットに戻ってしまい、実行時に `CustomWidth`/`CustomHeight` が使われず初期値のまま記録されているように見える不具合があった。
+
+- [x] `ViewModels/Pages/QueueJobViewModel.cs` — `RefreshForWorkflow` に `resetSizeSelection` 引数を追加。ワークフロー名が実際に切り替わった場合（`OnWorkflowNameChanged`）のみ画像サイズ選択をプリセット既定値にリセットし、`ApplyWorkflowConfig`（config 再読み込み・ページ再訪問時）ではユーザーの選択（`IsCustomSize`/`ImageSizeOrientation`/`CustomWidth`/`CustomHeight`）を保持するよう修正
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/QueueJobViewModelTests.cs` — `ApplyWorkflowConfig` の再適用でカスタムサイズ・プリセット向きが保持されること、`FromData` で復元したカスタムサイズが `ApplyWorkflowConfig` 後も保持されること、ワークフロー実際の切り替え時はリセットされることを検証するテストを追加
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/QueueViewModelTests.cs` — `OnNavigatedToAsync` を再度呼び出しても既存ジョブのカスタムサイズが保持されることを検証するテストを追加
+
+合計テスト数: ComfyUILibsTests 162件 / ComfyUIRunWorkflowTests 240件（全パス）
 
 ### 将来的な拡張
 
