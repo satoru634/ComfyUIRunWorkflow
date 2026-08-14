@@ -153,12 +153,28 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         /// </param>
         private void RefreshForWorkflow(bool resetSizeSelection)
         {
+            // SizeLabelList.Init() は内部で ItemList を一旦 Clear() してから再構築するため、
+            // QueuePage.xaml で ItemsSource="{Binding SizeLabelList.ItemList}" / SelectedValue=
+            // "{Binding SelectedSizeOption, Mode=TwoWay}" とバインドされた実際の ComboBox では、
+            // Clear() 直後に選択項目が一時的に見つからなくなり、TwoWay バインディング経由で
+            // SelectedSizeOption（延いては ImageSizeOrientation/IsCustomSize）へ null が
+            // 書き戻されてしまう。resetSizeSelection が false（config 再読み込み・ページ再訪問時）の
+            // 場合はユーザーの選択を保持したいため、Init() 呼び出し前の値を退避し、呼び出し後に
+            // 明示的に復元することでこの巻き添え上書きを打ち消す。
+            var preservedIsCustomSize = IsCustomSize;
+            var preservedOrientation = ImageSizeOrientation;
+
             if (_loadedConfig?.Workflows == null || !_loadedConfig.Workflows.TryGetValue(WorkflowName, out var ws))
             {
                 AvailableLoras = new List<string>();
                 var (fallbackOptions, fallbackPresetSizes) = WorkflowSizeOptionBuilder.Build(null);
                 _presetSizes = fallbackPresetSizes;
                 SizeLabelList.Init(fallbackOptions, fallbackOptions[0]);
+                if (!resetSizeSelection)
+                {
+                    IsCustomSize = preservedIsCustomSize;
+                    ImageSizeOrientation = preservedOrientation;
+                }
                 return;
             }
 
@@ -169,7 +185,14 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             SizeLabelList.Init(options, options[0]);
 
             if (resetSizeSelection)
+            {
                 SelectedSizeOption = options[0].Key;
+            }
+            else
+            {
+                IsCustomSize = preservedIsCustomSize;
+                ImageSizeOrientation = preservedOrientation;
+            }
 
             foreach (var slot in LoraSlots)
             {

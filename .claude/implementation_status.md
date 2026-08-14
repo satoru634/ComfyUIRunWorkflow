@@ -280,7 +280,16 @@ ComfyUIException がスローするメッセージを `.resx` ベースのリソ
 - [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/DashboardViewModelTests.cs`/`QueueJobViewModelTests.cs` にテストを追加。全件パス確認済み（合計241件）
 - [x] `README.md`/`doc/README_english.md`/`doc/usage.md`/`doc/usage_english.md`/`doc/class_diagram.md` を更新
 
-合計テスト数: ComfyUILibsTests 187件 / ComfyUIRunWorkflowTests 241件（全パス）
+**不具合修正: QueuePageで画像サイズComboBoxを選択後、他ページを経由して戻ると選択が空になる問題**
+
+QueuePageでジョブを選択した状態で他ページ（例: DashboardPage）へ遷移し、QueuePageへ戻ると、選択中ジョブの画像サイズ ComboBox の選択が失われて空表示になる不具合があった。
+
+- **原因**: `QueueJobViewModel.RefreshForWorkflow()` が呼び出す `SizeLabelList.Init()`（`ComfyUILibs.Ui.UIItemBaseModel<T>.Init`）は内部で `ItemList.Clear()` を行ってから項目を再構築する。QueuePage.xaml の ComboBox は `ItemsSource="{Binding SizeLabelList.ItemList}"` と `SelectedValue="{Binding SelectedSizeOption, Mode=TwoWay}"` を組み合わせてバインドしているため、`Clear()` の瞬間に ComboBox の選択がいったん未選択（null）になり、TwoWay バインディング経由でその null が `SelectedSizeOption`（内部的には `ImageSizeOrientation`/`IsCustomSize`）へそのまま書き戻されてしまっていた。`QueueViewModel.OnNavigatedToAsync()` は毎回 `TryLoadConfig()` で全ジョブに対し `ApplyWorkflowConfig()`（`resetSizeSelection: false`）を呼び出すため、QueuePage を再訪問するたびにこの巻き添え上書きが発生していた。フェーズ11で追加した既存の単体テストは ViewModel のプロパティを直接操作するのみで実際の WPF ComboBox コントロールを介さないため、この不具合を検出できていなかった。
+- [x] `ViewModels/Pages/QueueJobViewModel.cs` — `RefreshForWorkflow()` の冒頭で `IsCustomSize`/`ImageSizeOrientation` の現在値を退避し、`resetSizeSelection: false` の場合は `SizeLabelList.Init()` 呼び出し後に明示的に復元することで、ComboBox バインディングによる巻き添え上書きを打ち消すよう修正
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/QueueJobViewModelTests.cs` — 実際の `System.Windows.Controls.ComboBox` を STA スレッド上で構築し、QueuePage.xaml と同じバインディング（`ItemsSource`/`SelectedValue` TwoWay/`SelectedValuePath`）を張った状態で `ApplyWorkflowConfig` を再実行しても選択が保持されることを検証するテストを2件追加（プリセット向き選択・カスタムサイズ選択の両方）。修正前にこのテストが実際に失敗する（`SelectedSizeOption` が null になる）ことを確認したうえで修正を適用した
+- [x] `README.md`/`doc/README_english.md`（変更なし、内部実装のみの修正のため）
+
+合計テスト数: ComfyUILibsTests 187件 / ComfyUIRunWorkflowTests 243件（全パス）
 
 ### 将来的な拡張
 
