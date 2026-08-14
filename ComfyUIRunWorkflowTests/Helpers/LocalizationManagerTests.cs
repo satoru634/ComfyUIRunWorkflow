@@ -4,6 +4,7 @@ using ComfyUIRunWorkflow.Helpers;
 
 namespace ComfyUIRunWorkflowTests.Helpers
 {
+    [Collection("Culture")]
     public class LocalizationManagerTests
     {
         /// <summary>
