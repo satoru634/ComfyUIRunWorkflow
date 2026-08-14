@@ -5,9 +5,10 @@ using ComfyUILibs.Models;
 using ComfyUILibs.Services;
 using ComfyUIRunWorkflow.Models;
 using ComfyUIRunWorkflow.Services;
+using ComfyUIRunWorkflow.Views.Controls;
 using ComfyUIRunWorkflow.Views.Windows;
 
-namespace ComfyUIRunWorkflow.ViewModels.Windows
+namespace ComfyUIRunWorkflow.ViewModels.Controls
 {
     /// <summary>
     /// 実行結果詳細ダイアログ（<see cref="ResultDetailWindow"/>）の ViewModel。

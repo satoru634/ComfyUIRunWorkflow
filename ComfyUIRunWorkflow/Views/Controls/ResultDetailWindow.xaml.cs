@@ -1,10 +1,10 @@
 using ComfyUILibs.Common;
 using ComfyUILibs.Models;
 using ComfyUIRunWorkflow.Models;
-using ComfyUIRunWorkflow.ViewModels.Windows;
+using ComfyUIRunWorkflow.ViewModels.Controls;
 using Wpf.Ui.Controls;
 
-namespace ComfyUIRunWorkflow.Views.Windows
+namespace ComfyUIRunWorkflow.Views.Controls
 {
     /// <summary>
     /// ワークフロー実行結果の詳細を表示するダイアログウィンドウ。
