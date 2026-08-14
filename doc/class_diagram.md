@@ -214,6 +214,7 @@ classDiagram
             +string ConfigPath
             +string ResultsFolder
             +string Language
+            +ObservableCollection~QueueJobData~ QueueJobs
         }
         class LoraSlot {
             +string SelectedLora
@@ -241,6 +242,29 @@ classDiagram
             +WorkflowResult Result
             +OutputFilePreview? Preview
             +WorkflowResultPreview(WorkflowResult)
+        }
+        class WorkflowBatchOutcome {
+            +WorkflowResult Result
+            +Exception? Error
+        }
+        class QueueJobStatus {
+            <<enumeration>>
+            Pending
+            Running
+            Success
+            Error
+            Cancelled
+        }
+        class QueueJobData {
+            +string WorkflowName
+            +string PositivePrompt
+            +string NegativePrompt
+            +List~string~ LoraFiles
+            +string ImageSizeOrientation
+            +bool IsCustomSize
+            +int CustomWidth
+            +int CustomHeight
+            +int BatchCount
         }
     }
 
@@ -330,6 +354,43 @@ classDiagram
             +ResultDetailViewModel(WorkflowResult, Setting~AppConfig~)
             +OpenEnlargedCommand
         }
+        class QueueJobViewModel {
+            +string WorkflowName
+            +List~string~ AvailableLoras
+            +UIItemBaseModel~SizeOption~ SizeLabelList
+            +string PositivePrompt
+            +string NegativePrompt
+            +string SelectedSizeOption
+            +ObservableCollection~LoraSlot~ LoraSlots
+            +int BatchCount
+            +QueueJobStatus Status
+            +string StatusMessage
+            +WorkflowResult? LastResult
+            +bool HasLastResult
+            +ApplyWorkflowConfig(WorkflowConfig) void
+            +ResolveImageSize() ImageSize?
+            +ToData() QueueJobData
+            +FromData(QueueJobData) QueueJobViewModel$
+            +AddLoraCommand
+            +RemoveLoraCommand
+        }
+        class QueueViewModel {
+            +Setting~AppConfig~ Config
+            +List~string~ WorkflowNames
+            +ObservableCollection~QueueJobViewModel~ Jobs
+            +QueueJobViewModel? SelectedJob
+            +bool IsRunning
+            +bool CanEditJobs
+            +bool HasJobs
+            +string OverallProgressText
+            +AddJobCommand
+            +RemoveJobCommand
+            +RunAllCommand
+            +CancelQueueCommand
+            +OpenJobDetailCommand
+            +OnNavigatedToAsync() Task
+            +OnNavigatedFromAsync() Task
+        }
     }
 
     %% ===== ComfyUIRunWorkflow / Services =====
@@ -346,6 +407,15 @@ classDiagram
             +PreviewImageLoader()
             +LoadAsync(OutputFilePreview, IComfyUIClient, string?, string) Task
             +LoadFullSize(string) BitmapImage$
+        }
+        class WorkflowSizeOptionBuilder {
+            <<static>>
+            +Build(WorkflowSettings) (List~SizeOption~, Dictionary~string,ImageSize~)$
+            +OrientationLabel(string) string$
+        }
+        class WorkflowExecutionService {
+            +RunBatchAsync(string, string, List~string~, PromptPair, ImageSize?, int, Action, Action) Task~WorkflowBatchOutcome~
+            +SaveResultAsync(WorkflowResult, string) Task$
         }
     }
 
@@ -397,6 +467,15 @@ classDiagram
             +CultureInfo CurrentCulture
             +string this[string key]
         }
+        class BatchProgressFormatter {
+            <<static>>
+            +Format(int, int) string$
+        }
+        class QueueJobStatusToBrushConverter {
+            <<IValueConverter>>
+            +Convert(object, Type, object, CultureInfo) object
+            +ConvertBack(object, Type, object, CultureInfo) object
+        }
     }
 
     %% ===== 継承・実装 =====
@@ -412,16 +491,20 @@ classDiagram
     ObservableObject_lib <|-- LoraSlot
     ObservableObject_lib <|-- OutputFilePreview
     ObservableObject_lib <|-- WorkflowResultPreview
+    ObservableObject_lib <|-- QueueJobData
     ObservableObject_lib <|-- MainWindowViewModel
     ObservableObject_lib <|-- DashboardViewModel
     ObservableObject_lib <|-- SettingsViewModel
     ObservableObject_lib <|-- DataViewModel
     ObservableObject_lib <|-- TaggerViewModel
     ObservableObject_lib <|-- ResultDetailViewModel
+    ObservableObject_lib <|-- QueueJobViewModel
+    ObservableObject_lib <|-- QueueViewModel
     INavigationAware <|.. DashboardViewModel
     INavigationAware <|.. SettingsViewModel
     INavigationAware <|.. DataViewModel
     INavigationAware <|.. TaggerViewModel
+    INavigationAware <|.. QueueViewModel
     IHostedService <|.. ApplicationHostService
 
     %% ===== 関連・依存 =====
@@ -478,6 +561,26 @@ classDiagram
     PreviewImageLoader --> IPreviewImageCacheService : uses
     ApplicationHostService --> Setting~AppConfig~ : uses
     Setting~AppConfig~ --> AppConfig : manages
+
+    AppConfig "1" *-- "*" QueueJobData : queueJobs
+    DashboardViewModel --> WorkflowExecutionService : uses
+    DashboardViewModel --> WorkflowSizeOptionBuilder : uses
+    DashboardViewModel ..> WorkflowBatchOutcome : receives
+    WorkflowExecutionService --> WorkflowRunner : uses
+    WorkflowExecutionService ..> WorkflowBatchOutcome : creates
+    WorkflowBatchOutcome "1" *-- "1" WorkflowResult : result
+    QueueViewModel --> Setting~AppConfig~ : uses
+    QueueViewModel --> WorkflowExecutionService : uses
+    QueueViewModel --> ConfigLoader : uses
+    QueueViewModel "1" *-- "*" QueueJobViewModel : jobs
+    QueueViewModel --> ResultDetailViewModel : opens
+    QueueViewModel --> LocalizationManager : uses
+    QueueJobViewModel "1" o-- "*" LoraSlot : loraSlots
+    QueueJobViewModel "1" o-- "1" UIItemBaseModel~SizeOption~ : sizeLabelList
+    QueueJobViewModel "1" *-- "0..1" WorkflowResult : lastResult
+    QueueJobViewModel "1" o-- "1" QueueJobStatus : status
+    QueueJobViewModel --> WorkflowSizeOptionBuilder : uses
+    QueueJobViewModel ..> QueueJobData : ToData/FromData
 ```
 
 ---
@@ -507,6 +610,7 @@ classDiagram
         +string ComfyUIUrl
         +string ConfigPath
         +string ResultsFolder
+        +ObservableCollection~QueueJobData~ QueueJobs
     }
 
     class LoraSlot {
@@ -533,6 +637,32 @@ classDiagram
         +WorkflowResult Result
         +OutputFilePreview? Preview
         +WorkflowResultPreview(WorkflowResult)
+    }
+
+    class WorkflowBatchOutcome {
+        +WorkflowResult Result
+        +Exception? Error
+    }
+
+    class QueueJobStatus {
+        <<enumeration>>
+        Pending
+        Running
+        Success
+        Error
+        Cancelled
+    }
+
+    class QueueJobData {
+        +string WorkflowName
+        +string PositivePrompt
+        +string NegativePrompt
+        +List~string~ LoraFiles
+        +string ImageSizeOrientation
+        +bool IsCustomSize
+        +int CustomWidth
+        +int CustomHeight
+        +int BatchCount
     }
 
     %% ----- ViewModels -----
@@ -624,6 +754,45 @@ classDiagram
         +OpenEnlargedCommand
     }
 
+    class QueueJobViewModel {
+        +string WorkflowName
+        +List~string~ AvailableLoras
+        +UIItemBaseModel~SizeOption~ SizeLabelList
+        +string PositivePrompt
+        +string NegativePrompt
+        +string SelectedSizeOption
+        +ObservableCollection~LoraSlot~ LoraSlots
+        +int BatchCount
+        +QueueJobStatus Status
+        +string StatusMessage
+        +WorkflowResult? LastResult
+        +bool HasLastResult
+        +ApplyWorkflowConfig(WorkflowConfig) void
+        +ResolveImageSize() ImageSize?
+        +ToData() QueueJobData
+        +FromData(QueueJobData) QueueJobViewModel$
+        +AddLoraCommand
+        +RemoveLoraCommand
+    }
+
+    class QueueViewModel {
+        +Setting~AppConfig~ Config
+        +List~string~ WorkflowNames
+        +ObservableCollection~QueueJobViewModel~ Jobs
+        +QueueJobViewModel? SelectedJob
+        +bool IsRunning
+        +bool CanEditJobs
+        +bool HasJobs
+        +string OverallProgressText
+        +AddJobCommand
+        +RemoveJobCommand
+        +RunAllCommand
+        +CancelQueueCommand
+        +OpenJobDetailCommand
+        +OnNavigatedToAsync() Task
+        +OnNavigatedFromAsync() Task
+    }
+
     %% ----- Services -----
 
     class ApplicationHostService {
@@ -631,6 +800,17 @@ classDiagram
         -Setting~AppConfig~ _config
         +StartAsync(CancellationToken) Task
         +StopAsync(CancellationToken) Task
+    }
+
+    class WorkflowSizeOptionBuilder {
+        <<static>>
+        +Build(WorkflowSettings) (List~SizeOption~, Dictionary~string,ImageSize~)$
+        +OrientationLabel(string) string$
+    }
+
+    class WorkflowExecutionService {
+        +RunBatchAsync(string, string, List~string~, PromptPair, ImageSize?, int, Action, Action) Task~WorkflowBatchOutcome~
+        +SaveResultAsync(WorkflowResult, string) Task$
     }
 
     class PreviewImageLoader {
@@ -691,21 +871,26 @@ classDiagram
     ObservableObject <|-- LoraSlot
     ObservableObject <|-- OutputFilePreview
     ObservableObject <|-- WorkflowResultPreview
+    ObservableObject <|-- QueueJobData
     ObservableObject <|-- MainWindowViewModel
     ObservableObject <|-- DashboardViewModel
     ObservableObject <|-- SettingsViewModel
     ObservableObject <|-- DataViewModel
     ObservableObject <|-- TaggerViewModel
     ObservableObject <|-- ResultDetailViewModel
+    ObservableObject <|-- QueueJobViewModel
+    ObservableObject <|-- QueueViewModel
     INavigationAware <|.. DashboardViewModel
     INavigationAware <|.. SettingsViewModel
     INavigationAware <|.. DataViewModel
     INavigationAware <|.. TaggerViewModel
+    INavigationAware <|.. QueueViewModel
     IHostedService <|.. ApplicationHostService
 
     %% ----- 関連 -----
 
     AppConfig "1" *-- "1" WindowSettingData : windowSetting
+    AppConfig "1" *-- "*" QueueJobData : queueJobs
     WorkflowResultPreview "1" o-- "0..1" OutputFilePreview : preview
     MainWindowViewModel --> Setting~AppConfig~ : uses
     DashboardViewModel --> Setting~AppConfig~ : uses
@@ -713,6 +898,8 @@ classDiagram
     DashboardViewModel "1" o-- "1" UIItemBaseModel~SizeOption~ : sizeLabelList
     DashboardViewModel "1" *-- "*" OutputFilePreview : previewThumbnails
     DashboardViewModel --> PreviewImageLoader : uses
+    DashboardViewModel --> WorkflowExecutionService : uses
+    DashboardViewModel --> WorkflowSizeOptionBuilder : uses
     SettingsViewModel --> Setting~AppConfig~ : uses
     DataViewModel --> Setting~AppConfig~ : uses
     DataViewModel "1" *-- "*" WorkflowResultPreview : results
@@ -722,6 +909,16 @@ classDiagram
     TaggerViewModel --> Setting~AppConfig~ : uses
     ResultDetailViewModel "1" *-- "*" OutputFilePreview : previews
     ResultDetailViewModel --> PreviewImageLoader : uses
+    QueueViewModel --> Setting~AppConfig~ : uses
+    QueueViewModel --> WorkflowExecutionService : uses
+    QueueViewModel "1" *-- "*" QueueJobViewModel : jobs
+    QueueViewModel --> ResultDetailViewModel : opens
+    QueueJobViewModel "1" o-- "*" LoraSlot : loraSlots
+    QueueJobViewModel "1" o-- "1" UIItemBaseModel~SizeOption~ : sizeLabelList
+    QueueJobViewModel --> WorkflowSizeOptionBuilder : uses
+    QueueJobViewModel ..> QueueJobData : ToData/FromData
+    WorkflowExecutionService ..> WorkflowBatchOutcome : creates
+    WorkflowBatchOutcome "1" *-- "1" WorkflowResult : result
     Setting~AppConfig~ --> AppConfig : manages
 ```
 

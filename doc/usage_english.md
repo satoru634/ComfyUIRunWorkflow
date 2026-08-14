@@ -9,6 +9,7 @@ For setup instructions, see the [Quick Start](README_english.md) section of the 
 
 - [Settings Page](#settings-page)
 - [Home Page (Running Workflows)](#home-page-running-workflows)
+- [Queue Page (Running Multiple Workflows in Sequence)](#queue-page-running-multiple-workflows-in-sequence)
 - [Data Page (Results / Tag History)](#data-page-results--tag-history)
 - [Tagger Page (WD14 Tagger)](#tagger-page-wd14-tagger)
 
@@ -63,6 +64,45 @@ Setting the batch count to 2 or more runs the same content (only the seed is aut
 ### Result Preview
 
 Once execution finishes, thumbnails of the generated images appear in the right panel. Click a thumbnail to view it at full size.
+
+---
+
+## Queue Page (Running Multiple Workflows in Sequence)
+
+This page lets you register multiple "jobs" — each a combination of workflow, prompts, LoRA, image size, and batch count — in a list, and run them automatically one after another from the top. Use it when you want to run several workflows (e.g. `sdxl` and `anima`) together in one operation.
+
+### Steps
+
+1. Click "+ Add Job" to add a job to the list (repeat as many times as needed)
+2. Selecting a job in the list lets you edit its content (workflow, prompts, image size, LoRA, batch count) in the panel on the right, just like on the Home page — each job can be configured independently
+3. Click **Run All** to execute the jobs one by one, starting from the top of the list
+
+### Status Display
+
+Each job shows its current execution status.
+
+| Status | Meaning |
+|---|---|
+| Pending | Not yet run |
+| Running | Currently running (batch progress is also shown) |
+| Success | Ran successfully |
+| Failed | A ComfyUI-side error occurred |
+| Cancelled | Skipped without starting, due to a "Cancel" operation |
+
+### Error and Cancellation Behavior
+
+- If a ComfyUI error occurs for a job, that job is recorded as "Failed" and execution automatically continues with the next job (the whole queue does not stop)
+- Clicking **Cancel** while running stops further jobs from starting once the currently running job finishes (the job in progress still runs to completion)
+- If you click **Run All** again while some jobs are already "Success", those are skipped and only pending/failed/cancelled jobs are run — so you can simply click **Run All** again to retry just the jobs that failed
+
+### Viewing and Saving Results
+
+- Each job's result is saved individually as `{results folder}/result_*.json`, just like a Home page run, and also appears in the "Results" tab on the Data page
+- The **View Details** button on each job (enabled only once that job has a result) opens the same result detail dialog used elsewhere — a thumbnail list of output files with click-to-enlarge
+
+### Job List Persistence
+
+The job definitions (workflow, prompts, LoRA, image size, batch count) persist across app restarts. However, execution status and results are session-only — after restarting, every job starts over as "Pending" (the results themselves remain available as `result_*.json` files).
 
 ---
 

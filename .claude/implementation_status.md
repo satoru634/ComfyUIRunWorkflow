@@ -3,8 +3,8 @@
 ## 現在の状態（2026-08-14 時点）
 
 `ComfyUILibs` のフェーズ1実装・フェーズ2（例外メッセージの多言語化）が完了・master マージ済み。
-`ComfyUIRunWorkflow` のフェーズ2（GUI 実装）・フェーズ3（テンプレート配置）・フェーズ4（生成画像プレビュー表示）・フェーズ5（バッチ数指定）・フェーズ6（WD14 Tagger 専用ページ）・フェーズ7（タグ付け履歴の DataPage への統合）・フェーズ9（GUI の多言語化）が完了・master マージ済み。
-フェーズ10（結果詳細ダイアログ・画像拡大表示ダイアログの ui:ContentDialog 化・Controls への再配置）が `feature/result-detail-content-dialog` ブランチで実装中。
+`ComfyUIRunWorkflow` のフェーズ2（GUI 実装）・フェーズ3（テンプレート配置）・フェーズ4（生成画像プレビュー表示）・フェーズ5（バッチ数指定）・フェーズ6（WD14 Tagger 専用ページ）・フェーズ7（タグ付け履歴の DataPage への統合）・フェーズ9（GUI の多言語化）・フェーズ10（結果詳細ダイアログ・画像拡大表示ダイアログの ui:ContentDialog 化・Controls への再配置）が完了・master マージ済み。
+フェーズ11（複数ワークフロー連続実行 Queue ページ）が `feature/queue-page` ブランチで実装完了。
 
 **注意**: `ResultDetailWindow`/`ImagePreviewWindow`（View）は `Views/Windows/` → `Views/Controls/` へ、`ResultDetailViewModel` は `ViewModels/Windows/` → `ViewModels/Controls/` へ移動済み（フェーズ10）。フェーズ2〜9 の記述中の該当パスは変更前時点のものである。
 
@@ -207,6 +207,49 @@ ComfyUIException がスローするメッセージを `.resx` ベースのリソ
 - [x] `ComfyUIRunWorkflowTests/ViewModels/Controls/ResultDetailViewModelTests.cs`（旧 `ViewModels/Windows/`） — 名前空間のみ変更
 
 合計テスト数: ComfyUILibsTests 162件 / ComfyUIRunWorkflowTests 173件（全パス）
+
+### フェーズ11: 複数ワークフロー連続実行 Queue ページ（`feature/queue-page` ブランチ、実装完了）
+
+これまで DashboardPage（Home）では1つのワークフロー・1組の設定しか実行できなかった。複数のワークフロー種別・設定（プロンプト・LoRA・画像サイズ・バッチ数）を「ジョブ」としてリストに登録し、順番に自動実行できる新規ページ「Queue」を追加した。
+
+**仕様（ユーザーとの合意事項）**
+- ジョブキュー方式: ワークフロー種別ごとに異なる設定を持つジョブを複数登録し、順番に1件ずつ実行
+- エラー時: 該当ジョブは失敗として記録し、次のジョブへ継続（キュー全体は止めない）
+- 中断: 協調的キャンセル（現在実行中のジョブは最後まで完了させ、以降のジョブへの着手を止める。ComfyUILibs 側への変更は不要な範囲に収めた）
+- 結果保存: ジョブごとに個別の `result_*.json`（DataPage の「生成結果」タブにそのまま統合される）
+- 画面構成: リスト（ジョブ一覧・ステータス表示）＋個別編集パネル（選択中ジョブの詳細設定、DashboardPage と同様の入力項目）
+- ジョブリストの永続化: ジョブ定義（ワークフロー・プロンプト・LoRA・画像サイズ・バッチ数）は `AppConfig.QueueJobs` として保存し再起動後も保持。実行ステータス・実行結果はセッション限りで、再起動後は全ジョブ「未実行」から開始（結果自体は `result_*.json` に残る）
+- 既に「成功」のジョブは「すべて実行」の再実行時にスキップされる（失敗ジョブだけの再実行が可能）
+
+**共通ロジックの切り出し（DashboardViewModel との重複排除）**
+- [x] `Helpers/BatchProgressFormatter.cs`（新規） — バッチ進捗テキスト組み立てロジックを共通化。`DashboardViewModel.FormatBatchProgress` はこれに委譲
+- [x] `Services/WorkflowSizeOptionBuilder.cs`（新規） — 「ワークフロー設定 → 画像サイズ選択肢（vertical/horizontal/square/custom）＋プリセットサイズ辞書」の組み立てロジックを共通化。`DashboardViewModel.OnSelectedWorkflowChanged` と `QueueJobViewModel` の両方から使用
+- [x] `Services/WorkflowExecutionService.cs`（新規） — 「指定回数分バッチ実行して1件の `WorkflowResult` にまとめる」処理（`RunBatchAsync`）と、結果を `result_*.json` として保存する処理（`SaveResultAsync`）を共通化。`DashboardViewModel.RunWorkflowAsync` と `QueueViewModel.RunAllAsync` の両方から使用
+- [x] `Models/WorkflowBatchOutcome.cs`（新規） — `RunBatchAsync` の戻り値。保存用の `WorkflowResult` に加え、発生した例外（`ComfyUIException` かどうか）を保持し、呼び出し側が通知メッセージを出し分けられるようにした
+- [x] `ViewModels/Pages/DashboardViewModel.cs` — 上記を使うようリファクタ（外部から見た挙動・既存テストは変更なし、全41件パス確認済み）
+
+**新規実装**
+- [x] `Models/QueueJobStatus.cs` — ジョブの実行状態列挙体（Pending/Running/Success/Error/Cancelled）
+- [x] `Models/QueueJobData.cs` — ジョブ1件分の永続化用データ（ワークフロー名・プロンプト・LoRA・画像サイズ・バッチ数。実行状態は含まない）
+- [x] `Models/AppConfig.cs` — `ObservableCollection<QueueJobData> QueueJobs` を追加
+- [x] `ViewModels/Pages/QueueJobViewModel.cs`（新規） — 1ジョブの編集状態・実行状態を保持。`DashboardViewModel` の「ワークフロー選択→LoRA/画像サイズ一覧更新」ロジックを踏襲（`WorkflowSizeOptionBuilder` 経由）。`ToData()`/`FromData()` で永続化データと相互変換
+- [x] `ViewModels/Pages/QueueViewModel.cs`（新規） — ジョブ一覧・追加/削除・すべて実行（協調的キャンセル対応）・実行結果詳細ダイアログ表示（`DataViewModel.OpenDetail` と同じ `ResultDetailWindow`/`IContentDialogService` パターンを再利用）・ジョブ定義の永続化を担当
+- [x] `Views/Pages/QueuePage.xaml` / `.xaml.cs`（新規） — リスト＋個別編集パネルの2カラム構成。トップにジョブ追加・すべて実行/中断ボタン・全体進捗テキスト
+- [x] `Helpers/QueueJobStatusToBrushConverter.cs`（新規） — ジョブ一覧のステータス文字色を状態ごとに変える IValueConverter
+- [x] `App.xaml.cs` — `QueuePage`/`QueueViewModel` を DI 登録
+- [x] `App.xaml` — `QueueJobStatusToBrushConverter` をリソース登録
+- [x] `ViewModels/Windows/MainWindowViewModel.cs` — ナビゲーションメニューに「Queue」項目を Dashboard と Results の間に追加
+- [x] `Resources/Strings.resx` / `Strings.en.resx` — `Queue_*` キーを追加（タイトル・ボタン・プレースホルダー・ステータスラベル・進捗フォーマット）
+
+**テスト**
+- [x] `ComfyUIRunWorkflowTests/Helpers/BatchProgressFormatterTests.cs`（新規）
+- [x] `ComfyUIRunWorkflowTests/Services/WorkflowSizeOptionBuilderTests.cs`（新規）
+- [x] `ComfyUIRunWorkflowTests/Services/WorkflowExecutionServiceTests.cs`（新規） — `SaveResultAsync` の保存/未設定時no-op/ディレクトリ自動作成を検証（`RunBatchAsync` は実際に ComfyUI サーバーへの通信を伴うため、既存の `DashboardViewModel.RunWorkflowCommand` 実行系と同様に単体テスト対象外とした）
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/QueueJobViewModelTests.cs`（新規） — ワークフロー切替に伴う LoRA/画像サイズ一覧更新・ToData/FromData 相互変換・ResolveImageSize・StatusLabel 等を検証
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/QueueViewModelTests.cs`（新規） — config 読み込み・ジョブ追加削除・永続化からの復元（重複復元防止含む）・RunAll/CancelQueue の CanExecute を検証
+- [x] `ComfyUIRunWorkflowTests/Helpers/CultureCollection.cs`（新規） — `LocalizationManager.Instance.CurrentCulture` を書き換えるテストクラス群（新規3件＋既存の `LocalizationManagerTests`/`DashboardViewModelTests`/`SettingsViewModelTests`）が並列実行で相互に干渉しないよう、xUnit の `[Collection("Culture")]` でシリアライズするコレクション定義を追加（テスト追加によって顕在化した既存の flaky 要因を解消）
+
+合計テスト数: ComfyUILibsTests 162件 / ComfyUIRunWorkflowTests 234件（全パス）
 
 ### 将来的な拡張
 
