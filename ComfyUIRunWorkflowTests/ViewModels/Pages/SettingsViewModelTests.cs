@@ -9,6 +9,7 @@ using Wpf.Ui.Appearance;
 
 namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 {
+    [Collection("Culture")]
     public class SettingsViewModelTests : IDisposable
     {
         private readonly string _tempDir;

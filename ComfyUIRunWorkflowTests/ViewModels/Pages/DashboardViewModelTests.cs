@@ -12,6 +12,7 @@ using Wpf.Ui.Controls;
 
 namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 {
+    [Collection("Culture")]
     public class DashboardViewModelTests : IDisposable
     {
         private readonly string _tempDir;
