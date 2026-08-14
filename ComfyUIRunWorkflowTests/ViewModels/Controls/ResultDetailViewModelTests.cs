@@ -2,9 +2,9 @@ using System.IO;
 using ComfyUILibs.Common;
 using ComfyUILibs.Models;
 using ComfyUIRunWorkflow.Models;
-using ComfyUIRunWorkflow.ViewModels.Windows;
+using ComfyUIRunWorkflow.ViewModels.Controls;
 
-namespace ComfyUIRunWorkflowTests.ViewModels.Windows
+namespace ComfyUIRunWorkflowTests.ViewModels.Controls
 {
     public class ResultDetailViewModelTests : IDisposable
     {

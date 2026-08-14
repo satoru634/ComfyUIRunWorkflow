@@ -1,10 +1,12 @@
 # 実装状況
 
-## 現在の状態（2026-07-04 時点）
+## 現在の状態（2026-08-14 時点）
 
 `ComfyUILibs` のフェーズ1実装・フェーズ2（例外メッセージの多言語化）が完了・master マージ済み。
-`ComfyUIRunWorkflow` のフェーズ2（GUI 実装）・フェーズ3（テンプレート配置）・フェーズ4（生成画像プレビュー表示）・フェーズ5（バッチ数指定）・フェーズ6（WD14 Tagger 専用ページ）・フェーズ7（タグ付け履歴の DataPage への統合）が完了・master マージ済み。
-フェーズ9（GUI の多言語化）が `feature/i18n-gui` ブランチで実装完了。
+`ComfyUIRunWorkflow` のフェーズ2（GUI 実装）・フェーズ3（テンプレート配置）・フェーズ4（生成画像プレビュー表示）・フェーズ5（バッチ数指定）・フェーズ6（WD14 Tagger 専用ページ）・フェーズ7（タグ付け履歴の DataPage への統合）・フェーズ9（GUI の多言語化）が完了・master マージ済み。
+フェーズ10（結果詳細ダイアログの ui:ContentDialog 化・Controls への再配置）が `feature/result-detail-content-dialog` ブランチで実装中。
+
+**注意**: `ResultDetailWindow`（View）は `Views/Windows/` → `Views/Controls/` へ、`ResultDetailViewModel` は `ViewModels/Windows/` → `ViewModels/Controls/` へ移動済み（フェーズ10）。フェーズ2〜9 の記述中の該当パスは変更前時点のものである。
 
 ### 存在するファイル（テンプレート由来）
 
@@ -182,6 +184,25 @@ ComfyUIException がスローするメッセージを `.resx` ベースのリソ
 - [x] `Models/AppConfigTests.cs` — `Language` の既定値・変更通知テストを追加
 - [x] `ViewModels/Pages/SettingsViewModelTests.cs` — `LanguageList`・`SelectedLanguage` 変更時の `Config`/`LocalizationManager` 反映・`OnNavigatedToAsync` での読み込みを追加
 - [x] `ViewModels/Pages/DashboardViewModelTests.cs` / `ViewModels/Windows/MainWindowViewModelTests.cs` — 日本語ハードコード比較・固定英語文字列比較になっていた箇所を `LocalizationManager` 参照による culture 非依存の比較に修正
+
+合計テスト数: ComfyUILibsTests 162件 / ComfyUIRunWorkflowTests 173件（全パス）
+
+### フェーズ10: 結果詳細ダイアログの ui:ContentDialog 化・Controls への再配置（`feature/result-detail-content-dialog` ブランチ、実装中）
+
+`ResultDetailWindow` を別ウィンドウ表示（`ui:FluentWindow`）から、メイン画面上にオーバーレイ表示する `ui:ContentDialog` に変更した。あわせて、ウィンドウではなくなったため配置先を `Views/Windows/` → `Views/Controls/`、`ViewModels/Windows/` → `ViewModels/Controls/` に変更した。
+
+**ComfyUIRunWorkflow**
+- [x] `App.xaml.cs` — `IContentDialogService` を DI 登録
+- [x] `Views/Windows/MainWindow.xaml` — ダイアログホストを `ContentPresenter` から `ui:ContentDialogHost` に変更（`RootContentDialog`）
+- [x] `Views/Windows/MainWindow.xaml.cs` — `IContentDialogService.SetDialogHost(ContentDialogHost)` でホストを設定
+- [x] `Views/Controls/ResultDetailWindow.xaml` / `.xaml.cs`（旧 `Views/Windows/`） — `ui:FluentWindow` → `ui:ContentDialog` に変更。`DataContext` を ViewModel に設定するよう修正（`ContentDialog` 化時に `DataContext = this` になっていてバインディングが機能しない不具合を修正）。`MaxWidth="480"` を設定
+- [x] `ViewModels/Controls/ResultDetailViewModel.cs`（旧 `ViewModels/Windows/`） — 名前空間のみ変更（実装は変更なし）
+- [x] `ViewModels/Pages/DataViewModel.cs` — `IContentDialogService` を DI 経由で受け取り、`ResultDetailWindow.ShowAsync()` でダイアログ表示する方式に変更。`GetDialogHostEx()` を使用（非推奨 API の `GetDialogHost()` は不使用）
+
+**テスト**
+- [x] `ComfyUIRunWorkflowTests/Fakes/FakeContentDialogService.cs`（新規） — `IContentDialogService` のテスト用スタブ
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/DataViewModelTests.cs` — `DataViewModel` コンストラクタへの `IContentDialogService` 引数追加に追従
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Controls/ResultDetailViewModelTests.cs`（旧 `ViewModels/Windows/`） — 名前空間のみ変更
 
 合計テスト数: ComfyUILibsTests 162件 / ComfyUIRunWorkflowTests 173件（全パス）
 
