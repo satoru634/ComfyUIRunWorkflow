@@ -33,6 +33,12 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         [ObservableProperty]
         private string _negativePrompt = "";
 
+        /// <summary>
+        /// 出力ファイル名のプレフィックス。空文字の場合はワークフローに記述された値をそのまま使用する。
+        /// </summary>
+        [ObservableProperty]
+        private string _filenamePrefix = "";
+
         /// <summary>選択中の画像サイズ向き（"vertical" / "horizontal" / "square"）。カスタムサイズ選択時は参照されない。</summary>
         [ObservableProperty]
         private string _imageSizeOrientation = "vertical";
@@ -202,6 +208,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             WorkflowName = WorkflowName,
             PositivePrompt = PositivePrompt,
             NegativePrompt = NegativePrompt,
+            FilenamePrefix = FilenamePrefix,
             LoraFiles = LoraSlots
                 .Where(s => !string.IsNullOrWhiteSpace(s.SelectedLora))
                 .Select(s => s.SelectedLora)
@@ -220,6 +227,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             {
                 PositivePrompt = data.PositivePrompt,
                 NegativePrompt = data.NegativePrompt,
+                FilenamePrefix = data.FilenamePrefix,
                 ImageSizeOrientation = data.ImageSizeOrientation,
                 IsCustomSize = data.IsCustomSize,
                 CustomWidth = data.CustomWidth,

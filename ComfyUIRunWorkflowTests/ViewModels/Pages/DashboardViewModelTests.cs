@@ -500,6 +500,13 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         }
 
         [Fact]
+        public void FilenamePrefix_DefaultsToEmpty()
+        {
+            var vm = CreateVm();
+            Assert.Equal("", vm.FilenamePrefix);
+        }
+
+        [Fact]
         public void BatchProgressText_DefaultsToEmpty()
         {
             var vm = CreateVm();

@@ -60,6 +60,12 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         [ObservableProperty]
         private string _negativePrompt = "";
 
+        /// <summary>
+        /// 出力ファイル名のプレフィックス。空文字の場合はワークフローに記述された値をそのまま使用する。
+        /// </summary>
+        [ObservableProperty]
+        private string _filenamePrefix = "";
+
         // ── 画像サイズ ────────────────────────────────────────────────────────
 
         /// <summary>
@@ -351,6 +357,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                     prompts,
                     imageSize,
                     BatchCount,
+                    filenamePrefix: FilenamePrefix,
                     onBatchStart: (current, total) =>
                         BatchProgressText = total > 1 ? FormatBatchProgress(current, total) : "",
                     onBatchCompleted: (outputs, promptId) =>

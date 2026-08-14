@@ -67,6 +67,8 @@
   <data name="Common_PositivePromptLabel" xml:space="preserve"><value>Positive Prompt</value></data>
   <data name="Common_NegativePromptLabel" xml:space="preserve"><value>Negative Prompt</value></data>
   <data name="Common_ImageSizeLabel" xml:space="preserve"><value>Image Size</value></data>
+  <data name="Common_FilenamePrefixLabel" xml:space="preserve"><value>Filename Prefix</value></data>
+  <data name="Common_FilenamePrefixPlaceholder" xml:space="preserve"><value>Uses the workflow's value if left blank</value></data>
   <data name="Common_GeneratedResultsLabel" xml:space="preserve"><value>Generated Results</value></data>
   <data name="Common_CloseButtonContent" xml:space="preserve"><value>Close</value></data>
   <data name="Common_BrowseButtonTooltip" xml:space="preserve"><value>Browse</value></data>

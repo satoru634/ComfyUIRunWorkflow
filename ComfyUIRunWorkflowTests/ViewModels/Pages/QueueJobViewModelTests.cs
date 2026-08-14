@@ -64,6 +64,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
             Assert.Equal(QueueJobStatus.Pending, job.Status);
             Assert.Empty(job.LoraSlots);
             Assert.Equal(1, job.BatchCount);
+            Assert.Equal("", job.FilenamePrefix);
             Assert.False(job.IsCustomSize);
             Assert.Equal(832, job.CustomWidth);
             Assert.Equal(1216, job.CustomHeight);
@@ -315,6 +316,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
                 WorkflowName = "sdxl",
                 PositivePrompt = "1girl",
                 NegativePrompt = "bad quality",
+                FilenamePrefix = "my_batch",
                 BatchCount = 3,
                 IsCustomSize = true,
                 CustomWidth = 640,
@@ -328,6 +330,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
             Assert.Equal("sdxl", data.WorkflowName);
             Assert.Equal("1girl", data.PositivePrompt);
             Assert.Equal("bad quality", data.NegativePrompt);
+            Assert.Equal("my_batch", data.FilenamePrefix);
             Assert.Equal(3, data.BatchCount);
             Assert.True(data.IsCustomSize);
             Assert.Equal(640, data.CustomWidth);
@@ -344,6 +347,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
                 WorkflowName = "sdxl",
                 PositivePrompt = "1girl",
                 NegativePrompt = "bad quality",
+                FilenamePrefix = "my_batch",
                 LoraFiles = new List<string> { "my_lora" },
                 ImageSizeOrientation = "horizontal",
                 BatchCount = 5,
@@ -354,6 +358,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
             Assert.Equal("sdxl", job.WorkflowName);
             Assert.Equal("1girl", job.PositivePrompt);
             Assert.Equal("bad quality", job.NegativePrompt);
+            Assert.Equal("my_batch", job.FilenamePrefix);
             Assert.Equal("horizontal", job.ImageSizeOrientation);
             Assert.Equal(5, job.BatchCount);
             Assert.Single(job.LoraSlots);

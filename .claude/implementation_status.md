@@ -259,6 +259,29 @@ ComfyUIException がスローするメッセージを `.resx` ベースのリソ
 
 合計テスト数: ComfyUILibsTests 162件 / ComfyUIRunWorkflowTests 240件（全パス）
 
+### フェーズ12: DashboardPage/QueuePage へのファイル名プレフィックス指定欄追加（`feature/filename-prefix-textbox` ブランチ、`ComfyUILibs` は `feature/filename-prefix` ブランチ、実装完了）
+
+生成画像の出力ファイル名プレフィックス（ComfyUI の `SaveImage` ノードの `filename_prefix`）を、DashboardPage（Home）と QueuePage の両方から GUI で上書きできるようにした。未入力（空文字・空白のみ）の場合はワークフローテンプレートに記述された値をそのまま使用する。
+
+**ComfyUILibs**
+- [x] `Services/WorkflowBuilder.cs` — `Apply` に `string? filenamePrefix = null` 引数を追加。空白以外が指定された場合のみ、ワークフロー内の `class_type` が `SaveImage` の全ノードの `inputs.filename_prefix` を上書きする（`ApplyFilenamePrefix` を新設）
+- [x] `Services/WorkflowRunner.cs` — `ExecuteAsync` に `string? filenamePrefix = null` 引数を追加し `WorkflowBuilder.Apply` へ橋渡し
+- [x] `ComfyUILibsTests/Services/WorkflowBuilderTests.cs` / `WorkflowRunnerTests.cs` にテストを追加。全件パス確認済み（合計187件）
+
+**ComfyUIRunWorkflow**
+- [x] `Services/WorkflowExecutionService.cs` — `RunBatchAsync` に `string? filenamePrefix = null` 引数を追加し `WorkflowRunner.ExecuteAsync` へ橋渡し
+- [x] `ViewModels/Pages/DashboardViewModel.cs` — `FilenamePrefix`（string, 既定 ""）プロパティを追加し、`RunWorkflowAsync` で `RunBatchAsync` に渡す
+- [x] `Models/QueueJobData.cs` — `FilenamePrefix`（string, 既定 ""）を追加（`queue_jobs.json` に永続化）
+- [x] `ViewModels/Pages/QueueJobViewModel.cs` — `FilenamePrefix` プロパティを追加し、`ToData()`/`FromData()` で相互変換
+- [x] `ViewModels/Pages/QueueViewModel.cs` — `RunAllAsync` で `job.FilenamePrefix` を `RunBatchAsync` に渡す
+- [x] `Views/Pages/DashboardPage.xaml` — LoRA セクションと実行ボタンの間に「ファイル名プレフィックス」の `ui:TextBox`（プレースホルダーで未入力時の挙動を明示）を追加
+- [x] `Views/Pages/QueuePage.xaml` — 個別編集パネルの LoRA セクションとバッチ数セクションの間に同様のテキストボックスを追加（`Grid.RowDefinitions` を5行→6行に変更）
+- [x] `Resources/Strings.resx`/`Strings.en.resx` — `Common_FilenamePrefixLabel`/`Common_FilenamePrefixPlaceholder` を追加
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/DashboardViewModelTests.cs`/`QueueJobViewModelTests.cs` にテストを追加。全件パス確認済み（合計241件）
+- [x] `README.md`/`doc/README_english.md`/`doc/usage.md`/`doc/usage_english.md`/`doc/class_diagram.md` を更新
+
+合計テスト数: ComfyUILibsTests 187件 / ComfyUIRunWorkflowTests 241件（全パス）
+
 ### 将来的な拡張
 
 - C# 版 Discord ボット（ComfyUILibs を共用）

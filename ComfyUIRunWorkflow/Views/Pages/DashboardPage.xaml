@@ -208,44 +208,82 @@
                     </StackPanel>
                 </Border>
 
-                <!-- 実行ボタン・進捗 -->
+                <!-- ファイル名プレフィックス・実行ボタン・進捗 -->
                 <Border
                     Padding="12"
                     Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1"
                     CornerRadius="4">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock
-                                Margin="0,0,8,0"
-                                VerticalAlignment="Center"
-                                Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Dashboard_BatchCountLabel]}" />
-                            <ui:NumberBox
-                                Width="120"
-                                Margin="0,0,8,0"
-                                Maximum="10"
-                                Minimum="1"
-                                SpinButtonPlacementMode="Compact"
-                                Value="{Binding ViewModel.BatchCount, Mode=TwoWay}" />
-                            <ui:Button
-                                Command="{Binding ViewModel.RunWorkflowCommand}"
-                                Content="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Dashboard_RunButtonContent]}"
-                                Appearance="Primary"
-                                Icon="{ui:SymbolIcon Play24}" />
-                        </StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock
+                            Grid.Column="0"
+                            Grid.Row="0"
+                            Margin="0,0,8,0"
+                            VerticalAlignment="Center"
+                            Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Dashboard_BatchCountLabel]}" />
+                        <ui:NumberBox
+                            Grid.Column="1"
+                            Grid.Row="0"
+                            Width="120"
+                            Margin="0,0,8,0"
+                            Maximum="10"
+                            Minimum="1"
+                            HorizontalAlignment="Left"
+                            SpinButtonPlacementMode="Compact"
+                            Value="{Binding ViewModel.BatchCount, Mode=TwoWay}" />
+                        <TextBlock
+                            Grid.Column="2"
+                            Grid.Row="0"
+                            Margin="0,0,8,0"
+                            VerticalAlignment="Center"
+                            Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Common_FilenamePrefixLabel]}" />
+                        <ui:TextBox
+                            Grid.Column="3"
+                            Grid.Row="0"
+                            IsEnabled="{Binding ViewModel.IsConfigLoaded}"
+                            PlaceholderText="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Common_FilenamePrefixPlaceholder]}"
+                            Text="{Binding ViewModel.FilenamePrefix, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <ui:Button
+                            Grid.Column="0"
+                            Grid.Row="1"
+                            Grid.ColumnSpan="4"
+                            Margin="0,8,0,0"
+                            Command="{Binding ViewModel.RunWorkflowCommand}"
+                            Content="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Dashboard_RunButtonContent]}"
+                            Appearance="Primary"
+                            Icon="{ui:SymbolIcon Play24}" />
                         <ProgressBar
+                            Grid.Column="0"
+                            Grid.Row="2"
+                            Grid.ColumnSpan="4"
                             Margin="0,8,0,0"
                             Height="4"
                             IsIndeterminate="True"
                             Visibility="{Binding ViewModel.IsRunning, Converter={StaticResource BoolToVisibilityConverter}}" />
                         <TextBlock
+                            Grid.Column="0"
+                            Grid.Row="3"
+                            Grid.ColumnSpan="4"
                             Margin="0,4,0,0"
                             FontSize="12"
                             Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                             Text="{Binding ViewModel.BatchProgressText}"
                             Visibility="{Binding ViewModel.BatchProgressText, Converter={StaticResource NullToVisibilityConverter}}" />
-                    </StackPanel>
+                    </Grid>
                 </Border>
 
             </StackPanel>

@@ -247,6 +247,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                         prompts,
                         imageSize,
                         job.BatchCount,
+                        filenamePrefix: job.FilenamePrefix,
                         onBatchStart: (current, total) =>
                             job.StatusMessage = total > 1 ? BatchProgressFormatter.Format(current, total) : "");
 

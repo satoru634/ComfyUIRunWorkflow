@@ -164,7 +164,7 @@ classDiagram
             -string _templatesDir
             +SelectTemplate(int, string) string
             +LoadTemplate(string) JsonObject
-            +Apply(JsonObject, PromptPair, List~ResolvedLora~, long?, ImageSize?) JsonObject
+            +Apply(JsonObject, PromptPair, List~ResolvedLora~, long?, ImageSize?, string?) JsonObject
         }
         class WorkflowRunner {
             +string? TemplatePath
@@ -172,7 +172,7 @@ classDiagram
             +WorkflowParameters? Parameters
             +WorkflowRunner(string, string)
             +GetImageSize(string) ImageSize
-            +ExecuteAsync(List~string~, PromptPair, ImageSize?) Task~List~OutputFile~~
+            +ExecuteAsync(List~string~, PromptPair, ImageSize?, string?) Task~List~OutputFile~~
             +RunAsync(string, string) Task
         }
         class ConfigLoader {
@@ -258,6 +258,7 @@ classDiagram
             +string WorkflowName
             +string PositivePrompt
             +string NegativePrompt
+            +string FilenamePrefix
             +List~string~ LoraFiles
             +string ImageSizeOrientation
             +bool IsCustomSize
@@ -290,6 +291,7 @@ classDiagram
             +UIItemBaseModel~SizeOption~ SizeLabelList
             +string PositivePrompt
             +string NegativePrompt
+            +string FilenamePrefix
             +string ImageSizeOrientation
             +bool IsCustomSize
             +int CustomWidth
@@ -362,6 +364,7 @@ classDiagram
             +UIItemBaseModel~SizeOption~ SizeLabelList
             +string PositivePrompt
             +string NegativePrompt
+            +string FilenamePrefix
             +string SelectedSizeOption
             +ObservableCollection~LoraSlot~ LoraSlots
             +int BatchCount
@@ -416,7 +419,7 @@ classDiagram
             +OrientationLabel(string) string$
         }
         class WorkflowExecutionService {
-            +RunBatchAsync(string, string, List~string~, PromptPair, ImageSize?, int, Action, Action) Task~WorkflowBatchOutcome~
+            +RunBatchAsync(string, string, List~string~, PromptPair, ImageSize?, int, string?, Action, Action) Task~WorkflowBatchOutcome~
             +SaveResultAsync(WorkflowResult, string) Task$
         }
     }
@@ -661,6 +664,7 @@ classDiagram
         +string WorkflowName
         +string PositivePrompt
         +string NegativePrompt
+        +string FilenamePrefix
         +List~string~ LoraFiles
         +string ImageSizeOrientation
         +bool IsCustomSize
@@ -693,6 +697,7 @@ classDiagram
         +UIItemBaseModel~SizeOption~ SizeLabelList
         +string PositivePrompt
         +string NegativePrompt
+        +string FilenamePrefix
         +string ImageSizeOrientation
         +bool IsCustomSize
         +int CustomWidth
@@ -768,6 +773,7 @@ classDiagram
         +UIItemBaseModel~SizeOption~ SizeLabelList
         +string PositivePrompt
         +string NegativePrompt
+        +string FilenamePrefix
         +string SelectedSizeOption
         +ObservableCollection~LoraSlot~ LoraSlots
         +int BatchCount
@@ -817,7 +823,7 @@ classDiagram
     }
 
     class WorkflowExecutionService {
-        +RunBatchAsync(string, string, List~string~, PromptPair, ImageSize?, int, Action, Action) Task~WorkflowBatchOutcome~
+        +RunBatchAsync(string, string, List~string~, PromptPair, ImageSize?, int, string?, Action, Action) Task~WorkflowBatchOutcome~
         +SaveResultAsync(WorkflowResult, string) Task$
     }
 
