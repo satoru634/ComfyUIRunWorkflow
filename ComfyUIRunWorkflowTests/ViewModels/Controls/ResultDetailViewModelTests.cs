@@ -3,6 +3,7 @@ using ComfyUILibs.Common;
 using ComfyUILibs.Models;
 using ComfyUIRunWorkflow.Models;
 using ComfyUIRunWorkflow.ViewModels.Controls;
+using ComfyUIRunWorkflowTests.Fakes;
 
 namespace ComfyUIRunWorkflowTests.ViewModels.Controls
 {
@@ -33,7 +34,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Controls
         {
             var result = new WorkflowResult { Status = "success" };
 
-            var vm = new ResultDetailViewModel(result, CreateSettingWithoutPreviewFetch());
+            var vm = new ResultDetailViewModel(result, CreateSettingWithoutPreviewFetch(), new FakeContentDialogService());
 
             Assert.Same(result, vm.Result);
         }
@@ -52,7 +53,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Controls
                 }
             };
 
-            var vm = new ResultDetailViewModel(result, CreateSettingWithoutPreviewFetch());
+            var vm = new ResultDetailViewModel(result, CreateSettingWithoutPreviewFetch(), new FakeContentDialogService());
 
             Assert.Equal(2, vm.Previews.Count);
             Assert.All(vm.Previews, p => Assert.Equal("output", p.Output.Type));
@@ -63,7 +64,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Controls
         {
             var result = new WorkflowResult { Status = "error", Error = "失敗" };
 
-            var vm = new ResultDetailViewModel(result, CreateSettingWithoutPreviewFetch());
+            var vm = new ResultDetailViewModel(result, CreateSettingWithoutPreviewFetch(), new FakeContentDialogService());
 
             Assert.Empty(vm.Previews);
         }
@@ -76,7 +77,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Controls
                 Status = "success",
                 Outputs = new List<OutputFile> { new() { Filename = "a.png", Type = "output" } }
             };
-            var vm = new ResultDetailViewModel(result, CreateSettingWithoutPreviewFetch());
+            var vm = new ResultDetailViewModel(result, CreateSettingWithoutPreviewFetch(), new FakeContentDialogService());
             var preview = vm.Previews[0];
 
             var exception = Record.Exception(() => vm.OpenEnlargedCommand.Execute(preview));

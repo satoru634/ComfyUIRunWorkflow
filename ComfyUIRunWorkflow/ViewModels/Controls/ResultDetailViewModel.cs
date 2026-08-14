@@ -6,7 +6,8 @@ using ComfyUILibs.Services;
 using ComfyUIRunWorkflow.Models;
 using ComfyUIRunWorkflow.Services;
 using ComfyUIRunWorkflow.Views.Controls;
-using ComfyUIRunWorkflow.Views.Windows;
+using Wpf.Ui;
+using Wpf.Ui.Controls;
 
 namespace ComfyUIRunWorkflow.ViewModels.Controls
 {
@@ -19,6 +20,13 @@ namespace ComfyUIRunWorkflow.ViewModels.Controls
         /// <summary>プレビュー画像のキャッシュ先サブフォルダ名。</summary>
         private const string PreviewCacheDirectoryName = "preview_cache";
 
+        /// <summary>
+        /// 自身を表示している ContentDialog（<see cref="ResultDetailWindow"/>）。
+        /// ImagePreviewWindow は同じ ContentDialogHost を共有しており、表示時にこのダイアログの
+        /// Content が入れ替わって閉じられてしまうため、ImagePreviewWindow を閉じた後の再表示に使用する。
+        /// </summary>
+        public ContentDialog? OwnerDialog { get; set; }
+
         /// <summary>表示対象の実行結果。</summary>
         public WorkflowResult Result { get; }
 
@@ -26,10 +34,12 @@ namespace ComfyUIRunWorkflow.ViewModels.Controls
         public ObservableCollection<OutputFilePreview> Previews { get; } = new();
 
         private readonly PreviewImageLoader _previewLoader = new();
+        private readonly IContentDialogService _contentDialogService;
 
-        public ResultDetailViewModel(WorkflowResult result, Setting<AppConfig> config)
+        public ResultDetailViewModel(WorkflowResult result, Setting<AppConfig> config, IContentDialogService contentDialogService)
         {
             Result = result;
+            _contentDialogService = contentDialogService;
 
             foreach (var output in result.Outputs.Where(o => o.Type == "output"))
                 Previews.Add(new OutputFilePreview(output));
@@ -59,18 +69,23 @@ namespace ComfyUIRunWorkflow.ViewModels.Controls
             }
         }
 
-        /// <summary>クリックされたサムネイルを拡大表示するウィンドウを開く。</summary>
+        /// <summary>クリックされたサムネイルを拡大表示するダイアログを開く。</summary>
         [RelayCommand]
-        private void OpenEnlarged(OutputFilePreview preview)
+        private async Task OpenEnlarged(OutputFilePreview preview)
         {
             if (preview.CachedFilePath == null)
                 return;
 
-            var window = new ImagePreviewWindow(preview.CachedFilePath)
-            {
-                Owner = System.Windows.Application.Current.MainWindow
-            };
-            window.Show();
+            var dialog = new ImagePreviewWindow(preview.CachedFilePath, _contentDialogService.GetDialogHostEx());
+            await dialog.ShowAsync();
+
+            // ImagePreviewWindow の表示によって ContentDialogHost の Content が入れ替わり、
+            // 呼び出し元の ResultDetailWindow が閉じられてしまっているため再表示する。
+            // ここで await してしまうと ResultDetailWindow が実際に閉じられるまで
+            // OpenEnlargedCommand の実行が完了せず（AsyncRelayCommand は既定で多重実行を許可しないため）、
+            // サムネイルを再度クリックしても次のダイアログが起動しなくなるため、await せず呼び出す
+            if (OwnerDialog != null)
+                _ = OwnerDialog.ShowAsync();
         }
     }
 }

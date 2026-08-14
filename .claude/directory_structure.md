@@ -29,9 +29,9 @@ ComfyUIRunWorkflow/                     <- ソリューションルート
       TaggerPage.xaml                   <- WD14 Tagger UI（画像選択・ドラッグ&ドロップ・タグ結果表示/コピー）
     Views/Windows/
       MainWindow.xaml                   <- ナビゲーションホスト
-      ImagePreviewWindow.xaml           <- 生成画像の拡大表示ウィンドウ
     Views/Controls/
       ResultDetailWindow.xaml           <- 実行結果詳細ダイアログ（ui:ContentDialog、MainWindow の ContentDialogHost 上に表示、出力ファイルのサムネイル一覧）
+      ImagePreviewWindow.xaml           <- 生成画像の拡大表示ダイアログ（ui:ContentDialog、ResultDetailWindow と同じ ContentDialogHost 上に表示）
     Helpers/
       EnumToBooleanConverter.cs         <- テーマ切り替え用列挙型コンバーター
       BoolToVisibilityConverter.cs      <- bool→Visibility・逆変換・null→Visibility・null→Visibility逆変換 コンバーター

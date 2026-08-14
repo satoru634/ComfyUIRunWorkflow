@@ -237,7 +237,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         [RelayCommand]
         private async Task OpenDetail(WorkflowResult result)
         {
-            ResultDetailViewModel viewModel = new ResultDetailViewModel(result, Config);
+            ResultDetailViewModel viewModel = new ResultDetailViewModel(result, Config, _contentDialogService);
             ResultDetailWindow resultDialog = new ResultDetailWindow(
                 viewModel, _contentDialogService.GetDialogHostEx());
             var ret = await resultDialog.ShowAsync();
