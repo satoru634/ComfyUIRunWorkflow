@@ -177,6 +177,69 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
             Assert.Equal("", job.LoraSlots[0].SelectedLora);
         }
 
+        [Fact]
+        public void WorkflowNameChanged_ActualSwitch_ResetsSizeSelectionToPreset()
+        {
+            var job = new QueueJobViewModel();
+            job.ApplyWorkflowConfig(CreateMultiWorkflowConfig());
+            job.WorkflowName = "sdxl";
+            job.SelectedSizeOption = "custom";
+
+            job.WorkflowName = "anima";
+
+            Assert.False(job.IsCustomSize);
+            Assert.Equal("vertical", job.SelectedSizeOption);
+        }
+
+        [Fact]
+        public void ApplyWorkflowConfig_CalledAgainForSameWorkflow_PreservesCustomSizeSelection()
+        {
+            var job = new QueueJobViewModel { WorkflowName = "sdxl" };
+            job.ApplyWorkflowConfig(CreateMultiWorkflowConfig());
+            job.SelectedSizeOption = "custom";
+            job.CustomWidth = 999;
+            job.CustomHeight = 777;
+
+            // ページ再訪問等で config が再適用されても、ユーザーが選択済みのカスタムサイズは保持される
+            job.ApplyWorkflowConfig(CreateMultiWorkflowConfig());
+
+            Assert.True(job.IsCustomSize);
+            Assert.Equal("custom", job.SelectedSizeOption);
+            Assert.Equal(999, job.CustomWidth);
+            Assert.Equal(777, job.CustomHeight);
+        }
+
+        [Fact]
+        public void ApplyWorkflowConfig_CalledAgainForSameWorkflow_PreservesPresetOrientation()
+        {
+            var job = new QueueJobViewModel { WorkflowName = "sdxl" };
+            job.ApplyWorkflowConfig(CreateMultiWorkflowConfig());
+            job.SelectedSizeOption = "horizontal";
+
+            job.ApplyWorkflowConfig(CreateMultiWorkflowConfig());
+
+            Assert.Equal("horizontal", job.SelectedSizeOption);
+        }
+
+        [Fact]
+        public void FromData_ThenApplyWorkflowConfig_PreservesRestoredCustomSize()
+        {
+            var data = new QueueJobData
+            {
+                WorkflowName = "sdxl",
+                IsCustomSize = true,
+                CustomWidth = 999,
+                CustomHeight = 777,
+            };
+
+            var job = QueueJobViewModel.FromData(data);
+            job.ApplyWorkflowConfig(CreateMultiWorkflowConfig());
+
+            Assert.True(job.IsCustomSize);
+            Assert.Equal(999, job.CustomWidth);
+            Assert.Equal(777, job.CustomHeight);
+        }
+
         // ── LoRA 操作 ─────────────────────────────────────────────────────────
 
         [Fact]

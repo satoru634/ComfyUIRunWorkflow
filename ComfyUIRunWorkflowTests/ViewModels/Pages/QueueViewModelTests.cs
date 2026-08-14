@@ -167,6 +167,29 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
             Assert.Single(_fakeSnackbar.Calls);
         }
 
+        [Fact]
+        public async Task OnNavigatedToAsync_CalledAgain_PreservesExistingJobCustomSize()
+        {
+            var setting = CreateSetting();
+            setting.Data.ConfigPath = CreateMultiWorkflowConfigJson();
+            var vm = CreateVm(setting);
+            await vm.OnNavigatedToAsync();
+
+            vm.AddJobCommand.Execute(null);
+            var job = vm.Jobs[0];
+            job.SelectedSizeOption = "custom";
+            job.CustomWidth = 999;
+            job.CustomHeight = 777;
+
+            // ページの再訪問（config の再読み込み）を模擬する
+            await vm.OnNavigatedToAsync();
+
+            Assert.True(job.IsCustomSize);
+            Assert.Equal("custom", job.SelectedSizeOption);
+            Assert.Equal(999, job.CustomWidth);
+            Assert.Equal(777, job.CustomHeight);
+        }
+
         // ── ジョブ追加・削除 ───────────────────────────────────────────────────
 
         [Fact]
