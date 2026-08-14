@@ -45,8 +45,17 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         private Setting<AppConfig> CreateSetting()
             => new Setting<AppConfig>(Path.Combine(_tempDir, "setting.json"), onLoad: false);
 
-        private QueueViewModel CreateVm(Setting<AppConfig>? setting = null)
-            => new QueueViewModel(setting ?? CreateSetting(), _fakeSnackbar, _fakeContentDialogService);
+        private Setting<QueueJobListData> CreateQueueJobsSetting()
+            => new Setting<QueueJobListData>(Path.Combine(_tempDir, "queue_jobs.json"), onLoad: false);
+
+        private QueueViewModel CreateVm(
+            Setting<AppConfig>? setting = null,
+            Setting<QueueJobListData>? queueJobsSetting = null)
+            => new QueueViewModel(
+                setting ?? CreateSetting(),
+                queueJobsSetting ?? CreateQueueJobsSetting(),
+                _fakeSnackbar,
+                _fakeContentDialogService);
 
         private string CreateMultiWorkflowConfigJson()
         {
@@ -189,16 +198,17 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         }
 
         [Fact]
-        public async Task AddJobCommand_Execute_PersistsToConfig()
+        public async Task AddJobCommand_Execute_PersistsToQueueJobsFile()
         {
             var setting = CreateSetting();
             setting.Data.ConfigPath = CreateMultiWorkflowConfigJson();
-            var vm = CreateVm(setting);
+            var queueJobsSetting = CreateQueueJobsSetting();
+            var vm = CreateVm(setting, queueJobsSetting);
             await vm.OnNavigatedToAsync();
 
             vm.AddJobCommand.Execute(null);
 
-            Assert.Single(setting.Data.QueueJobs);
+            Assert.Single(queueJobsSetting.Data.Jobs);
         }
 
         [Fact]
@@ -282,13 +292,14 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         {
             var setting = CreateSetting();
             setting.Data.ConfigPath = CreateMultiWorkflowConfigJson();
-            setting.Data.QueueJobs.Add(new QueueJobData
+            var queueJobsSetting = CreateQueueJobsSetting();
+            queueJobsSetting.Data.Jobs.Add(new QueueJobData
             {
                 WorkflowName = "sdxl",
                 PositivePrompt = "1girl",
                 BatchCount = 2,
             });
-            var vm = CreateVm(setting);
+            var vm = CreateVm(setting, queueJobsSetting);
 
             await vm.OnNavigatedToAsync();
 
@@ -300,12 +311,27 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         }
 
         [Fact]
+        public async Task OnNavigatedToAsync_NoPersistedJobsFile_StartsEmpty()
+        {
+            var setting = CreateSetting();
+            setting.Data.ConfigPath = CreateMultiWorkflowConfigJson();
+            var queueJobsSetting = CreateQueueJobsSetting();
+            var vm = CreateVm(setting, queueJobsSetting);
+
+            await vm.OnNavigatedToAsync();
+
+            Assert.Empty(vm.Jobs);
+            Assert.False(vm.HasJobs);
+        }
+
+        [Fact]
         public async Task OnNavigatedToAsync_CalledTwice_DoesNotDuplicateRestoredJobs()
         {
             var setting = CreateSetting();
             setting.Data.ConfigPath = CreateMultiWorkflowConfigJson();
-            setting.Data.QueueJobs.Add(new QueueJobData { WorkflowName = "sdxl" });
-            var vm = CreateVm(setting);
+            var queueJobsSetting = CreateQueueJobsSetting();
+            queueJobsSetting.Data.Jobs.Add(new QueueJobData { WorkflowName = "sdxl" });
+            var vm = CreateVm(setting, queueJobsSetting);
 
             await vm.OnNavigatedToAsync();
             await vm.OnNavigatedToAsync();
@@ -318,15 +344,15 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         [Fact]
         public async Task OnNavigatedFromAsync_PersistsCurrentJobs()
         {
-            var setting = CreateSetting();
-            var vm = CreateVm(setting);
+            var queueJobsSetting = CreateQueueJobsSetting();
+            var vm = CreateVm(queueJobsSetting: queueJobsSetting);
             vm.AddJobCommand.Execute(null);
             vm.Jobs[0].PositivePrompt = "edited prompt";
 
             await vm.OnNavigatedFromAsync();
 
-            Assert.Single(setting.Data.QueueJobs);
-            Assert.Equal("edited prompt", setting.Data.QueueJobs[0].PositivePrompt);
+            Assert.Single(queueJobsSetting.Data.Jobs);
+            Assert.Equal("edited prompt", queueJobsSetting.Data.Jobs[0].PositivePrompt);
         }
 
         // ── OpenJobDetailCommand ─────────────────────────────────────────────

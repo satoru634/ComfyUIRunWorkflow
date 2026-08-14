@@ -1,5 +1,4 @@
 ﻿using ComfyUILibs.Base;
-using System.Collections.ObjectModel;
 using System.IO;
 using Wpf.Ui.Appearance;
 
@@ -70,13 +69,6 @@ namespace ComfyUIRunWorkflow.Models
         /// <summary>GUI の表示言語（"ja" / "en"）。OS ロケールに関わらず既定は "ja"。</summary>
         [ObservableProperty]
         private string _language = "ja";
-
-        /// <summary>
-        /// QueuePage に登録されたジョブの定義一覧（永続化対象）。
-        /// 実行ステータス・実行結果はセッション限りのため含まれない。
-        /// </summary>
-        [ObservableProperty]
-        private ObservableCollection<QueueJobData> _queueJobs = new();
 
         /// <summary>
         /// 初回起動時のデフォルト値を設定する。

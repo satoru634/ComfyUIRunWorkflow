@@ -2,7 +2,7 @@ namespace ComfyUIRunWorkflow.Models
 {
     /// <summary>
     /// QueuePage の1ジョブ分の設定（永続化対象）。
-    /// <see cref="AppConfig.QueueJobs"/> の要素として <c>ComfyUIRunWorkflow_setting.json</c> に保存される。
+    /// <see cref="QueueJobListData.Jobs"/> の要素として <c>queue_jobs.json</c> に保存される。
     /// 実行ステータス・実行結果（<see cref="QueueJobStatus"/>・<see cref="ComfyUILibs.Models.WorkflowResult"/>）は
     /// セッション限りのため、本クラスには含まれない。
     /// </summary>

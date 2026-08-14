@@ -83,7 +83,7 @@ ComfyUIRunWorkflow/   ← solution root
   ComfyUILibs/        ← shared library (submodule)
   ComfyUILibsTests/   ← ComfyUILibs tests (162)
   ComfyUIRunWorkflow/ ← WPF GUI project
-  ComfyUIRunWorkflowTests/ ← GUI tests (234)
+  ComfyUIRunWorkflowTests/ ← GUI tests (235)
   doc/                ← documentation (usage, English versions, class diagram)
 ```
 

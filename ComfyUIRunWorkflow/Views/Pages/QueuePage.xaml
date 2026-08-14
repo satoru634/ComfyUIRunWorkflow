@@ -106,14 +106,14 @@
                         TextWrapping="Wrap"
                         Visibility="{Binding ViewModel.HasJobs, Converter={StaticResource BoolToVisibilityInverseConverter}}" />
 
-                    <ListBox
+                    <ui:ListView
                         BorderThickness="0"
                         Background="Transparent"
                         ItemsSource="{Binding ViewModel.Jobs}"
                         SelectedItem="{Binding ViewModel.SelectedJob, Mode=TwoWay}"
                         Visibility="{Binding ViewModel.HasJobs, Converter={StaticResource BoolToVisibilityConverter}}"
                         ScrollViewer.VerticalScrollBarVisibility="Auto">
-                        <ListBox.ItemTemplate>
+                        <ui:ListView.ItemTemplate>
                             <DataTemplate DataType="{x:Type vm:QueueJobViewModel}">
                                 <Border
                                     Margin="0,0,0,6"
@@ -161,8 +161,8 @@
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                        </ui:ListView.ItemTemplate>
+                    </ui:ListView>
                 </Grid>
             </Border>
 
