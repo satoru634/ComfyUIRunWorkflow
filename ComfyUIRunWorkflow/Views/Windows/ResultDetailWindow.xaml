@@ -1,240 +1,214 @@
-<ui:FluentWindow
+<ui:ContentDialog
     x:Class="ComfyUIRunWorkflow.Views.Windows.ResultDetailWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:ComfyUIRunWorkflow.Views.Windows"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:wpfModels="clr-namespace:ComfyUIRunWorkflow.Models"
     xmlns:helpers="clr-namespace:ComfyUIRunWorkflow.Helpers"
+    xmlns:windowsVm="clr-namespace:ComfyUIRunWorkflow.ViewModels.Windows"
     Title="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ResultDetail_Title]}"
-    Width="600"
-    MinWidth="480"
-    MinHeight="360"
-    SizeToContent="Height"
-    WindowStartupLocation="CenterOwner"
+    d:DesignWidth="480"
+    d:DesignHeight="600"
+    MaxWidth="480"
+    d:DataContext="{d:DesignInstance windowsVm:ResultDetailViewModel, IsDesignTimeCreatable=False}"
     ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
     ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-    ExtendsContentIntoTitleBar="True"
-    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-    WindowBackdropType="Mica"
-    WindowCornerPreference="Round"
     mc:Ignorable="d">
 
-    <ui:FluentWindow.Resources>
+    <ui:ContentDialog.Resources>
+        <Style BasedOn="{StaticResource {x:Type ui:ContentDialog}}" TargetType="{x:Type local:ResultDetailWindow}" />
         <helpers:LoraDisplayConverter x:Key="LoraDisplayConverter" />
-    </ui:FluentWindow.Resources>
+    </ui:ContentDialog.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <StackPanel>
 
-        <ui:TitleBar
-            Grid.Row="0"
-            Title="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ResultDetail_Title]}"
-            Height="36"
-            CloseWindowByDoubleClickOnIcon="False" />
-
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <StackPanel Margin="16,8,16,16">
-
-                <!-- ステータス -->
-                <Border
-                    Margin="0,0,0,12"
-                    Padding="12,8"
-                    CornerRadius="4">
-                    <Border.Style>
-                        <Style TargetType="Border">
+        <!-- ステータス -->
+        <Border
+            Margin="0,0,0,12"
+            Padding="12,8"
+            CornerRadius="4">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Result.Status}" Value="success">
+                            <Setter Property="Background" Value="{DynamicResource SystemFillColorSuccessBackgroundBrush}" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Result.Status}" Value="error">
+                            <Setter Property="Background" Value="{DynamicResource SystemFillColorCriticalBackgroundBrush}" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <StackPanel>
+                <TextBlock FontSize="15" FontWeight="SemiBold">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding Result.Status}" Value="success">
-                                    <Setter Property="Background" Value="{DynamicResource SystemFillColorSuccessBackgroundBrush}" />
+                                    <Setter Property="Text" Value="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ResultDetail_StatusSuccess]}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource SystemFillColorSuccessBrush}" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding Result.Status}" Value="error">
-                                    <Setter Property="Background" Value="{DynamicResource SystemFillColorCriticalBackgroundBrush}" />
+                                    <Setter Property="Text" Value="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ResultDetail_StatusError]}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCriticalBrush}" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </Border.Style>
-                    <StackPanel>
-                        <TextBlock FontSize="15" FontWeight="SemiBold">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Result.Status}" Value="success">
-                                            <Setter Property="Text" Value="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ResultDetail_StatusSuccess]}" />
-                                            <Setter Property="Foreground" Value="{DynamicResource SystemFillColorSuccessBrush}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Result.Status}" Value="error">
-                                            <Setter Property="Text" Value="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ResultDetail_StatusError]}" />
-                                            <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCriticalBrush}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                        <TextBlock
-                            Margin="0,2,0,0"
-                            FontSize="12"
-                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                            Text="{Binding Result.Timestamp}" />
-                    </StackPanel>
-                </Border>
-
-                <!-- エラーメッセージ -->
-                <Border
-                    Margin="0,0,0,12"
-                    Padding="10"
-                    Background="{DynamicResource SystemFillColorCriticalBackgroundBrush}"
-                    CornerRadius="4"
-                    Visibility="{Binding Result.Error, Converter={StaticResource NullToVisibilityConverter}}">
-                    <TextBlock
-                        FontSize="13"
-                        Foreground="{DynamicResource SystemFillColorCriticalBrush}"
-                        Text="{Binding Result.Error}"
-                        TextWrapping="Wrap" />
-                </Border>
-
-                <!-- プロンプト -->
-                <TextBlock
-                    Margin="0,0,0,4"
-                    FontSize="13"
-                    FontWeight="Medium"
-                    Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Common_PositivePromptLabel]}" />
-                <TextBox
-                    Margin="0,0,0,8"
-                    FontSize="12"
-                    IsReadOnly="True"
-                    MaxHeight="100"
-                    Text="{Binding Result.Parameters.Positive, Mode=OneWay}"
-                    TextWrapping="Wrap"
-                    VerticalScrollBarVisibility="Auto" />
-
-                <TextBlock
-                    Margin="0,0,0,4"
-                    FontSize="13"
-                    FontWeight="Medium"
-                    Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Common_NegativePromptLabel]}" />
-                <TextBox
-                    Margin="0,0,0,12"
-                    FontSize="12"
-                    IsReadOnly="True"
-                    MaxHeight="80"
-                    Text="{Binding Result.Parameters.Negative, Mode=OneWay}"
-                    TextWrapping="Wrap"
-                    VerticalScrollBarVisibility="Auto" />
-
-                <!-- 画像サイズ -->
-                <TextBlock
-                    Margin="0,0,0,4"
-                    FontSize="13"
-                    FontWeight="Medium"
-                    Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Common_ImageSizeLabel]}" />
-                <TextBlock
-                    Margin="0,0,0,12"
-                    FontSize="13">
-                    <TextBlock.Text>
-                        <MultiBinding StringFormat="{}{0} × {1}">
-                            <Binding Path="Result.Parameters.ImageSize.Width" />
-                            <Binding Path="Result.Parameters.ImageSize.Height" />
-                        </MultiBinding>
-                    </TextBlock.Text>
+                    </TextBlock.Style>
                 </TextBlock>
-
-                <!-- LoRA -->
                 <TextBlock
-                    Margin="0,0,0,4"
-                    FontSize="13"
-                    FontWeight="Medium"
-                    Text="LoRA" />
-                <ItemsControl
-                    Margin="0,0,0,12"
-                    ItemsSource="{Binding Result.Parameters.Loras}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock FontSize="13">
-                                <TextBlock.Text>
-                                    <MultiBinding Converter="{StaticResource LoraDisplayConverter}">
-                                        <Binding Path="Name" />
-                                        <Binding Path="File" />
-                                        <Binding Path="Strength" />
-                                    </MultiBinding>
-                                </TextBlock.Text>
-                            </TextBlock>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-
-                <!-- 出力ファイル -->
-                <TextBlock
-                    Margin="0,0,0,4"
-                    FontSize="13"
-                    FontWeight="Medium"
-                    Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ResultDetail_OutputFilesLabel]}" />
-                <ItemsControl ItemsSource="{Binding Previews}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="{x:Type wpfModels:OutputFilePreview}">
-                            <Border
-                                Width="96"
-                                Height="96"
-                                Margin="0,0,8,8"
-                                Background="{DynamicResource ControlFillColorDefaultBrush}"
-                                CornerRadius="4"
-                                Cursor="Hand"
-                                ToolTip="{Binding Output.Filename}">
-                                <Border.InputBindings>
-                                    <MouseBinding
-                                        Command="{Binding DataContext.OpenEnlargedCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                                        CommandParameter="{Binding}"
-                                        MouseAction="LeftClick" />
-                                </Border.InputBindings>
-                                <Grid>
-                                    <Image
-                                        Margin="4"
-                                        Source="{Binding Thumbnail}"
-                                        Stretch="Uniform"
-                                        Visibility="{Binding Thumbnail, Converter={StaticResource NullToVisibilityConverter}}" />
-                                    <ui:ProgressRing
-                                        Width="24"
-                                        Height="24"
-                                        IsIndeterminate="True"
-                                        Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" />
-                                    <ui:SymbolIcon
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="24"
-                                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                                        Symbol="ImageOff24"
-                                        Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}" />
-                                    <TextBlock
-                                        Margin="4"
-                                        VerticalAlignment="Bottom"
-                                        FontSize="11"
-                                        Text="{Binding Output.Filename}"
-                                        TextTrimming="CharacterEllipsis"
-                                        TextWrapping="Wrap"
-                                        Visibility="{Binding IsImage, Converter={StaticResource BoolToVisibilityInverseConverter}}" />
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-
-                <!-- 閉じるボタン -->
-                <ui:Button
-                    Margin="0,16,0,0"
-                    HorizontalAlignment="Right"
-                    Click="OnCloseClick"
-                    Content="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Common_CloseButtonContent]}"
-                    Appearance="Secondary" />
-
+                    Margin="0,2,0,0"
+                    FontSize="12"
+                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                    Text="{Binding Result.Timestamp}" />
             </StackPanel>
-        </ScrollViewer>
-    </Grid>
-</ui:FluentWindow>
+        </Border>
+
+        <!-- エラーメッセージ -->
+        <Border
+            Margin="0,0,0,12"
+            Padding="10"
+            Background="{DynamicResource SystemFillColorCriticalBackgroundBrush}"
+            CornerRadius="4"
+            Visibility="{Binding Result.Error, Converter={StaticResource NullToVisibilityConverter}}">
+            <TextBlock
+                FontSize="13"
+                Foreground="{DynamicResource SystemFillColorCriticalBrush}"
+                Text="{Binding Result.Error}"
+                TextWrapping="Wrap" />
+        </Border>
+
+        <!-- プロンプト -->
+        <TextBlock
+            Margin="0,0,0,4"
+            FontSize="13"
+            FontWeight="Medium"
+            Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Common_PositivePromptLabel]}" />
+        <TextBox
+            Margin="0,0,0,8"
+            FontSize="12"
+            IsReadOnly="True"
+            MaxHeight="100"
+            Text="{Binding Result.Parameters.Positive, Mode=OneWay}"
+            TextWrapping="Wrap"
+            VerticalScrollBarVisibility="Auto" />
+
+        <TextBlock
+            Margin="0,0,0,4"
+            FontSize="13"
+            FontWeight="Medium"
+            Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Common_NegativePromptLabel]}" />
+        <TextBox
+            Margin="0,0,0,12"
+            FontSize="12"
+            IsReadOnly="True"
+            MaxHeight="80"
+            Text="{Binding Result.Parameters.Negative, Mode=OneWay}"
+            TextWrapping="Wrap"
+            VerticalScrollBarVisibility="Auto" />
+
+        <!-- 画像サイズ -->
+        <TextBlock
+            Margin="0,0,0,4"
+            FontSize="13"
+            FontWeight="Medium"
+            Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Common_ImageSizeLabel]}" />
+        <TextBlock
+            Margin="0,0,0,12"
+            FontSize="13">
+            <TextBlock.Text>
+                <MultiBinding StringFormat="{}{0} × {1}">
+                    <Binding Path="Result.Parameters.ImageSize.Width" />
+                    <Binding Path="Result.Parameters.ImageSize.Height" />
+                </MultiBinding>
+            </TextBlock.Text>
+        </TextBlock>
+
+        <!-- LoRA -->
+        <TextBlock
+            Margin="0,0,0,4"
+            FontSize="13"
+            FontWeight="Medium"
+            Text="LoRA" />
+        <ItemsControl
+            Margin="0,0,0,12"
+            ItemsSource="{Binding Result.Parameters.Loras}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock FontSize="13">
+                        <TextBlock.Text>
+                            <MultiBinding Converter="{StaticResource LoraDisplayConverter}">
+                                <Binding Path="Name" />
+                                <Binding Path="File" />
+                                <Binding Path="Strength" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- 出力ファイル -->
+        <TextBlock
+            Margin="0,0,0,4"
+            FontSize="13"
+            FontWeight="Medium"
+            Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ResultDetail_OutputFilesLabel]}" />
+        <ItemsControl ItemsSource="{Binding Previews}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type wpfModels:OutputFilePreview}">
+                    <Border
+                        Width="96"
+                        Height="96"
+                        Margin="0,0,8,8"
+                        Background="{DynamicResource ControlFillColorDefaultBrush}"
+                        CornerRadius="4"
+                        Cursor="Hand"
+                        ToolTip="{Binding Output.Filename}">
+                        <Border.InputBindings>
+                            <MouseBinding
+                                Command="{Binding DataContext.OpenEnlargedCommand, RelativeSource={RelativeSource AncestorType={x:Type local:ResultDetailWindow}}}"
+                                CommandParameter="{Binding}"
+                                MouseAction="LeftClick" />
+                        </Border.InputBindings>
+                        <Grid>
+                            <Image
+                                Margin="4"
+                                Source="{Binding Thumbnail}"
+                                Stretch="Uniform"
+                                Visibility="{Binding Thumbnail, Converter={StaticResource NullToVisibilityConverter}}" />
+                            <ui:ProgressRing
+                                Width="24"
+                                Height="24"
+                                IsIndeterminate="True"
+                                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" />
+                            <ui:SymbolIcon
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontSize="24"
+                                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                Symbol="ImageOff24"
+                                Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}" />
+                            <TextBlock
+                                Margin="4"
+                                VerticalAlignment="Bottom"
+                                FontSize="11"
+                                Text="{Binding Output.Filename}"
+                                TextTrimming="CharacterEllipsis"
+                                TextWrapping="Wrap"
+                                Visibility="{Binding IsImage, Converter={StaticResource BoolToVisibilityInverseConverter}}" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </StackPanel>
+</ui:ContentDialog>

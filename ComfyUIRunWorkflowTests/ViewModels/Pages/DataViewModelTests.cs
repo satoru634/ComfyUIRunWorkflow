@@ -4,6 +4,7 @@ using ComfyUILibs.Common;
 using ComfyUILibs.Models;
 using ComfyUIRunWorkflow.Models;
 using ComfyUIRunWorkflow.ViewModels.Pages;
+using ComfyUIRunWorkflowTests.Fakes;
 
 namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 {
@@ -45,35 +46,35 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         public void Constructor_Config_IsSet()
         {
             var setting = CreateSetting();
-            var vm = new DataViewModel(setting);
+            var vm = new DataViewModel(setting, new FakeContentDialogService());
             Assert.Same(setting, vm.Config);
         }
 
         [Fact]
         public void Constructor_Results_IsEmpty()
         {
-            var vm = new DataViewModel(CreateSetting());
+            var vm = new DataViewModel(CreateSetting(), new FakeContentDialogService());
             Assert.Empty(vm.Results);
         }
 
         [Fact]
         public void Constructor_IsLoading_IsFalse()
         {
-            var vm = new DataViewModel(CreateSetting());
+            var vm = new DataViewModel(CreateSetting(), new FakeContentDialogService());
             Assert.False(vm.IsLoading);
         }
 
         [Fact]
         public void Constructor_TagResults_IsEmpty()
         {
-            var vm = new DataViewModel(CreateSetting());
+            var vm = new DataViewModel(CreateSetting(), new FakeContentDialogService());
             Assert.Empty(vm.TagResults);
         }
 
         [Fact]
         public void Constructor_IsTagHistorySelected_IsFalse()
         {
-            var vm = new DataViewModel(CreateSetting());
+            var vm = new DataViewModel(CreateSetting(), new FakeContentDialogService());
             Assert.False(vm.IsTagHistorySelected);
         }
 
@@ -82,7 +83,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         [Fact]
         public void ShowTagHistoryTabCommand_Execute_SetsIsTagHistorySelectedTrue()
         {
-            var vm = new DataViewModel(CreateSetting());
+            var vm = new DataViewModel(CreateSetting(), new FakeContentDialogService());
             vm.ShowTagHistoryTabCommand.Execute(null);
             Assert.True(vm.IsTagHistorySelected);
         }
@@ -90,7 +91,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         [Fact]
         public void ShowResultsTabCommand_Execute_SetsIsTagHistorySelectedFalse()
         {
-            var vm = new DataViewModel(CreateSetting());
+            var vm = new DataViewModel(CreateSetting(), new FakeContentDialogService());
             vm.ShowTagHistoryTabCommand.Execute(null);
             vm.ShowResultsTabCommand.Execute(null);
             Assert.False(vm.IsTagHistorySelected);
@@ -103,7 +104,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         {
             var setting = CreateSetting();
             setting.Data.ResultsFolder = "";
-            var vm = new DataViewModel(setting);
+            var vm = new DataViewModel(setting, new FakeContentDialogService());
 
             await vm.OnNavigatedToAsync();
 
@@ -116,7 +117,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         {
             var setting = CreateSetting();
             setting.Data.ResultsFolder = Path.Combine(_tempDir, "nonexistent");
-            var vm = new DataViewModel(setting);
+            var vm = new DataViewModel(setting, new FakeContentDialogService());
 
             await vm.OnNavigatedToAsync();
 
@@ -131,7 +132,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
             Directory.CreateDirectory(folder);
             var setting = CreateSetting();
             setting.Data.ResultsFolder = folder;
-            var vm = new DataViewModel(setting);
+            var vm = new DataViewModel(setting, new FakeContentDialogService());
 
             await vm.OnNavigatedToAsync();
 
@@ -148,7 +149,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 
             var setting = CreateSetting();
             setting.Data.ResultsFolder = folder;
-            var vm = new DataViewModel(setting);
+            var vm = new DataViewModel(setting, new FakeContentDialogService());
 
             await vm.OnNavigatedToAsync();
 
@@ -166,7 +167,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 
             var setting = CreateSetting();
             setting.Data.ResultsFolder = folder;
-            var vm = new DataViewModel(setting);
+            var vm = new DataViewModel(setting, new FakeContentDialogService());
 
             await vm.OnNavigatedToAsync();
 
@@ -183,7 +184,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 
             var setting = CreateSetting();
             setting.Data.ResultsFolder = folder;
-            var vm = new DataViewModel(setting);
+            var vm = new DataViewModel(setting, new FakeContentDialogService());
 
             await vm.OnNavigatedToAsync();
 
@@ -200,7 +201,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 
             var setting = CreateSetting();
             setting.Data.ResultsFolder = folder;
-            var vm = new DataViewModel(setting);
+            var vm = new DataViewModel(setting, new FakeContentDialogService());
 
             await vm.OnNavigatedToAsync();
 
@@ -212,7 +213,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         [Fact]
         public async Task OnNavigatedFromAsync_ReturnsCompletedTask()
         {
-            var vm = new DataViewModel(CreateSetting());
+            var vm = new DataViewModel(CreateSetting(), new FakeContentDialogService());
             var task = vm.OnNavigatedFromAsync();
             await task;
             Assert.True(task.IsCompletedSuccessfully);
@@ -228,7 +229,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 
             var setting = CreateSetting();
             setting.Data.ResultsFolder = folder;
-            var vm = new DataViewModel(setting);
+            var vm = new DataViewModel(setting, new FakeContentDialogService());
             await vm.OnNavigatedToAsync();
 
             WriteResultFile(folder, new WorkflowResult { Status = "success" }, "result_20260629_120000.json");
@@ -251,7 +252,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 
             var setting = CreateSetting();
             setting.Data.ResultsFolder = folder;
-            var vm = new DataViewModel(setting);
+            var vm = new DataViewModel(setting, new FakeContentDialogService());
 
             await vm.OnNavigatedToAsync();
 
@@ -268,7 +269,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 
             var setting = CreateSetting();
             setting.Data.ResultsFolder = folder;
-            var vm = new DataViewModel(setting);
+            var vm = new DataViewModel(setting, new FakeContentDialogService());
 
             await vm.OnNavigatedToAsync();
 
@@ -283,7 +284,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
             Directory.CreateDirectory(folder);
             var setting = CreateSetting();
             setting.Data.ResultsFolder = folder;
-            var vm = new DataViewModel(setting);
+            var vm = new DataViewModel(setting, new FakeContentDialogService());
 
             await vm.OnNavigatedToAsync();
 
@@ -301,7 +302,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 
             var setting = CreateSetting();
             setting.Data.ResultsFolder = folder;
-            var vm = new DataViewModel(setting);
+            var vm = new DataViewModel(setting, new FakeContentDialogService());
 
             await vm.OnNavigatedToAsync();
 
@@ -316,7 +317,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 
             var setting = CreateSetting();
             setting.Data.ResultsFolder = folder;
-            var vm = new DataViewModel(setting);
+            var vm = new DataViewModel(setting, new FakeContentDialogService());
             await vm.OnNavigatedToAsync();
 
             WriteTagResultFile(folder, new TagResult { Status = "success" }, "tag_result_20260704_120000.json");
@@ -330,7 +331,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         [Fact]
         public void CopyTagsCommand_WithEmptyTags_DoesNotThrow()
         {
-            var vm = new DataViewModel(CreateSetting());
+            var vm = new DataViewModel(CreateSetting(), new FakeContentDialogService());
             var result = new TagResult { Status = "error", Error = "失敗" };
 
             var ex = Record.Exception(() => vm.CopyTagsCommand.Execute(result));

@@ -1,15 +1,18 @@
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Text.Json;
-using System.Windows;
 using ComfyUILibs.Common;
 using ComfyUILibs.Models;
 using ComfyUILibs.Services;
 using ComfyUIRunWorkflow.Helpers;
 using ComfyUIRunWorkflow.Models;
 using ComfyUIRunWorkflow.Services;
+using ComfyUIRunWorkflow.ViewModels.Windows;
 using ComfyUIRunWorkflow.Views.Windows;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Text.Json;
+using System.Windows;
+using Wpf.Ui;
 using Wpf.Ui.Abstractions.Controls;
+using Wpf.Ui.Controls;
 
 namespace ComfyUIRunWorkflow.ViewModels.Pages
 {
@@ -24,6 +27,9 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
         /// <summary>アプリケーション設定。</summary>
         public Setting<AppConfig> Config { get; }
+
+        /// <summary>コンテンツダイアログサービス</summary>
+        private readonly IContentDialogService _contentDialogService;
 
         /// <summary>読み込んだ実行結果のリスト（新しい順）。</summary>
         [ObservableProperty]
@@ -57,9 +63,12 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         };
 
         /// <summary>DI コンテナから設定を受け取って初期化する。</summary>
-        public DataViewModel(Setting<AppConfig> config)
+        /// <param name="config">アプリケーション設定</param>
+        /// <param name="contentDialogService">コンテンツダイアログサービス</param>
+        public DataViewModel(Setting<AppConfig> config, IContentDialogService contentDialogService)
         {
             Config = config;
+            _contentDialogService = contentDialogService;
         }
 
         /// <summary>ページへ遷移するたびに結果を再読み込みする。</summary>
@@ -226,13 +235,16 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
         /// <summary>指定した結果の詳細ダイアログを開く。</summary>
         [RelayCommand]
-        private void OpenDetail(WorkflowResult result)
+        private async Task OpenDetail(WorkflowResult result)
         {
-            var window = new ResultDetailWindow(result, Config)
+            ResultDetailViewModel viewModel = new ResultDetailViewModel(result, Config);
+            ResultDetailWindow resultDialog = new ResultDetailWindow(
+                viewModel, _contentDialogService.GetDialogHostEx());
+            var ret = await resultDialog.ShowAsync();
+            if (ret != ContentDialogResult.Primary)
             {
-                Owner = System.Windows.Application.Current.MainWindow
-            };
-            window.ShowDialog();
+                return;
+            }
         }
 
         /// <summary>タグ付け履歴のタグ文字列をクリップボードにコピーする。</summary>

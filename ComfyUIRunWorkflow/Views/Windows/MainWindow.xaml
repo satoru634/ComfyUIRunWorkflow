@@ -56,7 +56,7 @@
                 </Grid>
             </ui:NavigationView.ContentOverlay>
         </ui:NavigationView>
-        <ContentPresenter x:Name="RootContentDialog" Grid.Row="0" Grid.RowSpan="2" />
+        <ui:ContentDialogHost x:Name="RootContentDialog" Grid.Row="0" Grid.RowSpan="2" />
         <ui:TitleBar
             x:Name="TitleBar"
             Title="{Binding ViewModel.ApplicationTitle}"
