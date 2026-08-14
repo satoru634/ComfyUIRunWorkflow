@@ -1,4 +1,4 @@
-﻿using ComfyUIRunWorkflow.ViewModels.Windows;
+using ComfyUIRunWorkflow.ViewModels.Windows;
 using Wpf.Ui;
 using Wpf.Ui.Abstractions;
 using Wpf.Ui.Appearance;
@@ -23,7 +23,8 @@ namespace ComfyUIRunWorkflow.Views.Windows
             MainWindowViewModel viewModel,
             INavigationViewPageProvider navigationViewPageProvider,
             INavigationService navigationService,
-            ISnackbarService snackbarService
+            ISnackbarService snackbarService,
+            IContentDialogService contentDialogService
         )
         {
             ViewModel = viewModel;
@@ -39,6 +40,9 @@ namespace ComfyUIRunWorkflow.Views.Windows
 
             // スナックバー通知サービスにスナックバープレゼンターを設定する
             snackbarService.SetSnackbarPresenter(SnackbarPresenter);
+
+            // コンテンツダイアログサービスにダイアログホストを設定する
+            contentDialogService.SetDialogHost(RootContentDialog);
         }
 
         #region INavigationWindow methods

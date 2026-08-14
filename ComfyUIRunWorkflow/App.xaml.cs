@@ -1,4 +1,4 @@
-﻿using ComfyUIRunWorkflow.Models;
+using ComfyUIRunWorkflow.Models;
 using ComfyUIRunWorkflow.Services;
 using ComfyUIRunWorkflow.ViewModels.Pages;
 using ComfyUIRunWorkflow.ViewModels.Windows;
@@ -42,6 +42,9 @@ namespace ComfyUIRunWorkflow
 
                 // タスクバー操作サービス
                 services.AddSingleton<ITaskBarService, TaskBarService>();
+
+                // ダイアログサービス
+                services.AddSingleton<IContentDialogService, ContentDialogService>();
 
                 // スナックバー通知サービス
                 services.AddSingleton<ISnackbarService, SnackbarService>();
