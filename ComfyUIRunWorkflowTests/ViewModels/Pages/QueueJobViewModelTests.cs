@@ -1,4 +1,8 @@
 using System.Globalization;
+using System.Runtime.ExceptionServices;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using ComfyUILibs.Models;
 using ComfyUIRunWorkflow.Helpers;
 using ComfyUIRunWorkflow.Models;
@@ -220,6 +224,115 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
             job.ApplyWorkflowConfig(CreateMultiWorkflowConfig());
 
             Assert.Equal("horizontal", job.SelectedSizeOption);
+        }
+
+        /// <summary>
+        /// QueuePage.xaml と同じ ComboBox バインディング（ItemsSource=SizeLabelList.ItemList,
+        /// SelectedValue={Binding SelectedSizeOption, TwoWay}, SelectedValuePath=Key）を実際に構築し、
+        /// ApplyWorkflowConfig の再実行（ページ再訪問を想定）で選択値が失われないかを検証する。
+        /// SizeLabelList.Init() 内部の ItemList.Clear() が ComboBox の SelectedValue を一時的に
+        /// 未選択にし、TwoWay バインディング経由で ViewModel 側のプロパティに null を書き戻してしまう
+        /// 問題は、単体で ViewModel のプロパティを直接操作するテストでは検出できないため、実際の
+        /// WPF コントロールを使って検証する。
+        /// </summary>
+        [Fact]
+        public void RealComboBoxBinding_ApplyWorkflowConfigAgain_DoesNotClearSelection()
+        {
+            Exception? caught = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var job = new QueueJobViewModel { WorkflowName = "sdxl" };
+                    job.ApplyWorkflowConfig(CreateMultiWorkflowConfig());
+                    job.SelectedSizeOption = "horizontal";
+
+                    var comboBox = new ComboBox
+                    {
+                        DisplayMemberPath = "Label",
+                        SelectedValuePath = "Key",
+                    };
+                    BindingOperations.SetBinding(
+                        comboBox,
+                        ItemsControl.ItemsSourceProperty,
+                        new Binding("SizeLabelList.ItemList") { Source = job });
+                    BindingOperations.SetBinding(
+                        comboBox,
+                        Selector.SelectedValueProperty,
+                        new Binding("SelectedSizeOption") { Source = job, Mode = BindingMode.TwoWay });
+
+                    Assert.Equal("horizontal", job.SelectedSizeOption);
+
+                    // ページ再訪問時に QueueViewModel.TryLoadConfig() が全ジョブへ呼び出す処理を再現する
+                    job.ApplyWorkflowConfig(CreateMultiWorkflowConfig());
+
+                    Assert.Equal("horizontal", job.SelectedSizeOption);
+                    Assert.Equal("horizontal", comboBox.SelectedValue);
+                }
+                catch (Exception ex)
+                {
+                    caught = ex;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+            if (caught is not null)
+                ExceptionDispatchInfo.Capture(caught).Throw();
+        }
+
+        /// <summary>
+        /// カスタムサイズ選択時（Key="custom"）でも、上記と同じ ComboBox 巻き添え上書きが
+        /// 発生しないことを検証する。
+        /// </summary>
+        [Fact]
+        public void RealComboBoxBinding_ApplyWorkflowConfigAgain_PreservesCustomSizeSelection()
+        {
+            Exception? caught = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var job = new QueueJobViewModel { WorkflowName = "sdxl" };
+                    job.ApplyWorkflowConfig(CreateMultiWorkflowConfig());
+                    job.SelectedSizeOption = "custom";
+                    job.CustomWidth = 999;
+                    job.CustomHeight = 777;
+
+                    var comboBox = new ComboBox
+                    {
+                        DisplayMemberPath = "Label",
+                        SelectedValuePath = "Key",
+                    };
+                    BindingOperations.SetBinding(
+                        comboBox,
+                        ItemsControl.ItemsSourceProperty,
+                        new Binding("SizeLabelList.ItemList") { Source = job });
+                    BindingOperations.SetBinding(
+                        comboBox,
+                        Selector.SelectedValueProperty,
+                        new Binding("SelectedSizeOption") { Source = job, Mode = BindingMode.TwoWay });
+
+                    Assert.Equal("custom", job.SelectedSizeOption);
+
+                    job.ApplyWorkflowConfig(CreateMultiWorkflowConfig());
+
+                    Assert.True(job.IsCustomSize);
+                    Assert.Equal("custom", job.SelectedSizeOption);
+                    Assert.Equal("custom", comboBox.SelectedValue);
+                    Assert.Equal(999, job.CustomWidth);
+                    Assert.Equal(777, job.CustomHeight);
+                }
+                catch (Exception ex)
+                {
+                    caught = ex;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+            if (caught is not null)
+                ExceptionDispatchInfo.Capture(caught).Throw();
         }
 
         [Fact]
