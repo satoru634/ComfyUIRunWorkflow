@@ -18,6 +18,7 @@
       <helpers:BoolToVisibilityInverseConverter x:Key="BoolToVisibilityInverseConverter" />
       <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
       <helpers:NullToVisibilityInverseConverter x:Key="NullToVisibilityInverseConverter" />
+      <helpers:QueueJobStatusToBrushConverter x:Key="QueueJobStatusToBrushConverter" />
     </ResourceDictionary>
   </Application.Resources>
 </Application>

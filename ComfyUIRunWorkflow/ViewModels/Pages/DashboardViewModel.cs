@@ -8,9 +8,6 @@ using ComfyUIRunWorkflow.Models;
 using ComfyUIRunWorkflow.Services;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Text.Encodings.Web;
-using System.Text.Json;
-using System.Text.Unicode;
 using Wpf.Ui;
 using Wpf.Ui.Abstractions.Controls;
 using Wpf.Ui.Controls;
@@ -47,9 +44,6 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         private bool _isConfigLoaded = false;
 
         // ── プリセット画像サイズラベル ────────────────────────────────────────
-
-        /// <summary>画像サイズ選択コンボボックスのキー一覧（vertical / horizontal / square / custom）。</summary>
-        private static readonly List<string> _sizeOptionKeys = new() { "vertical", "horizontal", "square", "custom" };
 
         /// <summary>画像サイズ選択コンボボックスに表示する項目（キー＋表示ラベル）のリスト。</summary>
         [ObservableProperty]
@@ -145,15 +139,10 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         private const string PreviewCacheDirectoryName = "preview_cache";
 
         private readonly PreviewImageLoader _previewLoader = new();
+        private readonly WorkflowExecutionService _executionService = new();
 
         private WorkflowConfig? _loadedConfig;
         private Dictionary<string, ImageSize> _presetSizes = new();
-
-        private static readonly JsonSerializerOptions _jsonOptions = new()
-        {
-            WriteIndented = true,
-            Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
-        };
 
         // ─────────────────────────────────────────────────────────────────────
 
@@ -251,16 +240,16 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             if (_loadedConfig?.Workflows == null || !_loadedConfig.Workflows.TryGetValue(value, out var ws))
             {
                 AvailableLoras = new List<string>();
-                _presetSizes = new Dictionary<string, ImageSize>();
-                var fallbackOptions = _sizeOptionKeys.Select(key => new SizeOption(key, OrientationLabel(key))).ToList();
+                var (fallbackOptions, fallbackPresetSizes) = WorkflowSizeOptionBuilder.Build(null);
+                _presetSizes = fallbackPresetSizes;
                 SizeLabelList.Init(fallbackOptions, fallbackOptions[0]);
                 return;
             }
 
             AvailableLoras = ws.Loras?.Keys.ToList() ?? new List<string>();
 
-            _presetSizes = ws.ImageSize ?? new Dictionary<string, ImageSize>();
-            var options = _sizeOptionKeys.Select(key => new SizeOption(key, FormatSizeLabel(key))).ToList();
+            var (options, presetSizes) = WorkflowSizeOptionBuilder.Build(ws);
+            _presetSizes = presetSizes;
             SizeLabelList.Init(options, options[0]);
 
             // デフォルトは最初の項目（vertical）を選択
@@ -273,29 +262,6 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                     slot.SelectedLora = "";
             }
         }
-
-        /// <summary>
-        /// ラベル文字列を生成する。プリセットサイズが存在する場合は "(width×height)" を付加する。
-        /// </summary>
-        /// <param name="orientation"></param>
-        /// <returns></returns>
-        private string FormatSizeLabel(string orientation)
-        {
-            var label = OrientationLabel(orientation);
-            if (_presetSizes.TryGetValue(orientation, out var size))
-                return $"{label} ({size.Width}×{size.Height})";
-            return label;
-        }
-
-        /// <summary>向きキー（"vertical"/"horizontal"/"square"/"custom"）を現在の言語の表示名に変換する。</summary>
-        private static string OrientationLabel(string orientation) => orientation switch
-        {
-            "vertical" => LocalizationManager.Instance["Dashboard_OrientationVertical"],
-            "horizontal" => LocalizationManager.Instance["Dashboard_OrientationHorizontal"],
-            "square" => LocalizationManager.Instance["Dashboard_OrientationSquare"],
-            "custom" => LocalizationManager.Instance["Dashboard_OrientationCustom"],
-            _ => orientation,
-        };
 
         /// <summary>
         /// ImageSizeOrientation が変わったとき、RadioButton・ComboBox 向けの derived プロパティを通知する。
@@ -336,7 +302,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
         /// <summary>バッチ実行中の進捗テキストを組み立てる（例: "2/5件目を実行中"）。</summary>
         internal static string FormatBatchProgress(int current, int total) =>
-            string.Format(LocalizationManager.Instance["Dashboard_BatchProgress_Format"], current, total);
+            BatchProgressFormatter.Format(current, total);
 
         /// <summary>
         /// ワークフローを ComfyUI に送信して実行する。BatchCount が2以上の場合は同じ内容で
@@ -350,80 +316,68 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             PreviewThumbnails = new ObservableCollection<OutputFilePreview>();
             BatchProgressText = "";
 
-            var totalBatches = Math.Max(1, BatchCount);
-            var allOutputs = new List<OutputFile>();
-            string? lastSuccessPromptId = null;
-            string? lastSuccessTemplatePath = null;
-            WorkflowParameters? lastSuccessParameters = null;
+            var loras = LoraSlots
+                .Where(s => !string.IsNullOrWhiteSpace(s.SelectedLora))
+                .Select(s => s.SelectedLora)
+                .ToList();
 
-            WorkflowResult result;
-            WorkflowRunner? runner = null;
+            var prompts = new PromptPair
+            {
+                Positive = PositivePrompt,
+                Negative = NegativePrompt
+            };
 
+            ImageSize? imageSize;
+            if (IsCustomSize)
+            {
+                imageSize = new ImageSize { Width = CustomWidth, Height = CustomHeight };
+            }
+            else if (_presetSizes.TryGetValue(ImageSizeOrientation, out var preset))
+            {
+                imageSize = new ImageSize { Width = preset.Width, Height = preset.Height };
+            }
+            else
+            {
+                imageSize = null;
+            }
+
+            WorkflowBatchOutcome outcome;
             try
             {
-                runner = new WorkflowRunner(Config.Data.ConfigPath, SelectedWorkflow);
+                outcome = await _executionService.RunBatchAsync(
+                    Config.Data.ConfigPath,
+                    SelectedWorkflow,
+                    loras,
+                    prompts,
+                    imageSize,
+                    BatchCount,
+                    onBatchStart: (current, total) =>
+                        BatchProgressText = total > 1 ? FormatBatchProgress(current, total) : "",
+                    onBatchCompleted: (outputs, promptId) =>
+                    {
+                        var newThumbnails = outputs
+                            .Where(o => o.Type == "output")
+                            .Select(o => new OutputFilePreview(o))
+                            .ToList();
+                        foreach (var thumbnail in newThumbnails)
+                            PreviewThumbnails.Add(thumbnail);
+                        // PreviewThumbnails への Add は再代入ではないため OnPreviewThumbnailsChanged が発火しない。
+                        // 派生プロパティ HasPreviewThumbnails を手動で再通知し、右パネルの表示切り替えを反映させる。
+                        if (newThumbnails.Count > 0)
+                            OnPropertyChanged(nameof(HasPreviewThumbnails));
+                        _ = LoadPreviewThumbnailsAsync(
+                            new ObservableCollection<OutputFilePreview>(newThumbnails), promptId);
+                    });
+            }
+            finally
+            {
+                IsRunning = false;
+                BatchProgressText = "";
+            }
 
-                var loras = LoraSlots
-                    .Where(s => !string.IsNullOrWhiteSpace(s.SelectedLora))
-                    .Select(s => s.SelectedLora)
-                    .ToList();
-
-                var prompts = new PromptPair
-                {
-                    Positive = PositivePrompt,
-                    Negative = NegativePrompt
-                };
-
-                ImageSize? imageSize;
-                if (IsCustomSize)
-                {
-                    imageSize = new ImageSize { Width = CustomWidth, Height = CustomHeight };
-                }
-                else if (_presetSizes.TryGetValue(ImageSizeOrientation, out var preset))
-                {
-                    imageSize = new ImageSize { Width = preset.Width, Height = preset.Height };
-                }
-                else
-                {
-                    imageSize = null;
-                }
-
-                for (int i = 1; i <= totalBatches; i++)
-                {
-                    BatchProgressText = totalBatches > 1 ? FormatBatchProgress(i, totalBatches) : "";
-
-                    var outputs = await runner.ExecuteAsync(loras, prompts, imageSize);
-
-                    allOutputs.AddRange(outputs);
-                    lastSuccessPromptId = runner.PromptId;
-                    lastSuccessTemplatePath = runner.TemplatePath;
-                    lastSuccessParameters = runner.Parameters;
-
-                    var newThumbnails = outputs
-                        .Where(o => o.Type == "output")
-                        .Select(o => new OutputFilePreview(o))
-                        .ToList();
-                    foreach (var thumbnail in newThumbnails)
-                        PreviewThumbnails.Add(thumbnail);
-                    // PreviewThumbnails への Add は再代入ではないため OnPreviewThumbnailsChanged が発火しない。
-                    // 派生プロパティ HasPreviewThumbnails を手動で再通知し、右パネルの表示切り替えを反映させる。
-                    if (newThumbnails.Count > 0)
-                        OnPropertyChanged(nameof(HasPreviewThumbnails));
-                    _ = LoadPreviewThumbnailsAsync(
-                        new ObservableCollection<OutputFilePreview>(newThumbnails), runner.PromptId);
-                }
-
-                result = new WorkflowResult
-                {
-                    Status = "success",
-                    PromptId = lastSuccessPromptId,
-                    Timestamp = DateTime.Now.ToString("s"),
-                    Template = lastSuccessTemplatePath,
-                    Parameters = lastSuccessParameters ?? new WorkflowParameters(),
-                    Outputs = allOutputs,
-                };
-
-                int count = allOutputs.FindAll(o => o.Type == "output").Count;
+            if (outcome.Error == null)
+            {
+                int count = outcome.Result.Outputs.FindAll(o => o.Type == "output").Count;
                 _snackbarService.Show(
                     LocalizationManager.Instance["Common_Completed"],
                     string.Format(LocalizationManager.Instance["Dashboard_FilesGenerated_Format"], count),
@@ -432,19 +386,8 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                     TimeSpan.FromSeconds(4.0)
                 );
             }
-            catch (ComfyUIException ex)
+            else if (outcome.Error is ComfyUIException ex)
             {
-                result = new WorkflowResult
-                {
-                    Status = "error",
-                    PromptId = lastSuccessPromptId,
-                    Timestamp = DateTime.Now.ToString("s"),
-                    Template = lastSuccessTemplatePath ?? runner?.TemplatePath,
-                    Parameters = lastSuccessParameters ?? runner?.Parameters ?? new WorkflowParameters(),
-                    Outputs = allOutputs,
-                    Error = ex.Message,
-                };
-
                 _snackbarService.Show(
                     LocalizationManager.Instance["Common_Error"],
                     ex.Message,
@@ -453,57 +396,18 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                     TimeSpan.FromSeconds(5.0)
                 );
             }
-            catch (Exception ex)
+            else
             {
-                result = new WorkflowResult
-                {
-                    Status = "error",
-                    PromptId = lastSuccessPromptId,
-                    Timestamp = DateTime.Now.ToString("s"),
-                    Template = lastSuccessTemplatePath,
-                    Parameters = lastSuccessParameters ?? new WorkflowParameters(),
-                    Outputs = allOutputs,
-                    Error = ex.Message,
-                };
-
                 _snackbarService.Show(
                     LocalizationManager.Instance["Common_UnexpectedError"],
-                    ex.Message,
+                    outcome.Error.Message,
                     ControlAppearance.Caution,
                     new SymbolIcon(SymbolRegular.Warning24),
                     TimeSpan.FromSeconds(5.0)
                 );
             }
-            finally
-            {
-                IsRunning = false;
-                BatchProgressText = "";
-            }
 
-            await TrySaveResultAsync(result);
-        }
-
-        /// <summary>
-        /// 実行結果を ResultsFolder に result_{timestamp}.json として保存する。
-        /// ResultsFolder が未設定の場合は何もしない。
-        /// </summary>
-        private async Task TrySaveResultAsync(WorkflowResult result)
-        {
-            var folder = Config.Data.ResultsFolder;
-            if (string.IsNullOrWhiteSpace(folder)) return;
-
-            try
-            {
-                Directory.CreateDirectory(folder);
-                var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-                var outputPath = Path.Combine(folder, $"result_{timestamp}.json");
-                var json = JsonSerializer.Serialize(result, _jsonOptions);
-                await File.WriteAllTextAsync(outputPath, json);
-            }
-            catch
-            {
-                // 保存失敗は実行結果に影響させない
-            }
+            await WorkflowExecutionService.SaveResultAsync(outcome.Result, Config.Data.ResultsFolder);
         }
 
         /// <summary>

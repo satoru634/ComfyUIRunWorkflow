@@ -125,10 +125,26 @@
 
   <!-- MainWindow -->
   <data name="MainWindow_MenuDashboard" xml:space="preserve"><value>ワークフロー実行</value></data>
+  <data name="MainWindow_MenuQueue" xml:space="preserve"><value>キュー実行</value></data>
   <data name="MainWindow_MenuResults" xml:space="preserve"><value>結果</value></data>
   <data name="MainWindow_MenuTagger" xml:space="preserve"><value>タグ付け</value></data>
   <data name="MainWindow_MenuSettings" xml:space="preserve"><value>設定</value></data>
   <data name="MainWindow_TrayHome" xml:space="preserve"><value>ホーム</value></data>
+
+  <!-- Queue -->
+  <data name="Queue_Title" xml:space="preserve"><value>ワークフローキュー</value></data>
+  <data name="Queue_AddJobButtonContent" xml:space="preserve"><value>+ ジョブを追加</value></data>
+  <data name="Queue_RunAllButtonContent" xml:space="preserve"><value>すべて実行</value></data>
+  <data name="Queue_CancelButtonContent" xml:space="preserve"><value>中断</value></data>
+  <data name="Queue_DetailButtonContent" xml:space="preserve"><value>詳細を見る</value></data>
+  <data name="Queue_JobListEmptyPlaceholder" xml:space="preserve"><value>「ジョブを追加」から&#x0a;ジョブを登録してください</value></data>
+  <data name="Queue_NoJobSelectedPlaceholder" xml:space="preserve"><value>編集するジョブを&#x0a;リストから選択してください</value></data>
+  <data name="Queue_OverallProgress_Format" xml:space="preserve"><value>{0}/{1}件目のジョブを実行中: {2}</value></data>
+  <data name="Queue_StatusPending" xml:space="preserve"><value>未実行</value></data>
+  <data name="Queue_StatusRunning" xml:space="preserve"><value>実行中</value></data>
+  <data name="Queue_StatusSuccess" xml:space="preserve"><value>成功</value></data>
+  <data name="Queue_StatusError" xml:space="preserve"><value>失敗</value></data>
+  <data name="Queue_StatusCancelled" xml:space="preserve"><value>中断</value></data>
 
   <!-- ResultDetail -->
   <data name="ResultDetail_Title" xml:space="preserve"><value>実行結果詳細</value></data>

@@ -65,6 +65,12 @@ namespace ComfyUIRunWorkflow.ViewModels.Windows
                 },
                 new NavigationViewItem()
                 {
+                    Content = LocalizationManager.Instance["MainWindow_MenuQueue"],
+                    Icon = new SymbolIcon { Symbol = SymbolRegular.ClipboardTaskListLtr20 },
+                    TargetPageType = typeof(Views.Pages.QueuePage)
+                },
+                new NavigationViewItem()
+                {
                     Content = LocalizationManager.Instance["MainWindow_MenuResults"],
                     Icon = new SymbolIcon { Symbol = SymbolRegular.TaskListLtr20 },
                     TargetPageType = typeof(Views.Pages.DataPage)

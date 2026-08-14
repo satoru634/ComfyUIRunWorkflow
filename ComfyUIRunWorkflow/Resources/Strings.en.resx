@@ -125,10 +125,26 @@
 
   <!-- MainWindow -->
   <data name="MainWindow_MenuDashboard" xml:space="preserve"><value>Run workflow</value></data>
+  <data name="MainWindow_MenuQueue" xml:space="preserve"><value>Queue</value></data>
   <data name="MainWindow_MenuResults" xml:space="preserve"><value>Results</value></data>
   <data name="MainWindow_MenuTagger" xml:space="preserve"><value>Tagger</value></data>
   <data name="MainWindow_MenuSettings" xml:space="preserve"><value>Settings</value></data>
   <data name="MainWindow_TrayHome" xml:space="preserve"><value>Home</value></data>
+
+  <!-- Queue -->
+  <data name="Queue_Title" xml:space="preserve"><value>Workflow Queue</value></data>
+  <data name="Queue_AddJobButtonContent" xml:space="preserve"><value>+ Add Job</value></data>
+  <data name="Queue_RunAllButtonContent" xml:space="preserve"><value>Run All</value></data>
+  <data name="Queue_CancelButtonContent" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Queue_DetailButtonContent" xml:space="preserve"><value>View Details</value></data>
+  <data name="Queue_JobListEmptyPlaceholder" xml:space="preserve"><value>Click "Add Job"&#x0a;to get started</value></data>
+  <data name="Queue_NoJobSelectedPlaceholder" xml:space="preserve"><value>Select a job from the list&#x0a;to edit it</value></data>
+  <data name="Queue_OverallProgress_Format" xml:space="preserve"><value>Running job {0}/{1}: {2}</value></data>
+  <data name="Queue_StatusPending" xml:space="preserve"><value>Pending</value></data>
+  <data name="Queue_StatusRunning" xml:space="preserve"><value>Running</value></data>
+  <data name="Queue_StatusSuccess" xml:space="preserve"><value>Success</value></data>
+  <data name="Queue_StatusError" xml:space="preserve"><value>Failed</value></data>
+  <data name="Queue_StatusCancelled" xml:space="preserve"><value>Cancelled</value></data>
 
   <!-- ResultDetail -->
   <data name="ResultDetail_Title" xml:space="preserve"><value>Result Details</value></data>
