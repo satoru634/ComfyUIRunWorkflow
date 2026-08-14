@@ -22,6 +22,7 @@ namespace ComfyUIRunWorkflow.Views.Controls
             ContentDialogHost? contentDialogHost) : base(contentDialogHost)
         {
             ViewModel = viewModel;
+            ViewModel.OwnerDialog = this;
             DataContext = viewModel;
             InitializeComponent();
         }
