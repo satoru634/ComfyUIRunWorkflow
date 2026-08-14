@@ -59,6 +59,8 @@ namespace ComfyUIRunWorkflow
                 // 各ページと ViewModel
                 services.AddSingleton<DashboardPage>();
                 services.AddSingleton<DashboardViewModel>();
+                services.AddSingleton<QueuePage>();
+                services.AddSingleton<QueueViewModel>();
                 services.AddSingleton<DataPage>();
                 services.AddSingleton<DataViewModel>();
                 services.AddSingleton<TaggerPage>();
