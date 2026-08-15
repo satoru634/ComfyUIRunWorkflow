@@ -188,4 +188,12 @@
   <data name="Generate_Error_Format" xml:space="preserve"><value>生成に失敗しました: {0}</value></data>
   <data name="Generate_NoBasePromptFiles_Format" xml:space="preserve"><value>{0} にベースプロンプト（*.json）が見つかりません</value></data>
   <data name="Generate_UndefinedKeyword_Format" xml:space="preserve"><value>{0} 内のキーワード {1} が置換リストに見つかりません</value></data>
+  <data name="Generate_JobTemplateReadError_Format" xml:space="preserve"><value>ジョブテンプレートファイル（{0}）の読み込みに失敗しました。QueueJobData形式のJSONか確認してください: {1}</value></data>
+  <data name="Generate_ReplacementListReadError_Format" xml:space="preserve"><value>置換リストファイル（{0}）の読み込みに失敗しました。キーワードと置換文字列の対応表（例: {{"&lt;CHARACTER&gt;": "alice"}}）になっているか確認してください: {1}</value></data>
+  <data name="Generate_BasePromptReadError_Format" xml:space="preserve"><value>ベースプロンプトファイル（{0}）の読み込みに失敗しました。positive/negativeキーを持つJSONか確認してください: {1}</value></data>
+  <data name="Generate_Log_LoadedTemplate_Format" xml:space="preserve"><value>ジョブテンプレートを読み込みました: {0}</value></data>
+  <data name="Generate_Log_LoadedReplacements_Format" xml:space="preserve"><value>置換リストを読み込みました: {0}（{1}件）</value></data>
+  <data name="Generate_Log_FoundBasePrompts_Format" xml:space="preserve"><value>ベースプロンプト {0} 件を検出しました: {1}</value></data>
+  <data name="Generate_Log_JobGenerated_Format" xml:space="preserve"><value>{0}: ジョブを生成しました</value></data>
+  <data name="Generate_Log_WroteOutput_Format" xml:space="preserve"><value>{0} 件のジョブを {1} に書き込みました</value></data>
 </root>

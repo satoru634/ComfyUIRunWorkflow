@@ -202,6 +202,72 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
             Assert.Equal(ControlAppearance.Danger, _fakeSnackbar.Calls[0].Appearance);
         }
 
+        // ── Log ──────────────────────────────────────────────────────────────────
+
+        [Fact]
+        public void GenerateCommand_Execute_Success_LogContainsGeneratedFileAndOutputPath()
+        {
+            WriteBasePrompt("a.json", "1girl", "bad");
+            var replacementsPath = WriteReplacements(new());
+            var templatePath = WriteTemplate(new QueueJobData { WorkflowName = "sdxl" });
+            var outputPath = Path.Combine(_tempDir, "output.json");
+
+            var setting = CreateSetting();
+            setting.Data.GenerateBasePromptDirectory = _baseDir;
+            setting.Data.GenerateReplacementListPath = replacementsPath;
+            setting.Data.GenerateJobTemplatePath = templatePath;
+            setting.Data.GenerateOutputPath = outputPath;
+            var vm = CreateVm(setting);
+
+            RunOnSta(() => vm.GenerateCommand.Execute(null));
+
+            Assert.Contains("a.json", vm.Log);
+            Assert.Contains(outputPath, vm.Log);
+        }
+
+        [Fact]
+        public void GenerateCommand_Execute_Error_LogContainsErrorMessage()
+        {
+            WriteBasePrompt("a.json", "1girl, <MISSING>", "bad");
+            var replacementsPath = WriteReplacements(new());
+            var templatePath = WriteTemplate(new QueueJobData { WorkflowName = "sdxl" });
+            var outputPath = Path.Combine(_tempDir, "output.json");
+
+            var setting = CreateSetting();
+            setting.Data.GenerateBasePromptDirectory = _baseDir;
+            setting.Data.GenerateReplacementListPath = replacementsPath;
+            setting.Data.GenerateJobTemplatePath = templatePath;
+            setting.Data.GenerateOutputPath = outputPath;
+            var vm = CreateVm(setting);
+
+            RunOnSta(() => vm.GenerateCommand.Execute(null));
+
+            Assert.Contains("<MISSING>", vm.Log);
+        }
+
+        [Fact]
+        public void GenerateCommand_Execute_Twice_LogIsResetOnEachRun()
+        {
+            WriteBasePrompt("a.json", "1girl", "bad");
+            var replacementsPath = WriteReplacements(new());
+            var templatePath = WriteTemplate(new QueueJobData { WorkflowName = "sdxl" });
+            var outputPath = Path.Combine(_tempDir, "output.json");
+
+            var setting = CreateSetting();
+            setting.Data.GenerateBasePromptDirectory = _baseDir;
+            setting.Data.GenerateReplacementListPath = replacementsPath;
+            setting.Data.GenerateJobTemplatePath = templatePath;
+            setting.Data.GenerateOutputPath = outputPath;
+            var vm = CreateVm(setting);
+
+            RunOnSta(() => vm.GenerateCommand.Execute(null));
+            var firstRunLineCount = vm.Log.Split(Environment.NewLine).Length;
+            RunOnSta(() => vm.GenerateCommand.Execute(null));
+            var secondRunLineCount = vm.Log.Split(Environment.NewLine).Length;
+
+            Assert.Equal(firstRunLineCount, secondRunLineCount);
+        }
+
         // ── OnNavigatedFromAsync ─────────────────────────────────────────────────
 
         [Fact]

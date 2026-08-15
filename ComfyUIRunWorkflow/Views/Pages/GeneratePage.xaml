@@ -24,6 +24,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         
@@ -240,11 +241,28 @@
         <!-- 生成ボタン -->
         <ui:Button
             Grid.Row="5"
+            Margin="0,0,0,8"
             VerticalAlignment="Top"
             HorizontalAlignment="Left"
             Command="{Binding ViewModel.GenerateCommand}"
             Content="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Generate_GenerateButtonContent]}"
             Appearance="Primary"
             Icon="{ui:SymbolIcon Wand24}" />
+
+        <!-- ログ -->
+        <Border
+            Grid.Row="6"
+            Padding="12"
+            Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1"
+            CornerRadius="4">
+            <ui:TextBox
+                AcceptsReturn="True"
+                IsReadOnly="True"
+                Text="{Binding ViewModel.Log, Mode=OneWay}"
+                TextWrapping="Wrap"
+                VerticalScrollBarVisibility="Auto" />
+        </Border>
     </Grid>
 </Page>

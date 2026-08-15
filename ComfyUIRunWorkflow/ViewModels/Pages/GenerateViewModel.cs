@@ -24,6 +24,10 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         private readonly ISnackbarService _snackbarService;
         private readonly BatchJobGenerator _generator = new();
 
+        /// <summary>直近の生成処理のログ（1行ずつ改行区切りで蓄積）。GeneratePage 下部のログ欄に表示する。</summary>
+        [ObservableProperty]
+        private string _log = "";
+
         /// <summary>DI コンテナから設定を受け取って初期化する。</summary>
         public GenerateViewModel(Setting<AppConfig> config, ISnackbarService snackbarService)
         {
@@ -155,22 +159,28 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         [RelayCommand(CanExecute = nameof(CanGenerate))]
         private void Generate()
         {
+            Log = "";
+
             List<QueueJobData> jobs;
             try
             {
                 jobs = _generator.Generate(
                     Config.Data.GenerateBasePromptDirectory,
                     Config.Data.GenerateReplacementListPath,
-                    Config.Data.GenerateJobTemplatePath);
+                    Config.Data.GenerateJobTemplatePath,
+                    onLog: AppendLog);
 
                 var listData = new QueueJobListData
                 {
                     Jobs = new ObservableCollection<QueueJobData>(jobs),
                 };
                 JsonLoader.WriteJson(Config.Data.GenerateOutputPath, listData);
+                AppendLog(string.Format(
+                    LocalizationManager.Instance["Generate_Log_WroteOutput_Format"], jobs.Count, Config.Data.GenerateOutputPath));
             }
             catch (Exception ex)
             {
+                AppendLog(string.Format(LocalizationManager.Instance["Generate_Error_Format"], ex.Message));
                 _snackbarService.Show(
                     LocalizationManager.Instance["Common_Error"],
                     string.Format(LocalizationManager.Instance["Generate_Error_Format"], ex.Message),
@@ -189,5 +199,8 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                 TimeSpan.FromSeconds(4.0)
             );
         }
+
+        /// <summary>ログ欄へ1行追記する。</summary>
+        private void AppendLog(string line) => Log = string.IsNullOrEmpty(Log) ? line : Log + Environment.NewLine + line;
     }
 }

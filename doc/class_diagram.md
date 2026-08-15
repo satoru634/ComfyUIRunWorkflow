@@ -406,6 +406,7 @@ classDiagram
         }
         class GenerateViewModel {
             +Setting~AppConfig~ Config
+            +string Log
             +BrowseBasePromptDirectoryCommand
             +BrowseReplacementListPathCommand
             +BrowseJobTemplatePathCommand
@@ -441,7 +442,7 @@ classDiagram
             +SaveResultAsync(WorkflowResult, string) Task$
         }
         class BatchJobGenerator {
-            +Generate(string, string, string) List~QueueJobData~
+            +Generate(string, string, string, Action~string~) List~QueueJobData~
         }
     }
 

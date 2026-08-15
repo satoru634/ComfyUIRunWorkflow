@@ -158,6 +158,10 @@ The generated jobs can be brought into the Queue page's current job list via the
 - If a base prompt contains a keyword that isn't in the replacement list, the entire generation is aborted with an error message identifying the file and the missing keyword. No output file is written in that case, so you never end up with a partially-replaced job list
 - Replacement list entries that aren't used by any base prompt are simply ignored
 
+### Generation Log
+
+The log area below the **Generate** button shows, line by line, the result of loading the template and replacement list, how many base prompt files were found, the job generation status for each file, and the result of writing the output file. If an error occurs, its details are shown here as well. The log is cleared each time you click **Generate**.
+
 ### Input Path Persistence
 
 The four input paths (base prompt directory, replacement list file, job template file, output file) are saved as settings and restored the next time you open this page.

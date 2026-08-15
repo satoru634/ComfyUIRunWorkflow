@@ -86,7 +86,7 @@ ComfyUIRunWorkflow/   ← ソリューションルート
   ComfyUILibs/        ← 共有ライブラリ（サブモジュール）
   ComfyUILibsTests/   ← ComfyUILibs テスト（162件）
   ComfyUIRunWorkflow/ ← WPF GUI プロジェクト
-  ComfyUIRunWorkflowTests/ ← GUI テスト（283件）
+  ComfyUIRunWorkflowTests/ ← GUI テスト（293件）
   doc/                ← ドキュメント（使い方・英語版・クラス図）
 ```
 
