@@ -3,7 +3,7 @@
     "inputs": {
       "filename_prefix": "run_workflow_anima/run_workflow_anima",
       "images": [
-        "73",
+        "98",
         0
       ]
     },
@@ -123,6 +123,31 @@
     "class_type": "UNETLoader",
     "_meta": {
       "title": "拡散モデルを読み込む"
+    }
+  },
+  "97": {
+    "inputs": {
+      "model_name": "RealESRGAN_x2.pth"
+    },
+    "class_type": "UpscaleModelLoader",
+    "_meta": {
+      "title": "拡大モデルを読み込む"
+    }
+  },
+  "98": {
+    "inputs": {
+      "upscale_model": [
+        "97",
+        0
+      ],
+      "image": [
+        "73",
+        0
+      ]
+    },
+    "class_type": "ImageUpscaleWithModel",
+    "_meta": {
+      "title": "モデルを使用して画像を拡大"
     }
   },
   "96:95": {
