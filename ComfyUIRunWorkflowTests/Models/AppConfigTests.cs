@@ -259,5 +259,83 @@ namespace ComfyUIRunWorkflowTests.Models
 
             Assert.Contains("Language", changed);
         }
+
+        // ── AppConfig Generate ページ用フィールド ────────────────────────────────
+
+        [Fact]
+        public void AppConfig_GenerateBasePromptDirectory_DefaultValue_IsEmpty()
+        {
+            var config = new AppConfig();
+            Assert.Equal("", config.GenerateBasePromptDirectory);
+        }
+
+        [Fact]
+        public void AppConfig_GenerateReplacementListPath_DefaultValue_IsEmpty()
+        {
+            var config = new AppConfig();
+            Assert.Equal("", config.GenerateReplacementListPath);
+        }
+
+        [Fact]
+        public void AppConfig_GenerateJobTemplatePath_DefaultValue_IsEmpty()
+        {
+            var config = new AppConfig();
+            Assert.Equal("", config.GenerateJobTemplatePath);
+        }
+
+        [Fact]
+        public void AppConfig_GenerateOutputPath_DefaultValue_IsEmpty()
+        {
+            var config = new AppConfig();
+            Assert.Equal("", config.GenerateOutputPath);
+        }
+
+        [Fact]
+        public void AppConfig_GenerateBasePromptDirectory_Set_RaisesPropertyChanged()
+        {
+            var config = new AppConfig();
+            var changed = new List<string?>();
+            ((INotifyPropertyChanged)config).PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+
+            config.GenerateBasePromptDirectory = "C:\\base_prompts";
+
+            Assert.Contains("GenerateBasePromptDirectory", changed);
+        }
+
+        [Fact]
+        public void AppConfig_GenerateReplacementListPath_Set_RaisesPropertyChanged()
+        {
+            var config = new AppConfig();
+            var changed = new List<string?>();
+            ((INotifyPropertyChanged)config).PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+
+            config.GenerateReplacementListPath = "C:\\replacements.json";
+
+            Assert.Contains("GenerateReplacementListPath", changed);
+        }
+
+        [Fact]
+        public void AppConfig_GenerateJobTemplatePath_Set_RaisesPropertyChanged()
+        {
+            var config = new AppConfig();
+            var changed = new List<string?>();
+            ((INotifyPropertyChanged)config).PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+
+            config.GenerateJobTemplatePath = "C:\\job_template.json";
+
+            Assert.Contains("GenerateJobTemplatePath", changed);
+        }
+
+        [Fact]
+        public void AppConfig_GenerateOutputPath_Set_RaisesPropertyChanged()
+        {
+            var config = new AppConfig();
+            var changed = new List<string?>();
+            ((INotifyPropertyChanged)config).PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+
+            config.GenerateOutputPath = "C:\\queue_jobs_generated.json";
+
+            Assert.Contains("GenerateOutputPath", changed);
+        }
     }
 }

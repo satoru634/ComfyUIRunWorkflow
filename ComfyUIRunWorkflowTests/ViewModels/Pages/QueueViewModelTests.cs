@@ -389,5 +389,8 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 
             await vm.OpenJobDetailCommand.ExecuteAsync(job);
         }
+
+        // ImportJobListCommand はファイルダイアログを直接開くため、ExportJobCommand/ImportJobCommand と同様に
+        // 単体テスト対象外とする（フェーズ13の実装方針を踏襲）。
     }
 }
