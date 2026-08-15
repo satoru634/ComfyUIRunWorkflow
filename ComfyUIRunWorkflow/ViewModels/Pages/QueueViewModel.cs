@@ -284,6 +284,59 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             await dialog.ShowAsync();
         }
 
+        /// <summary>
+        /// queue_jobs.json と同形式（<see cref="QueueJobListData"/>）のファイルを選択し、含まれる全ジョブを
+        /// 現在のジョブ一覧に追加する。Generate ページで一括生成したジョブリストの取り込みに使用する。
+        /// </summary>
+        [RelayCommand]
+        private void ImportJobList()
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = LocalizationManager.Instance["Queue_ImportListDialogTitle"],
+                Filter = LocalizationManager.Instance["Common_JsonFileDialogFilter"],
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            QueueJobListData listData;
+            try
+            {
+                listData = JsonLoader.ReadJson<QueueJobListData>(dialog.FileName);
+            }
+            catch (Exception ex)
+            {
+                _snackbarService.Show(
+                    LocalizationManager.Instance["Common_Error"],
+                    string.Format(LocalizationManager.Instance["Common_ImportError_Format"], ex.Message),
+                    ControlAppearance.Danger,
+                    new SymbolIcon(SymbolRegular.ErrorCircle24),
+                    TimeSpan.FromSeconds(5.0)
+                );
+                return;
+            }
+
+            foreach (var data in listData.Jobs)
+            {
+                var job = QueueJobViewModel.FromData(data);
+                job.ApplyWorkflowConfig(_loadedConfig);
+                Jobs.Add(job);
+            }
+
+            RunAllCommand.NotifyCanExecuteChanged();
+            OnPropertyChanged(nameof(HasJobs));
+            PersistJobs();
+
+            _snackbarService.Show(
+                LocalizationManager.Instance["Common_Completed"],
+                string.Format(LocalizationManager.Instance["Queue_ImportListSuccess_Format"], listData.Jobs.Count),
+                ControlAppearance.Success,
+                new SymbolIcon(SymbolRegular.CheckmarkCircle24),
+                TimeSpan.FromSeconds(3.0)
+            );
+        }
+
         // ── ジョブ設定のインポート・エクスポート ──────────────────────────────
 
         /// <summary>指定したジョブの編集内容を JSON ファイルへエクスポートする。</summary>

@@ -138,6 +138,7 @@
   <!-- MainWindow -->
   <data name="MainWindow_MenuDashboard" xml:space="preserve"><value>ワークフロー実行</value></data>
   <data name="MainWindow_MenuQueue" xml:space="preserve"><value>キュー実行</value></data>
+  <data name="MainWindow_MenuGenerate" xml:space="preserve"><value>バッチ生成</value></data>
   <data name="MainWindow_MenuResults" xml:space="preserve"><value>結果</value></data>
   <data name="MainWindow_MenuTagger" xml:space="preserve"><value>タグ付け</value></data>
   <data name="MainWindow_MenuSettings" xml:space="preserve"><value>設定</value></data>
@@ -157,6 +158,9 @@
   <data name="Queue_StatusSuccess" xml:space="preserve"><value>成功</value></data>
   <data name="Queue_StatusError" xml:space="preserve"><value>失敗</value></data>
   <data name="Queue_StatusCancelled" xml:space="preserve"><value>中断</value></data>
+  <data name="Queue_ImportListButtonContent" xml:space="preserve"><value>リストインポート</value></data>
+  <data name="Queue_ImportListDialogTitle" xml:space="preserve"><value>ジョブリストをインポート</value></data>
+  <data name="Queue_ImportListSuccess_Format" xml:space="preserve"><value>{0} 件のジョブをインポートしました</value></data>
 
   <!-- ResultDetail -->
   <data name="ResultDetail_Title" xml:space="preserve"><value>実行結果詳細</value></data>
@@ -167,4 +171,21 @@
 
   <!-- ImagePreview -->
   <data name="ImagePreview_Title" xml:space="preserve"><value>画像プレビュー</value></data>
+
+  <!-- Generate -->
+  <data name="Generate_Title" xml:space="preserve"><value>バッチジョブ生成</value></data>
+  <data name="Generate_Description" xml:space="preserve"><value>ベースプロンプト内の &lt;CHARACTER&gt; のようなキーワードを置換リストで置き換え、ジョブテンプレートと組み合わせて Queue ページ用のジョブリストを一括生成します。</value></data>
+  <data name="Generate_BasePromptDirectoryLabel" xml:space="preserve"><value>ベースプロンプトディレクトリ</value></data>
+  <data name="Generate_ReplacementListLabel" xml:space="preserve"><value>置換リストファイル</value></data>
+  <data name="Generate_JobTemplateLabel" xml:space="preserve"><value>ジョブテンプレートファイル</value></data>
+  <data name="Generate_OutputPathLabel" xml:space="preserve"><value>出力先ファイル</value></data>
+  <data name="Generate_GenerateButtonContent" xml:space="preserve"><value>生成</value></data>
+  <data name="Generate_BasePromptDirectoryDialogTitle" xml:space="preserve"><value>ベースプロンプトディレクトリを選択</value></data>
+  <data name="Generate_ReplacementListDialogTitle" xml:space="preserve"><value>置換リストファイルを選択</value></data>
+  <data name="Generate_JobTemplateDialogTitle" xml:space="preserve"><value>ジョブテンプレートファイルを選択</value></data>
+  <data name="Generate_OutputDialogTitle" xml:space="preserve"><value>出力先ファイルを選択</value></data>
+  <data name="Generate_Success_Format" xml:space="preserve"><value>{0} 件のジョブを生成しました</value></data>
+  <data name="Generate_Error_Format" xml:space="preserve"><value>生成に失敗しました: {0}</value></data>
+  <data name="Generate_NoBasePromptFiles_Format" xml:space="preserve"><value>{0} にベースプロンプト（*.json）が見つかりません</value></data>
+  <data name="Generate_UndefinedKeyword_Format" xml:space="preserve"><value>{0} 内のキーワード {1} が置換リストに見つかりません</value></data>
 </root>
