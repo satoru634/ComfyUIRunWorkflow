@@ -176,6 +176,7 @@
   <!-- Generate -->
   <data name="Generate_Title" xml:space="preserve"><value>バッチジョブ生成</value></data>
   <data name="Generate_Description" xml:space="preserve"><value>ベースプロンプト内の &lt;CHARACTER&gt; のようなキーワードを置換リストで置き換え、ジョブテンプレートと組み合わせて Queue ページ用のジョブリストを一括生成します。</value></data>
+  <data name="Generate_Log_Title" xml:space="preserve"><value>バッチジョブ生成ログ</value></data>
   <data name="Generate_BasePromptDirectoryLabel" xml:space="preserve"><value>ベースプロンプトディレクトリ</value></data>
   <data name="Generate_ReplacementListLabel" xml:space="preserve"><value>置換リストファイル</value></data>
   <data name="Generate_JobTemplateLabel" xml:space="preserve"><value>ジョブテンプレートファイル</value></data>

@@ -176,6 +176,7 @@
   <!-- Generate -->
   <data name="Generate_Title" xml:space="preserve"><value>Batch Job Generation</value></data>
   <data name="Generate_Description" xml:space="preserve"><value>Replaces keywords like &lt;CHARACTER&gt; in base prompts using a replacement list, and combines them with a job template to bulk-generate a Queue page job list.</value></data>
+  <data name="Generate_Log_Title" xml:space="preserve"><value>Batch Job Generation Log</value></data>
   <data name="Generate_BasePromptDirectoryLabel" xml:space="preserve"><value>Base Prompt Directory</value></data>
   <data name="Generate_ReplacementListLabel" xml:space="preserve"><value>Replacement List File</value></data>
   <data name="Generate_JobTemplateLabel" xml:space="preserve"><value>Job Template File</value></data>
