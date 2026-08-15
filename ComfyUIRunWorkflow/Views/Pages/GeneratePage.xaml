@@ -257,12 +257,26 @@
             BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             CornerRadius="4">
-            <ui:TextBox
-                AcceptsReturn="True"
-                IsReadOnly="True"
-                Text="{Binding ViewModel.Log, Mode=OneWay}"
-                TextWrapping="Wrap"
-                VerticalScrollBarVisibility="Auto" />
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <TextBlock
+                    Grid.Row="0"
+                    Margin="0,0,0,4"
+                    FontSize="13"
+                    FontWeight="Medium"
+                    Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Generate_Log_Title]}" />
+                <ui:TextBox
+                    Grid.Row="1"
+                    AcceptsReturn="True"
+                    IsReadOnly="True"
+                    Text="{Binding ViewModel.Log, Mode=OneWay}"
+                    TextWrapping="Wrap"
+                    VerticalScrollBarVisibility="Auto" />
+            </Grid>
         </Border>
     </Grid>
 </Page>
