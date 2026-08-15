@@ -531,5 +531,188 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
                 LocalizationManager.Instance.CurrentCulture = original;
             }
         }
+
+        // ── インポート・エクスポート ──────────────────────────────────────────
+
+        [Fact]
+        public async Task BuildExportData_ReturnsCurrentFormState()
+        {
+            var setting = CreateSetting();
+            setting.Data.ConfigPath = CreateConfigJson();
+            var vm = CreateVm(setting);
+            await vm.OnNavigatedToAsync();
+
+            vm.PositivePrompt = "masterpiece";
+            vm.NegativePrompt = "bad quality";
+            vm.FilenamePrefix = "my_batch";
+            vm.BatchCount = 3;
+            vm.SelectedSizeOption = "horizontal";
+            vm.AddLoraCommand.Execute(null);
+            vm.LoraSlots[0].SelectedLora = "my_lora";
+
+            var data = vm.BuildExportData();
+
+            Assert.Equal("sdxl", data.WorkflowName);
+            Assert.Equal("masterpiece", data.PositivePrompt);
+            Assert.Equal("bad quality", data.NegativePrompt);
+            Assert.Equal("my_batch", data.FilenamePrefix);
+            Assert.Equal(3, data.BatchCount);
+            Assert.Equal("horizontal", data.ImageSizeOrientation);
+            Assert.False(data.IsCustomSize);
+            Assert.Single(data.LoraFiles);
+            Assert.Equal("my_lora", data.LoraFiles[0]);
+        }
+
+        [Fact]
+        public void BuildExportData_EmptyLoraSlot_IsExcluded()
+        {
+            var vm = CreateVm();
+            vm.AddLoraCommand.Execute(null);
+
+            var data = vm.BuildExportData();
+
+            Assert.Empty(data.LoraFiles);
+        }
+
+        [Fact]
+        public void BuildExportData_CustomSize_IncludesWidthHeight()
+        {
+            var vm = CreateVm();
+            vm.SelectedSizeOption = "custom";
+            vm.CustomWidth = 900;
+            vm.CustomHeight = 1300;
+
+            var data = vm.BuildExportData();
+
+            Assert.True(data.IsCustomSize);
+            Assert.Equal(900, data.CustomWidth);
+            Assert.Equal(1300, data.CustomHeight);
+        }
+
+        [Fact]
+        public async Task ApplyImportedData_MatchingWorkflow_ReturnsTrueAndAppliesAllFields()
+        {
+            var setting = CreateSetting();
+            setting.Data.ConfigPath = CreateConfigJson();
+            var vm = CreateVm(setting);
+            await vm.OnNavigatedToAsync();
+
+            var data = new QueueJobData
+            {
+                WorkflowName = "sdxl",
+                PositivePrompt = "imported positive",
+                NegativePrompt = "imported negative",
+                FilenamePrefix = "imported_prefix",
+                LoraFiles = new List<string> { "my_lora" },
+                ImageSizeOrientation = "square",
+                IsCustomSize = false,
+                CustomWidth = 999,
+                CustomHeight = 999,
+                BatchCount = 5,
+            };
+
+            var matched = vm.ApplyImportedData(data);
+
+            Assert.True(matched);
+            Assert.Equal("sdxl", vm.SelectedWorkflow);
+            Assert.Equal("imported positive", vm.PositivePrompt);
+            Assert.Equal("imported negative", vm.NegativePrompt);
+            Assert.Equal("imported_prefix", vm.FilenamePrefix);
+            Assert.Equal(5, vm.BatchCount);
+            Assert.Equal("square", vm.ImageSizeOrientation);
+            Assert.False(vm.IsCustomSize);
+            Assert.Single(vm.LoraSlots);
+            Assert.Equal("my_lora", vm.LoraSlots[0].SelectedLora);
+        }
+
+        [Fact]
+        public async Task ApplyImportedData_MatchingWorkflow_CustomSizeIsApplied()
+        {
+            var setting = CreateSetting();
+            setting.Data.ConfigPath = CreateConfigJson();
+            var vm = CreateVm(setting);
+            await vm.OnNavigatedToAsync();
+
+            var data = new QueueJobData
+            {
+                WorkflowName = "sdxl",
+                LoraFiles = new List<string>(),
+                IsCustomSize = true,
+                CustomWidth = 1024,
+                CustomHeight = 1536,
+                BatchCount = 1,
+            };
+
+            vm.ApplyImportedData(data);
+
+            Assert.True(vm.IsCustomSize);
+            Assert.Equal(1024, vm.CustomWidth);
+            Assert.Equal(1536, vm.CustomHeight);
+            Assert.Equal("custom", vm.SelectedSizeOption);
+        }
+
+        [Fact]
+        public async Task ApplyImportedData_UnknownWorkflow_ReturnsFalseButAppliesOtherFields()
+        {
+            var setting = CreateSetting();
+            setting.Data.ConfigPath = CreateConfigJson();
+            var vm = CreateVm(setting);
+            await vm.OnNavigatedToAsync();
+
+            var data = new QueueJobData
+            {
+                WorkflowName = "unknown_workflow",
+                PositivePrompt = "imported positive",
+                LoraFiles = new List<string>(),
+                BatchCount = 2,
+            };
+
+            var matched = vm.ApplyImportedData(data);
+
+            Assert.False(matched);
+            Assert.Equal("sdxl", vm.SelectedWorkflow);
+            Assert.Equal("imported positive", vm.PositivePrompt);
+            Assert.Equal(2, vm.BatchCount);
+        }
+
+        [Fact]
+        public void ApplyImportedData_ReplacesExistingLoraSlots()
+        {
+            var vm = CreateVm();
+            vm.AddLoraCommand.Execute(null);
+            vm.LoraSlots[0].SelectedLora = "old_lora";
+
+            var data = new QueueJobData
+            {
+                WorkflowName = "",
+                LoraFiles = new List<string> { "new_lora_1", "new_lora_2" },
+                BatchCount = 1,
+            };
+
+            vm.ApplyImportedData(data);
+
+            Assert.Equal(2, vm.LoraSlots.Count);
+            Assert.Equal("new_lora_1", vm.LoraSlots[0].SelectedLora);
+            Assert.Equal("new_lora_2", vm.LoraSlots[1].SelectedLora);
+        }
+
+        [Fact]
+        public void ExportImportSettingsCommand_WhileRunning_CannotExecute()
+        {
+            var vm = CreateVm();
+            vm.IsRunning = true;
+
+            Assert.False(vm.ExportSettingsCommand.CanExecute(null));
+            Assert.False(vm.ImportSettingsCommand.CanExecute(null));
+        }
+
+        [Fact]
+        public void ExportImportSettingsCommand_WhileNotRunning_CanExecute()
+        {
+            var vm = CreateVm();
+
+            Assert.True(vm.ExportSettingsCommand.CanExecute(null));
+            Assert.True(vm.ImportSettingsCommand.CanExecute(null));
+        }
     }
 }

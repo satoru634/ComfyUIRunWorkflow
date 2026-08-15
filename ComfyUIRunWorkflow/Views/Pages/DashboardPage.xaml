@@ -37,13 +37,33 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <!-- タイトル -->
-            <TextBlock
-                Grid.Row="0"
-                Margin="0,0,0,12"
-                FontSize="20"
-                FontWeight="SemiBold"
-                Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Dashboard_Title]}" />
+            <!-- タイトル・インポート/エクスポート -->
+            <Grid Grid.Row="0" Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    FontSize="20"
+                    FontWeight="SemiBold"
+                    Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Dashboard_Title]}" />
+                <ui:Button
+                    Grid.Column="1"
+                    Margin="0,0,8,0"
+                    Command="{Binding ViewModel.ImportSettingsCommand}"
+                    Content="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Dashboard_ImportButtonContent]}"
+                    Appearance="Secondary"
+                    Icon="{ui:SymbolIcon ArrowImport24}" />
+                <ui:Button
+                    Grid.Column="2"
+                    Command="{Binding ViewModel.ExportSettingsCommand}"
+                    Content="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Dashboard_ExportButtonContent]}"
+                    Appearance="Secondary"
+                    Icon="{ui:SymbolIcon ArrowExportLtr24}" />
+            </Grid>
 
             <!-- ワークフロー選択 -->
             <Border

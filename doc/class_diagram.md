@@ -306,6 +306,10 @@ classDiagram
             +RunWorkflowCommand
             +AddLoraCommand
             +RemoveLoraCommand
+            +ExportSettingsCommand
+            +ImportSettingsCommand
+            +BuildExportData() QueueJobData
+            +ApplyImportedData(QueueJobData) bool
             +OnNavigatedToAsync() Task
             +OnNavigatedFromAsync() Task
         }
@@ -589,6 +593,7 @@ classDiagram
     QueueJobViewModel "1" o-- "1" QueueJobStatus : status
     QueueJobViewModel --> WorkflowSizeOptionBuilder : uses
     QueueJobViewModel ..> QueueJobData : ToData/FromData
+    DashboardViewModel ..> QueueJobData : BuildExportData/ApplyImportedData
 ```
 
 ---
@@ -712,6 +717,10 @@ classDiagram
         +RunWorkflowCommand
         +AddLoraCommand
         +RemoveLoraCommand
+        +ExportSettingsCommand
+        +ImportSettingsCommand
+        +BuildExportData() QueueJobData
+        +ApplyImportedData(QueueJobData) bool
         +OnNavigatedToAsync() Task
         +OnNavigatedFromAsync() Task
     }
@@ -933,6 +942,7 @@ classDiagram
     QueueJobViewModel "1" o-- "1" UIItemBaseModel~SizeOption~ : sizeLabelList
     QueueJobViewModel --> WorkflowSizeOptionBuilder : uses
     QueueJobViewModel ..> QueueJobData : ToData/FromData
+    DashboardViewModel ..> QueueJobData : BuildExportData/ApplyImportedData
     WorkflowExecutionService ..> WorkflowBatchOutcome : creates
     WorkflowBatchOutcome "1" *-- "1" WorkflowResult : result
     Setting~AppConfig~ --> AppConfig : manages

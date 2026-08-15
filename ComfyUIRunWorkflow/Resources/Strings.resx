@@ -72,6 +72,7 @@
   <data name="Common_GeneratedResultsLabel" xml:space="preserve"><value>生成結果</value></data>
   <data name="Common_CloseButtonContent" xml:space="preserve"><value>閉じる</value></data>
   <data name="Common_BrowseButtonTooltip" xml:space="preserve"><value>参照</value></data>
+  <data name="Common_JsonFileDialogFilter" xml:space="preserve"><value>JSON ファイル|*.json|すべてのファイル|*.*</value></data>
 
   <!-- Dashboard -->
   <data name="Dashboard_Title" xml:space="preserve"><value>ワークフロー実行</value></data>
@@ -88,6 +89,15 @@
   <data name="Dashboard_ConfigLoadError_Format" xml:space="preserve"><value>workflow_config.json 読み込みエラー: {0}</value></data>
   <data name="Dashboard_BatchProgress_Format" xml:space="preserve"><value>{0}/{1}件目を実行中</value></data>
   <data name="Dashboard_FilesGenerated_Format" xml:space="preserve"><value>{0} 件のファイルが生成されました</value></data>
+  <data name="Dashboard_ExportButtonContent" xml:space="preserve"><value>エクスポート</value></data>
+  <data name="Dashboard_ImportButtonContent" xml:space="preserve"><value>インポート</value></data>
+  <data name="Dashboard_ExportDialogTitle" xml:space="preserve"><value>設定をエクスポート</value></data>
+  <data name="Dashboard_ImportDialogTitle" xml:space="preserve"><value>設定をインポート</value></data>
+  <data name="Dashboard_ExportSuccess" xml:space="preserve"><value>設定をエクスポートしました</value></data>
+  <data name="Dashboard_ImportSuccess" xml:space="preserve"><value>設定をインポートしました</value></data>
+  <data name="Dashboard_ExportError_Format" xml:space="preserve"><value>エクスポートに失敗しました: {0}</value></data>
+  <data name="Dashboard_ImportError_Format" xml:space="preserve"><value>インポートに失敗しました: {0}</value></data>
+  <data name="Dashboard_ImportWorkflowNotFound_Format" xml:space="preserve"><value>ワークフロー「{0}」が見つからないため、ワークフロー選択以外の項目のみ反映しました</value></data>
 
   <!-- Settings -->
   <data name="Settings_Title" xml:space="preserve"><value>設定</value></data>

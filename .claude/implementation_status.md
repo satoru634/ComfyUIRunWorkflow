@@ -291,6 +291,26 @@ QueuePageでジョブを選択した状態で他ページ（例: DashboardPage�
 
 合計テスト数: ComfyUILibsTests 187件 / ComfyUIRunWorkflowTests 243件（全パス）
 
+### フェーズ13: DashboardPageへの設定インポート・エクスポート機能追加（`feature/dashboard-import-export` ブランチ、実装完了）
+
+DashboardPage（Home）で入力中のワークフロー実行設定（ワークフロー・ポジティブ/ネガティブプロンプト・画像サイズ・LoRA・バッチ数・ファイル名プレフィックス）を JSON ファイルとしてインポート・エクスポートできる機能を追加した。
+
+**設計判断**
+- JSON のスキーマは既存の `Models/QueueJobData.cs`（QueuePage の1ジョブ分の永続化用データ）とそのまま共通化した。対象7項目のフィールド構成が完全に一致しており、新規モデルクラスを追加せずに済むため。QueuePage 自体には個別ジョブのインポート機能はないが、JSON ファイルとしては相互に読み替え可能なスキーマになっている
+- ボタン配置はページ上部タイトル行の右側（ユーザーとの合意事項）
+
+**ComfyUIRunWorkflow**
+- [x] `ViewModels/Pages/DashboardViewModel.cs`
+  - `BuildExportData()`（internal） — 現在のフォーム入力内容を `QueueJobData` に変換
+  - `ApplyImportedData(QueueJobData)`（internal） — インポートしたデータをフォームへ反映。ワークフロー名は `WorkflowNames` に存在する場合のみ反映し、戻り値でその成否を返す（存在しない場合はワークフロー選択以外の項目のみ反映し、呼び出し側が警告を表示する）。LoraSlots・画像サイズ（IsCustomSize/ImageSizeOrientation/CustomWidth/CustomHeight）は `SelectedWorkflow` 反映後（`OnSelectedWorkflowChanged` による `SizeLabelList.Init()` 完了後）に設定することで、フェーズ12で対処した ComboBox バインディングの巻き添え上書きと同種の不具合を回避
+  - `ExportSettingsCommand`/`ImportSettingsCommand`（`CanExecute`: `!IsRunning`） — `Microsoft.Win32.SaveFileDialog`/`OpenFileDialog`（JSON フィルター）＋ `JsonLoader.WriteJson`/`ReadJson<QueueJobData>` で実際のファイル入出力を行い、結果をスナックバーで通知
+- [x] `Views/Pages/DashboardPage.xaml` — タイトル行を `Grid` 化し、右側に「インポート」「エクスポート」`ui:Button`（Icon: `ArrowImport24`/`ArrowExport24`）を配置
+- [x] `Resources/Strings.resx`/`Strings.en.resx` — `Common_JsonFileDialogFilter`、`Dashboard_Export*`/`Dashboard_Import*` キーを追加
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/DashboardViewModelTests.cs` に `BuildExportData`/`ApplyImportedData`（ワークフロー一致/不一致・カスタムサイズ・LoRA 差し替え）・`ExportSettingsCommand`/`ImportSettingsCommand` の `CanExecute`（`IsRunning` 中は不可）のテストを追加。全件パス確認済み（合計252件）
+- [x] `README.md`/`doc/README_english.md`/`doc/usage.md`/`doc/usage_english.md`/`doc/class_diagram.md` を更新
+
+合計テスト数: ComfyUILibsTests 187件 / ComfyUIRunWorkflowTests 252件（全パス）
+
 ### 将来的な拡張
 
 - C# 版 Discord ボット（ComfyUILibs を共用）
