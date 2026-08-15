@@ -10,6 +10,7 @@ For setup instructions, see the [Quick Start](README_english.md) section of the 
 - [Settings Page](#settings-page)
 - [Home Page (Running Workflows)](#home-page-running-workflows)
 - [Queue Page (Running Multiple Workflows in Sequence)](#queue-page-running-multiple-workflows-in-sequence)
+- [Generate Page (Batch Job Generation)](#generate-page-batch-job-generation)
 - [Data Page (Results / Tag History)](#data-page-results--tag-history)
 - [Tagger Page (WD14 Tagger)](#tagger-page-wd14-tagger)
 
@@ -128,6 +129,38 @@ Each job shows its current execution status.
 ### Job List Persistence
 
 The job definitions (workflow, prompts, LoRA, image size, filename prefix, batch count) are saved to `queue_jobs.json` in the app's current directory and persist across restarts (a separate file from `ComfyUIRunWorkflow_setting.json`). If `queue_jobs.json` doesn't exist, the workflow queue starts as an empty list. Execution status and results, however, are session-only — after restarting, every job starts over as "Pending" (the results themselves remain available as `result_*.json` files).
+
+---
+
+## Generate Page (Batch Job Generation)
+
+This page replaces keywords like `<CHARACTER>` in base prompts (JSON files with `positive`/`negative` keys) using a replacement list, then combines the result with a job template to bulk-generate a job list for the Queue page. It saves you from registering, by hand, a large number of jobs that only differ by character or outfit while sharing the same composition and settings.
+
+### Input File Formats
+
+| Input | Format | Description |
+|---|---|---|
+| Base prompt directory | A directory containing multiple `*.json` files | Each file has the form `{"positive": "...", "negative": "..."}`. Every `*.json` directly under the directory is processed as one job |
+| Replacement list file | JSON (keyword → replacement string dictionary) | E.g. `{"<CHARACTER>": "alice, blonde hair", "<OUTFIT>": "school uniform"}` — maps each placeholder used in base prompts to its replacement text |
+| Job template file | JSON (the `QueueJobData` format minus the two prompt fields) | The settings shared by every generated job — workflow, LoRA, image size, batch count, filename prefix, etc. A JSON file exported from the Queue page with the prompt fields cleared can be used as-is |
+
+### Steps
+
+1. Specify the **base prompt directory**, **replacement list file**, **job template file**, and **output file** using the "Browse" buttons for each (the **Generate** button becomes enabled once all four are set)
+2. Click **Generate**
+3. One job is generated per base prompt file, and the result is written to the output file in the same format as `queue_jobs.json` (`QueueJobListData`)
+
+The generated jobs can be brought into the Queue page's current job list via the **Import List** button.
+
+### Placeholder Replacement
+
+- For both the `positive` and `negative` fields of each base prompt, `<...>`-style keywords are replaced with the corresponding value from the replacement list
+- If a base prompt contains a keyword that isn't in the replacement list, the entire generation is aborted with an error message identifying the file and the missing keyword. No output file is written in that case, so you never end up with a partially-replaced job list
+- Replacement list entries that aren't used by any base prompt are simply ignored
+
+### Input Path Persistence
+
+The four input paths (base prompt directory, replacement list file, job template file, output file) are saved as settings and restored the next time you open this page.
 
 ---
 
