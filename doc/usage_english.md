@@ -88,17 +88,22 @@ The **Import** / **Export** buttons next to the title let you save and load the 
 
 This page lets you register multiple "jobs" — each a combination of workflow, prompts, LoRA, image size, filename prefix, and batch count — in a list, and run them automatically one after another from the top. Use it when you want to run several workflows (e.g. `sdxl` and `anima`) together in one operation.
 
+### Job Name
+
+Each job in the list shows a "job name". If it hasn't been set, the workflow name is shown instead. Double-click a job's name in the list to edit it in place — press Enter or click elsewhere to commit the change. Job names are saved to `queue_jobs.json` and persist across restarts.
+
 ### Steps
 
 1. Click "+ Add Job" to add a job to the list (repeat as many times as needed)
 2. Selecting a job in the list lets you edit its content (workflow, prompts, image size, LoRA, filename prefix, batch count) in the panel on the right, just like on the Home page — each job can be configured independently (an empty filename prefix uses the workflow's value, same as on the Home page)
-3. Click **Run All** to execute the jobs one by one, starting from the top of the list
+3. Double-click a job's name in the list to give it a descriptive name so it's easier to tell jobs apart later (optional)
+4. Click **Run All** to execute the jobs one by one, starting from the top of the list
 
 ### Import / Export Job Settings
 
 The **Import** / **Export** buttons at the top of the edit panel let you save and load the selected job's settings as a JSON file. The behavior is the same as Import/Export on the Home page (see above).
 
-- Fields covered: workflow, positive/negative prompt, image size (preset/custom), LoRA, batch count, filename prefix
+- Fields covered: job name, workflow, positive/negative prompt, image size (preset/custom), LoRA, batch count, filename prefix
 - If the workflow name isn't present in the currently loaded `workflow_config.json`, the workflow selection is left unchanged while every other field is still applied
 - Imported changes are saved to `queue_jobs.json` immediately
 - The edit panel itself is disabled while the queue is running (**Run All** in progress), so import/export are unavailable then too
@@ -148,7 +153,7 @@ This page replaces keywords like `<CHARACTER>` in base prompts (JSON files with 
 
 1. Specify the **base prompt directory**, **replacement list file**, **job template file**, and **output file** using the "Browse" buttons for each (the **Generate** button becomes enabled once all four are set)
 2. Click **Generate**
-3. One job is generated per base prompt file, and the result is written to the output file in the same format as `queue_jobs.json` (`QueueJobListData`)
+3. One job is generated per base prompt file, and the result is written to the output file in the same format as `queue_jobs.json` (`QueueJobListData`). Each generated job's name is set automatically to its base prompt's filename (without extension), so it's easy to tell which base prompt produced which job in the Queue page's list
 
 The generated jobs can be brought into the Queue page's current job list via the **Import List** button.
 

@@ -255,6 +255,7 @@ classDiagram
             Cancelled
         }
         class QueueJobData {
+            +string JobName
             +string WorkflowName
             +string PositivePrompt
             +string NegativePrompt
@@ -363,6 +364,9 @@ classDiagram
             +OpenEnlargedCommand
         }
         class QueueJobViewModel {
+            +string JobName
+            +bool IsEditingName
+            +string DisplayName
             +string WorkflowName
             +List~string~ AvailableLoras
             +UIItemBaseModel~SizeOption~ SizeLabelList
@@ -691,6 +695,7 @@ classDiagram
     }
 
     class QueueJobData {
+        +string JobName
         +string WorkflowName
         +string PositivePrompt
         +string NegativePrompt
@@ -802,6 +807,9 @@ classDiagram
     }
 
     class QueueJobViewModel {
+        +string JobName
+        +bool IsEditingName
+        +string DisplayName
         +string WorkflowName
         +List~string~ AvailableLoras
         +UIItemBaseModel~SizeOption~ SizeLabelList

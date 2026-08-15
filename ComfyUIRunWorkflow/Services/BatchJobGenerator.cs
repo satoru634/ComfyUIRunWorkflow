@@ -19,7 +19,8 @@ namespace ComfyUIRunWorkflow.Services
         /// baseDirectory 直下の全 *.json をベースプロンプト（<see cref="PromptPair"/> 形式）として読み込み、
         /// 置換リストでプレースホルダー（&lt;CHARACTER&gt; 等）を置換したうえで、ジョブテンプレートの各項目
         /// （ワークフロー・LoRA・画像サイズ・バッチ数・ファイル名プレフィックス）を複製した <see cref="QueueJobData"/> を
-        /// ファイルごとに1件生成する。
+        /// ファイルごとに1件生成する。生成される各ジョブの JobName にはベースプロンプトのファイル名（拡張子なし）を
+        /// 設定する（ジョブテンプレート側の値は使用しない）。
         /// </summary>
         /// <param name="onLog">
         /// 処理の進捗を1行ずつ通知するコールバック（GeneratePage のログ表示用）。不要な場合は null を指定する。
@@ -58,6 +59,7 @@ namespace ComfyUIRunWorkflow.Services
 
                 jobs.Add(new QueueJobData
                 {
+                    JobName = Path.GetFileNameWithoutExtension(file),
                     WorkflowName = template.WorkflowName,
                     PositivePrompt = ReplacePlaceholders(basePrompt.Positive, replacements, file),
                     NegativePrompt = ReplacePlaceholders(basePrompt.Negative, replacements, file),
