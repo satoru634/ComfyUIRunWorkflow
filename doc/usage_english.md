@@ -70,6 +70,17 @@ Setting the batch count to 2 or more runs the same content (only the seed is aut
 
 Once execution finishes, thumbnails of the generated images appear in the right panel. Click a thumbnail to view it at full size.
 
+### Import / Export Settings
+
+The **Import** / **Export** buttons next to the title let you save and load the Home page's settings as a JSON file.
+
+- Fields covered: workflow, positive/negative prompt, image size (preset/custom), LoRA, batch count, filename prefix
+- **Export**: saves the values currently entered in the form to a JSON file
+- **Import**: loads a JSON file and replaces the form's contents in one step
+  - If the workflow name isn't present in the currently loaded `workflow_config.json`, the workflow selection is left unchanged while every other field (prompts, image size, LoRA, batch count, filename prefix) is still applied
+- The JSON uses the same schema as a Queue page job definition (one entry of `queue_jobs.json`), though the Queue page itself has no per-job import feature
+- Import and export are both disabled while a workflow is running
+
 ---
 
 ## Queue Page (Running Multiple Workflows in Sequence)

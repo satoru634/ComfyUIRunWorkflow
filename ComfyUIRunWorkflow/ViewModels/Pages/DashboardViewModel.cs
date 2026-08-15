@@ -6,6 +6,7 @@ using ComfyUILibs.Ui;
 using ComfyUIRunWorkflow.Helpers;
 using ComfyUIRunWorkflow.Models;
 using ComfyUIRunWorkflow.Services;
+using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.IO;
 using Wpf.Ui;
@@ -118,6 +119,8 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         /// <summary>ワークフローを実行中かどうか。</summary>
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(RunWorkflowCommand))]
+        [NotifyCanExecuteChangedFor(nameof(ExportSettingsCommand))]
+        [NotifyCanExecuteChangedFor(nameof(ImportSettingsCommand))]
         private bool _isRunning = false;
 
         /// <summary>バッチ数（1〜10）。指定回数だけワークフローを繰り返し実行する。</summary>
@@ -300,6 +303,152 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         private void RemoveLora(LoraSlot slot)
         {
             LoraSlots.Remove(slot);
+        }
+
+        // ── 設定のインポート・エクスポート ────────────────────────────────────
+
+        private bool CanExportImport() => !IsRunning;
+
+        /// <summary>
+        /// 現在のフォーム入力内容を <see cref="QueueJobData"/>（QueuePage のジョブ定義と共通の JSON スキーマ）に変換する。
+        /// 実行状態（IsRunning・PreviewThumbnails 等）は対象外。
+        /// </summary>
+        internal QueueJobData BuildExportData() => new()
+        {
+            WorkflowName = SelectedWorkflow,
+            PositivePrompt = PositivePrompt,
+            NegativePrompt = NegativePrompt,
+            FilenamePrefix = FilenamePrefix,
+            LoraFiles = LoraSlots
+                .Where(s => !string.IsNullOrWhiteSpace(s.SelectedLora))
+                .Select(s => s.SelectedLora)
+                .ToList(),
+            ImageSizeOrientation = ImageSizeOrientation,
+            IsCustomSize = IsCustomSize,
+            CustomWidth = CustomWidth,
+            CustomHeight = CustomHeight,
+            BatchCount = BatchCount,
+        };
+
+        /// <summary>
+        /// インポートした <see cref="QueueJobData"/> をフォームへ反映する。
+        /// ワークフロー名は WorkflowNames（読み込み済み workflow_config.json）に存在する場合のみ反映し、
+        /// LoraSlots・画像サイズはワークフロー反映後（SizeLabelList 再構築後）に設定することで、
+        /// ComboBox バインディングの巻き添え上書き（フェーズ12で対処済みの不具合と同種）を避ける。
+        /// </summary>
+        /// <returns>ワークフロー名が反映できたかどうか（呼び出し側の通知メッセージ出し分けに使用）。</returns>
+        internal bool ApplyImportedData(QueueJobData data)
+        {
+            bool workflowMatched = !string.IsNullOrWhiteSpace(data.WorkflowName) && WorkflowNames.Contains(data.WorkflowName);
+            if (workflowMatched)
+                SelectedWorkflow = data.WorkflowName;
+
+            PositivePrompt = data.PositivePrompt;
+            NegativePrompt = data.NegativePrompt;
+            FilenamePrefix = data.FilenamePrefix;
+            BatchCount = data.BatchCount;
+
+            LoraSlots.Clear();
+            foreach (var lora in data.LoraFiles)
+                LoraSlots.Add(new LoraSlot { SelectedLora = lora });
+
+            IsCustomSize = data.IsCustomSize;
+            ImageSizeOrientation = data.ImageSizeOrientation;
+            CustomWidth = data.CustomWidth;
+            CustomHeight = data.CustomHeight;
+
+            return workflowMatched;
+        }
+
+        /// <summary>現在のフォーム内容を JSON ファイルへエクスポートする。</summary>
+        [RelayCommand(CanExecute = nameof(CanExportImport))]
+        private void ExportSettings()
+        {
+            var dialog = new SaveFileDialog
+            {
+                Title = LocalizationManager.Instance["Dashboard_ExportDialogTitle"],
+                Filter = LocalizationManager.Instance["Common_JsonFileDialogFilter"],
+                FileName = "workflow_settings.json",
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            try
+            {
+                JsonLoader.WriteJson(dialog.FileName, BuildExportData());
+                _snackbarService.Show(
+                    LocalizationManager.Instance["Common_Completed"],
+                    LocalizationManager.Instance["Dashboard_ExportSuccess"],
+                    ControlAppearance.Success,
+                    new SymbolIcon(SymbolRegular.CheckmarkCircle24),
+                    TimeSpan.FromSeconds(3.0)
+                );
+            }
+            catch (Exception ex)
+            {
+                _snackbarService.Show(
+                    LocalizationManager.Instance["Common_Error"],
+                    string.Format(LocalizationManager.Instance["Dashboard_ExportError_Format"], ex.Message),
+                    ControlAppearance.Danger,
+                    new SymbolIcon(SymbolRegular.ErrorCircle24),
+                    TimeSpan.FromSeconds(5.0)
+                );
+            }
+        }
+
+        /// <summary>JSON ファイルからフォーム内容をインポートする。</summary>
+        [RelayCommand(CanExecute = nameof(CanExportImport))]
+        private void ImportSettings()
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = LocalizationManager.Instance["Dashboard_ImportDialogTitle"],
+                Filter = LocalizationManager.Instance["Common_JsonFileDialogFilter"],
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            QueueJobData data;
+            try
+            {
+                data = JsonLoader.ReadJson<QueueJobData>(dialog.FileName);
+            }
+            catch (Exception ex)
+            {
+                _snackbarService.Show(
+                    LocalizationManager.Instance["Common_Error"],
+                    string.Format(LocalizationManager.Instance["Dashboard_ImportError_Format"], ex.Message),
+                    ControlAppearance.Danger,
+                    new SymbolIcon(SymbolRegular.ErrorCircle24),
+                    TimeSpan.FromSeconds(5.0)
+                );
+                return;
+            }
+
+            bool workflowMatched = ApplyImportedData(data);
+
+            if (workflowMatched || string.IsNullOrWhiteSpace(data.WorkflowName))
+            {
+                _snackbarService.Show(
+                    LocalizationManager.Instance["Common_Completed"],
+                    LocalizationManager.Instance["Dashboard_ImportSuccess"],
+                    ControlAppearance.Success,
+                    new SymbolIcon(SymbolRegular.CheckmarkCircle24),
+                    TimeSpan.FromSeconds(3.0)
+                );
+            }
+            else
+            {
+                _snackbarService.Show(
+                    LocalizationManager.Instance["Common_Completed"],
+                    string.Format(LocalizationManager.Instance["Dashboard_ImportWorkflowNotFound_Format"], data.WorkflowName),
+                    ControlAppearance.Caution,
+                    new SymbolIcon(SymbolRegular.Warning24),
+                    TimeSpan.FromSeconds(5.0)
+                );
+            }
         }
 
         // ── ワークフロー実行 ──────────────────────────────────────────────────
