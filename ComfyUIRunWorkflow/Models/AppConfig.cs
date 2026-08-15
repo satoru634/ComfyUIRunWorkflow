@@ -70,6 +70,22 @@ namespace ComfyUIRunWorkflow.Models
         [ObservableProperty]
         private string _language = "ja";
 
+        /// <summary>Generate ページ: ベースプロンプト（*.json）を格納したディレクトリのパス。</summary>
+        [ObservableProperty]
+        private string _generateBasePromptDirectory = "";
+
+        /// <summary>Generate ページ: 置換リスト（キーワード→置換文字列の辞書）JSON ファイルのパス。</summary>
+        [ObservableProperty]
+        private string _generateReplacementListPath = "";
+
+        /// <summary>Generate ページ: ジョブテンプレート（QueueJobData からプロンプト2項目を除いた形式）JSON ファイルのパス。</summary>
+        [ObservableProperty]
+        private string _generateJobTemplatePath = "";
+
+        /// <summary>Generate ページ: 生成したジョブ一覧の出力先ファイルパス。</summary>
+        [ObservableProperty]
+        private string _generateOutputPath = "";
+
         /// <summary>
         /// 初回起動時のデフォルト値を設定する。
         /// 設定ファイルが存在する場合は JSON デシリアライズ後に上書きされる。

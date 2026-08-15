@@ -53,6 +53,13 @@
                         Appearance="Secondary" />
                     <ui:Button
                         Margin="0,0,8,0"
+                        Command="{Binding ViewModel.ImportJobListCommand}"
+                        Content="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Queue_ImportListButtonContent]}"
+                        IsEnabled="{Binding ViewModel.CanEditJobs}"
+                        Icon="{ui:SymbolIcon ArrowImport24}"
+                        Appearance="Secondary" />
+                    <ui:Button
+                        Margin="0,0,8,0"
                         Command="{Binding ViewModel.RunAllCommand}"
                         Content="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Queue_RunAllButtonContent]}"
                         Appearance="Primary"

@@ -138,6 +138,7 @@
   <!-- MainWindow -->
   <data name="MainWindow_MenuDashboard" xml:space="preserve"><value>Run workflow</value></data>
   <data name="MainWindow_MenuQueue" xml:space="preserve"><value>Queue</value></data>
+  <data name="MainWindow_MenuGenerate" xml:space="preserve"><value>Generate</value></data>
   <data name="MainWindow_MenuResults" xml:space="preserve"><value>Results</value></data>
   <data name="MainWindow_MenuTagger" xml:space="preserve"><value>Tagger</value></data>
   <data name="MainWindow_MenuSettings" xml:space="preserve"><value>Settings</value></data>
@@ -157,6 +158,9 @@
   <data name="Queue_StatusSuccess" xml:space="preserve"><value>Success</value></data>
   <data name="Queue_StatusError" xml:space="preserve"><value>Failed</value></data>
   <data name="Queue_StatusCancelled" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="Queue_ImportListButtonContent" xml:space="preserve"><value>Import List</value></data>
+  <data name="Queue_ImportListDialogTitle" xml:space="preserve"><value>Import Job List</value></data>
+  <data name="Queue_ImportListSuccess_Format" xml:space="preserve"><value>{0} job(s) imported</value></data>
 
   <!-- ResultDetail -->
   <data name="ResultDetail_Title" xml:space="preserve"><value>Result Details</value></data>
@@ -167,4 +171,21 @@
 
   <!-- ImagePreview -->
   <data name="ImagePreview_Title" xml:space="preserve"><value>Image Preview</value></data>
+
+  <!-- Generate -->
+  <data name="Generate_Title" xml:space="preserve"><value>Batch Job Generation</value></data>
+  <data name="Generate_Description" xml:space="preserve"><value>Replaces keywords like &lt;CHARACTER&gt; in base prompts using a replacement list, and combines them with a job template to bulk-generate a Queue page job list.</value></data>
+  <data name="Generate_BasePromptDirectoryLabel" xml:space="preserve"><value>Base Prompt Directory</value></data>
+  <data name="Generate_ReplacementListLabel" xml:space="preserve"><value>Replacement List File</value></data>
+  <data name="Generate_JobTemplateLabel" xml:space="preserve"><value>Job Template File</value></data>
+  <data name="Generate_OutputPathLabel" xml:space="preserve"><value>Output File</value></data>
+  <data name="Generate_GenerateButtonContent" xml:space="preserve"><value>Generate</value></data>
+  <data name="Generate_BasePromptDirectoryDialogTitle" xml:space="preserve"><value>Select Base Prompt Directory</value></data>
+  <data name="Generate_ReplacementListDialogTitle" xml:space="preserve"><value>Select Replacement List File</value></data>
+  <data name="Generate_JobTemplateDialogTitle" xml:space="preserve"><value>Select Job Template File</value></data>
+  <data name="Generate_OutputDialogTitle" xml:space="preserve"><value>Select Output File</value></data>
+  <data name="Generate_Success_Format" xml:space="preserve"><value>{0} job(s) generated</value></data>
+  <data name="Generate_Error_Format" xml:space="preserve"><value>Failed to generate: {0}</value></data>
+  <data name="Generate_NoBasePromptFiles_Format" xml:space="preserve"><value>No base prompt files (*.json) found in {0}</value></data>
+  <data name="Generate_UndefinedKeyword_Format" xml:space="preserve"><value>Keyword {1} in {0} was not found in the replacement list</value></data>
 </root>
