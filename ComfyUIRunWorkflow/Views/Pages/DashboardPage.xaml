@@ -54,13 +54,13 @@
                     Grid.Column="1"
                     Margin="0,0,8,0"
                     Command="{Binding ViewModel.ImportSettingsCommand}"
-                    Content="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Dashboard_ImportButtonContent]}"
+                    Content="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Common_ImportButtonContent]}"
                     Appearance="Secondary"
                     Icon="{ui:SymbolIcon ArrowImport24}" />
                 <ui:Button
                     Grid.Column="2"
                     Command="{Binding ViewModel.ExportSettingsCommand}"
-                    Content="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Dashboard_ExportButtonContent]}"
+                    Content="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Common_ExportButtonContent]}"
                     Appearance="Secondary"
                     Icon="{ui:SymbolIcon ArrowExportLtr24}" />
             </Grid>

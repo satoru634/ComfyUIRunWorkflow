@@ -366,7 +366,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         {
             var dialog = new SaveFileDialog
             {
-                Title = LocalizationManager.Instance["Dashboard_ExportDialogTitle"],
+                Title = LocalizationManager.Instance["Common_ExportDialogTitle"],
                 Filter = LocalizationManager.Instance["Common_JsonFileDialogFilter"],
                 FileName = "workflow_settings.json",
             };
@@ -379,7 +379,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                 JsonLoader.WriteJson(dialog.FileName, BuildExportData());
                 _snackbarService.Show(
                     LocalizationManager.Instance["Common_Completed"],
-                    LocalizationManager.Instance["Dashboard_ExportSuccess"],
+                    LocalizationManager.Instance["Common_ExportSuccess"],
                     ControlAppearance.Success,
                     new SymbolIcon(SymbolRegular.CheckmarkCircle24),
                     TimeSpan.FromSeconds(3.0)
@@ -389,7 +389,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             {
                 _snackbarService.Show(
                     LocalizationManager.Instance["Common_Error"],
-                    string.Format(LocalizationManager.Instance["Dashboard_ExportError_Format"], ex.Message),
+                    string.Format(LocalizationManager.Instance["Common_ExportError_Format"], ex.Message),
                     ControlAppearance.Danger,
                     new SymbolIcon(SymbolRegular.ErrorCircle24),
                     TimeSpan.FromSeconds(5.0)
@@ -403,7 +403,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         {
             var dialog = new OpenFileDialog
             {
-                Title = LocalizationManager.Instance["Dashboard_ImportDialogTitle"],
+                Title = LocalizationManager.Instance["Common_ImportDialogTitle"],
                 Filter = LocalizationManager.Instance["Common_JsonFileDialogFilter"],
             };
 
@@ -419,7 +419,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             {
                 _snackbarService.Show(
                     LocalizationManager.Instance["Common_Error"],
-                    string.Format(LocalizationManager.Instance["Dashboard_ImportError_Format"], ex.Message),
+                    string.Format(LocalizationManager.Instance["Common_ImportError_Format"], ex.Message),
                     ControlAppearance.Danger,
                     new SymbolIcon(SymbolRegular.ErrorCircle24),
                     TimeSpan.FromSeconds(5.0)
@@ -433,7 +433,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             {
                 _snackbarService.Show(
                     LocalizationManager.Instance["Common_Completed"],
-                    LocalizationManager.Instance["Dashboard_ImportSuccess"],
+                    LocalizationManager.Instance["Common_ImportSuccess"],
                     ControlAppearance.Success,
                     new SymbolIcon(SymbolRegular.CheckmarkCircle24),
                     TimeSpan.FromSeconds(3.0)
@@ -443,7 +443,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             {
                 _snackbarService.Show(
                     LocalizationManager.Instance["Common_Completed"],
-                    string.Format(LocalizationManager.Instance["Dashboard_ImportWorkflowNotFound_Format"], data.WorkflowName),
+                    string.Format(LocalizationManager.Instance["Common_ImportWorkflowNotFound_Format"], data.WorkflowName),
                     ControlAppearance.Caution,
                     new SymbolIcon(SymbolRegular.Warning24),
                     TimeSpan.FromSeconds(5.0)

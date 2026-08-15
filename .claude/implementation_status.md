@@ -291,25 +291,32 @@ QueuePageでジョブを選択した状態で他ページ（例: DashboardPage�
 
 合計テスト数: ComfyUILibsTests 187件 / ComfyUIRunWorkflowTests 243件（全パス）
 
-### フェーズ13: DashboardPageへの設定インポート・エクスポート機能追加（`feature/dashboard-import-export` ブランチ、実装完了）
+### フェーズ13: DashboardPage/QueuePageへの設定インポート・エクスポート機能追加（`feature/dashboard-import-export` ブランチ、実装完了）
 
-DashboardPage（Home）で入力中のワークフロー実行設定（ワークフロー・ポジティブ/ネガティブプロンプト・画像サイズ・LoRA・バッチ数・ファイル名プレフィックス）を JSON ファイルとしてインポート・エクスポートできる機能を追加した。
+DashboardPage（Home）・QueuePage（右側の個別編集パネル）の両方で、入力中のワークフロー実行設定（ワークフロー・ポジティブ/ネガティブプロンプト・画像サイズ・LoRA・バッチ数・ファイル名プレフィックス）を JSON ファイルとしてインポート・エクスポートできる機能を追加した。当初 DashboardPage のみ実装したが、ユーザーの追加指示により QueuePage にも同様の機能を追加した。
 
 **設計判断**
-- JSON のスキーマは既存の `Models/QueueJobData.cs`（QueuePage の1ジョブ分の永続化用データ）とそのまま共通化した。対象7項目のフィールド構成が完全に一致しており、新規モデルクラスを追加せずに済むため。QueuePage 自体には個別ジョブのインポート機能はないが、JSON ファイルとしては相互に読み替え可能なスキーマになっている
-- ボタン配置はページ上部タイトル行の右側（ユーザーとの合意事項）
+- JSON のスキーマは既存の `Models/QueueJobData.cs`（QueuePage の1ジョブ分の永続化用データ）とそのまま共通化した。対象7項目のフィールド構成が完全に一致しており、新規モデルクラスを追加せずに済むため。DashboardPage と QueuePage の両方で共通スキーマを使うため、Home ページでエクスポートした設定を Queue ページのジョブとしてインポートする、といった使い方も可能
+- インポート・エクスポート関連の文言リソースキーは、当初 `Dashboard_*` で追加したが、QueuePage でも共用するため `Common_*` にリネームした（`Common_ExportButtonContent`/`Common_ImportButtonContent`/`Common_ExportDialogTitle`/`Common_ImportDialogTitle`/`Common_ExportSuccess`/`Common_ImportSuccess`/`Common_ExportError_Format`/`Common_ImportError_Format`/`Common_ImportWorkflowNotFound_Format`）
+- DashboardPage: ボタン配置はページ上部タイトル行の右側（ユーザーとの合意事項）。ExportSettingsCommand/ImportSettingsCommand は DashboardViewModel 自身が保持し、`CanExecute: !IsRunning` で実行中は無効化
+- QueuePage: ボタン配置は右側個別編集パネルの右上（ユーザーとの合意事項、ジョブ選択時のみ表示される領域内）。DashboardPage と異なり、ExportJobCommand/ImportJobCommand は QueueViewModel（ページ全体の VM）が保持し、選択中の `QueueJobViewModel` を CommandParameter として受け取る方式にした。理由は次の2点: (1) ファイルダイアログ表示・スナックバー通知に必要な `ISnackbarService` は QueueViewModel が既に持っているが、QueueJobViewModel はジョブ1件分の編集状態のみを保持する軽量な VM で DI サービスを持たない設計だったため、(2) 個別編集パネル全体が既に `IsEnabled="{Binding DataContext.ViewModel.CanEditJobs, ...}"` でキュー実行中は無効化される構造になっており、ボタン側に個別の `CanExecute` を持たせる必要がなかったため（`RemoveJobCommand` 等の既存の per-job コマンドと同じパターン）
 
 **ComfyUIRunWorkflow**
 - [x] `ViewModels/Pages/DashboardViewModel.cs`
   - `BuildExportData()`（internal） — 現在のフォーム入力内容を `QueueJobData` に変換
   - `ApplyImportedData(QueueJobData)`（internal） — インポートしたデータをフォームへ反映。ワークフロー名は `WorkflowNames` に存在する場合のみ反映し、戻り値でその成否を返す（存在しない場合はワークフロー選択以外の項目のみ反映し、呼び出し側が警告を表示する）。LoraSlots・画像サイズ（IsCustomSize/ImageSizeOrientation/CustomWidth/CustomHeight）は `SelectedWorkflow` 反映後（`OnSelectedWorkflowChanged` による `SizeLabelList.Init()` 完了後）に設定することで、フェーズ12で対処した ComboBox バインディングの巻き添え上書きと同種の不具合を回避
   - `ExportSettingsCommand`/`ImportSettingsCommand`（`CanExecute`: `!IsRunning`） — `Microsoft.Win32.SaveFileDialog`/`OpenFileDialog`（JSON フィルター）＋ `JsonLoader.WriteJson`/`ReadJson<QueueJobData>` で実際のファイル入出力を行い、結果をスナックバーで通知
-- [x] `Views/Pages/DashboardPage.xaml` — タイトル行を `Grid` 化し、右側に「インポート」「エクスポート」`ui:Button`（Icon: `ArrowImport24`/`ArrowExport24`）を配置
-- [x] `Resources/Strings.resx`/`Strings.en.resx` — `Common_JsonFileDialogFilter`、`Dashboard_Export*`/`Dashboard_Import*` キーを追加
-- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/DashboardViewModelTests.cs` に `BuildExportData`/`ApplyImportedData`（ワークフロー一致/不一致・カスタムサイズ・LoRA 差し替え）・`ExportSettingsCommand`/`ImportSettingsCommand` の `CanExecute`（`IsRunning` 中は不可）のテストを追加。全件パス確認済み（合計252件）
+- [x] `Views/Pages/DashboardPage.xaml` — タイトル行を `Grid` 化し、右側に「インポート」「エクスポート」`ui:Button`（Icon: `ArrowImport24`/`ArrowExportLtr24`）を配置
+- [x] `ViewModels/Pages/QueueJobViewModel.cs` — `ApplyImportedData(QueueJobData data, bool applyWorkflowName)` を追加。`applyWorkflowName` が true の場合のみ `WorkflowName` を反映する点以外は DashboardViewModel.ApplyImportedData と同じ考え方（LoraSlots・画像サイズは WorkflowName 反映後に設定）。Status/LastResult（実行状態）は変更しない
+- [x] `ViewModels/Pages/QueueViewModel.cs` — `ExportJobCommand(QueueJobViewModel job)`/`ImportJobCommand(QueueJobViewModel job)` を追加。DashboardViewModel と同様に `SaveFileDialog`/`OpenFileDialog` ＋ `JsonLoader` でファイル入出力を行い、ワークフロー名が `WorkflowNames` に存在するかを判定して `job.ApplyImportedData()` に渡す。インポート成功時は `PersistJobs()` で `queue_jobs.json` へ即座に保存
+- [x] `Views/Pages/QueuePage.xaml` — 個別編集パネル（ジョブ選択時）のワークフロー選択行に「インポート」「エクスポート」`ui:Button` を配置（`CommandParameter="{Binding}"` で選択中ジョブを渡す）
+- [x] `Resources/Strings.resx`/`Strings.en.resx` — `Common_JsonFileDialogFilter`、`Common_Export*`/`Common_Import*`（`Dashboard_*` から `Common_*` へリネーム）キーを追加・整理
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/DashboardViewModelTests.cs` に `BuildExportData`/`ApplyImportedData`（ワークフロー一致/不一致・カスタムサイズ・LoRA 差し替え）・`ExportSettingsCommand`/`ImportSettingsCommand` の `CanExecute`（`IsRunning` 中は不可）のテストを追加
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/QueueJobViewModelTests.cs` に `ApplyImportedData`（ワークフロー反映あり/なし・カスタムサイズ・LoRA 差し替え・Status/LastResult 非変更）のテストを追加
+  - `ExportJobCommand`/`ImportJobCommand` はファイルダイアログを直接開くため、`DashboardViewModel` の `BrowseConfigPath` 等と同様に単体テスト対象外とした（ダイアログ表示に依存しないロジックは `QueueJobViewModel.ApplyImportedData` に切り出し済みでそちらをテスト）
 - [x] `README.md`/`doc/README_english.md`/`doc/usage.md`/`doc/usage_english.md`/`doc/class_diagram.md` を更新
 
-合計テスト数: ComfyUILibsTests 187件 / ComfyUIRunWorkflowTests 252件（全パス）
+合計テスト数: ComfyUILibsTests 187件 / ComfyUIRunWorkflowTests 257件（全パス）
 
 ### 将来的な拡張
 

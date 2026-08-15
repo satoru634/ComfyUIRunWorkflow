@@ -484,5 +484,116 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
             var job = QueueJobViewModel.FromData(new QueueJobData());
             Assert.Equal(QueueJobStatus.Pending, job.Status);
         }
+
+        // ── ApplyImportedData ────────────────────────────────────────────────
+
+        [Fact]
+        public void ApplyImportedData_ApplyWorkflowNameTrue_UpdatesWorkflowNameAndFields()
+        {
+            var job = new QueueJobViewModel { WorkflowName = "sdxl" };
+            job.ApplyWorkflowConfig(CreateMultiWorkflowConfig());
+
+            var data = new QueueJobData
+            {
+                WorkflowName = "anima",
+                PositivePrompt = "imported positive",
+                NegativePrompt = "imported negative",
+                FilenamePrefix = "imported_prefix",
+                LoraFiles = new List<string>(),
+                ImageSizeOrientation = "square",
+                BatchCount = 4,
+            };
+
+            job.ApplyImportedData(data, applyWorkflowName: true);
+
+            Assert.Equal("anima", job.WorkflowName);
+            Assert.Equal("imported positive", job.PositivePrompt);
+            Assert.Equal("imported negative", job.NegativePrompt);
+            Assert.Equal("imported_prefix", job.FilenamePrefix);
+            Assert.Equal(4, job.BatchCount);
+            Assert.Equal("square", job.ImageSizeOrientation);
+        }
+
+        [Fact]
+        public void ApplyImportedData_ApplyWorkflowNameFalse_KeepsCurrentWorkflowName()
+        {
+            var job = new QueueJobViewModel { WorkflowName = "sdxl" };
+            job.ApplyWorkflowConfig(CreateMultiWorkflowConfig());
+
+            var data = new QueueJobData
+            {
+                WorkflowName = "unknown_workflow",
+                PositivePrompt = "imported positive",
+                LoraFiles = new List<string>(),
+                BatchCount = 2,
+            };
+
+            job.ApplyImportedData(data, applyWorkflowName: false);
+
+            Assert.Equal("sdxl", job.WorkflowName);
+            Assert.Equal("imported positive", job.PositivePrompt);
+            Assert.Equal(2, job.BatchCount);
+        }
+
+        [Fact]
+        public void ApplyImportedData_CustomSize_IsAppliedAfterWorkflowChange()
+        {
+            var job = new QueueJobViewModel { WorkflowName = "sdxl" };
+            job.ApplyWorkflowConfig(CreateMultiWorkflowConfig());
+
+            var data = new QueueJobData
+            {
+                WorkflowName = "anima",
+                LoraFiles = new List<string>(),
+                IsCustomSize = true,
+                CustomWidth = 1024,
+                CustomHeight = 1536,
+                BatchCount = 1,
+            };
+
+            job.ApplyImportedData(data, applyWorkflowName: true);
+
+            Assert.True(job.IsCustomSize);
+            Assert.Equal(1024, job.CustomWidth);
+            Assert.Equal(1536, job.CustomHeight);
+            Assert.Equal("custom", job.SelectedSizeOption);
+        }
+
+        [Fact]
+        public void ApplyImportedData_ReplacesExistingLoraSlots()
+        {
+            var job = new QueueJobViewModel();
+            job.AddLoraCommand.Execute(null);
+            job.LoraSlots[0].SelectedLora = "old_lora";
+
+            var data = new QueueJobData
+            {
+                WorkflowName = "",
+                LoraFiles = new List<string> { "new_lora_1", "new_lora_2" },
+                BatchCount = 1,
+            };
+
+            job.ApplyImportedData(data, applyWorkflowName: false);
+
+            Assert.Equal(2, job.LoraSlots.Count);
+            Assert.Equal("new_lora_1", job.LoraSlots[0].SelectedLora);
+            Assert.Equal("new_lora_2", job.LoraSlots[1].SelectedLora);
+        }
+
+        [Fact]
+        public void ApplyImportedData_DoesNotChangeStatusOrLastResult()
+        {
+            var job = new QueueJobViewModel
+            {
+                Status = QueueJobStatus.Success,
+                LastResult = new WorkflowResult { Status = "success", Timestamp = "", Parameters = new WorkflowParameters() },
+            };
+
+            var data = new QueueJobData { WorkflowName = "", LoraFiles = new List<string>(), BatchCount = 1 };
+            job.ApplyImportedData(data, applyWorkflowName: false);
+
+            Assert.Equal(QueueJobStatus.Success, job.Status);
+            Assert.NotNull(job.LastResult);
+        }
     }
 }

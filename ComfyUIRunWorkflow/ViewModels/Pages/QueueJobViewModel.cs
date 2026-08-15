@@ -243,6 +243,32 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             BatchCount = BatchCount,
         };
 
+        /// <summary>
+        /// インポートした <see cref="QueueJobData"/> をこのジョブへ反映する（Status/LastResult は変更しない）。
+        /// ワークフロー名は <paramref name="applyWorkflowName"/> が true の場合のみ反映し、LoraSlots・画像サイズは
+        /// ワークフロー反映後（WorkflowName 変更に伴う SizeLabelList 再構築後）に設定することで、ComboBox
+        /// バインディングの巻き添え上書き（フェーズ12で対処済みの不具合と同種）を避ける。
+        /// </summary>
+        public void ApplyImportedData(QueueJobData data, bool applyWorkflowName)
+        {
+            if (applyWorkflowName)
+                WorkflowName = data.WorkflowName;
+
+            PositivePrompt = data.PositivePrompt;
+            NegativePrompt = data.NegativePrompt;
+            FilenamePrefix = data.FilenamePrefix;
+            BatchCount = data.BatchCount;
+
+            LoraSlots.Clear();
+            foreach (var lora in data.LoraFiles)
+                LoraSlots.Add(new LoraSlot { SelectedLora = lora });
+
+            IsCustomSize = data.IsCustomSize;
+            ImageSizeOrientation = data.ImageSizeOrientation;
+            CustomWidth = data.CustomWidth;
+            CustomHeight = data.CustomHeight;
+        }
+
         /// <summary>永続化データから復元する。実行状態（Status/LastResult）は含まれないため Pending のままになる。</summary>
         public static QueueJobViewModel FromData(QueueJobData data)
         {
