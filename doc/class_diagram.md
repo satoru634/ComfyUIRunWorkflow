@@ -400,6 +400,17 @@ classDiagram
             +OpenJobDetailCommand
             +ExportJobCommand
             +ImportJobCommand
+            +ImportJobListCommand
+            +OnNavigatedToAsync() Task
+            +OnNavigatedFromAsync() Task
+        }
+        class GenerateViewModel {
+            +Setting~AppConfig~ Config
+            +BrowseBasePromptDirectoryCommand
+            +BrowseReplacementListPathCommand
+            +BrowseJobTemplatePathCommand
+            +BrowseOutputPathCommand
+            +GenerateCommand
             +OnNavigatedToAsync() Task
             +OnNavigatedFromAsync() Task
         }
@@ -428,6 +439,9 @@ classDiagram
         class WorkflowExecutionService {
             +RunBatchAsync(string, string, List~string~, PromptPair, ImageSize?, int, string?, Action, Action) Task~WorkflowBatchOutcome~
             +SaveResultAsync(WorkflowResult, string) Task$
+        }
+        class BatchJobGenerator {
+            +Generate(string, string, string) List~QueueJobData~
         }
     }
 
@@ -518,6 +532,7 @@ classDiagram
     INavigationAware <|.. DataViewModel
     INavigationAware <|.. TaggerViewModel
     INavigationAware <|.. QueueViewModel
+    INavigationAware <|.. GenerateViewModel
     IHostedService <|.. ApplicationHostService
 
     %% ===== 関連・依存 =====
@@ -597,6 +612,12 @@ classDiagram
     QueueJobViewModel --> WorkflowSizeOptionBuilder : uses
     QueueJobViewModel ..> QueueJobData : ToData/FromData/ApplyImportedData
     DashboardViewModel ..> QueueJobData : BuildExportData/ApplyImportedData
+    QueueViewModel ..> QueueJobListData : ImportJobListCommand reads
+    GenerateViewModel --> Setting~AppConfig~ : uses
+    GenerateViewModel --> BatchJobGenerator : uses
+    BatchJobGenerator ..> QueueJobData : creates
+    BatchJobGenerator ..> QueueJobListData : GenerateViewModel wraps output as
+    BatchJobGenerator ..> PromptPair : reads base prompts as
 ```
 
 ---
@@ -818,6 +839,18 @@ classDiagram
         +OpenJobDetailCommand
         +ExportJobCommand
         +ImportJobCommand
+        +ImportJobListCommand
+        +OnNavigatedToAsync() Task
+        +OnNavigatedFromAsync() Task
+    }
+
+    class GenerateViewModel {
+        +Setting~AppConfig~ Config
+        +BrowseBasePromptDirectoryCommand
+        +BrowseReplacementListPathCommand
+        +BrowseJobTemplatePathCommand
+        +BrowseOutputPathCommand
+        +GenerateCommand
         +OnNavigatedToAsync() Task
         +OnNavigatedFromAsync() Task
     }
@@ -840,6 +873,10 @@ classDiagram
     class WorkflowExecutionService {
         +RunBatchAsync(string, string, List~string~, PromptPair, ImageSize?, int, string?, Action, Action) Task~WorkflowBatchOutcome~
         +SaveResultAsync(WorkflowResult, string) Task$
+    }
+
+    class BatchJobGenerator {
+        +Generate(string, string, string) List~QueueJobData~
     }
 
     class PreviewImageLoader {
@@ -915,6 +952,7 @@ classDiagram
     INavigationAware <|.. DataViewModel
     INavigationAware <|.. TaggerViewModel
     INavigationAware <|.. QueueViewModel
+    INavigationAware <|.. GenerateViewModel
     IHostedService <|.. ApplicationHostService
 
     %% ----- 関連 -----
@@ -949,10 +987,15 @@ classDiagram
     QueueJobViewModel --> WorkflowSizeOptionBuilder : uses
     QueueJobViewModel ..> QueueJobData : ToData/FromData/ApplyImportedData
     DashboardViewModel ..> QueueJobData : BuildExportData/ApplyImportedData
+    QueueViewModel ..> QueueJobListData : ImportJobListCommand reads
     WorkflowExecutionService ..> WorkflowBatchOutcome : creates
     WorkflowBatchOutcome "1" *-- "1" WorkflowResult : result
     Setting~AppConfig~ --> AppConfig : manages
     Setting~QueueJobListData~ --> QueueJobListData : manages
+    GenerateViewModel --> Setting~AppConfig~ : uses
+    GenerateViewModel --> BatchJobGenerator : uses
+    BatchJobGenerator ..> QueueJobData : creates
+    BatchJobGenerator ..> QueueJobListData : GenerateViewModel wraps output as
 ```
 
 ---

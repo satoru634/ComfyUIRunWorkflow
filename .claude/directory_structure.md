@@ -7,7 +7,7 @@ ComfyUIRunWorkflow/                     <- ソリューションルート
   ComfyUILibsTests/                     <- xUnit v3 テストプロジェクト（ComfyUILibs リポジトリに含まれる）
   ComfyUIRunWorkflow/                   <- メイン WPF プロジェクト（GUI のみ）
     Models/
-      AppConfig.cs                      <- アプリ設定（ウィンドウ状態・ComfyUIUrl・ConfigPath・ResultsFolder・Language）
+      AppConfig.cs                      <- アプリ設定（ウィンドウ状態・ComfyUIUrl・ConfigPath・ResultsFolder・Language・Generate ページの入力パス4種）
       LoraSlot.cs                       <- LoRA 選択スロット（ObservableObject ラッパー）
       SizeOption.cs                     <- 画像サイズ選択コンボボックスの1項目（Key/Label レコード）
       LanguageOption.cs                 <- 言語選択コンボボックスの1項目（Key/Label レコード、ラベルは現地語表記固定）
@@ -23,7 +23,8 @@ ComfyUIRunWorkflow/                     <- ソリューションルート
       DataViewModel.cs                  <- 実行結果一覧 VM（result_*.json / tag_result_*.json 読み込み、サムネイル非同期取得、生成結果⇔タグ付け履歴のタブ切り替え）
       TaggerViewModel.cs                <- WD14 Tagger VM（画像選択・タグ付け実行・tag_result_*.json 保存）
       QueueJobViewModel.cs              <- QueuePage の1ジョブ分の編集状態・実行状態 VM（ワークフロー選択に連動した LoRA/画像サイズ一覧更新、ToData/FromData で永続化データと相互変換）
-      QueueViewModel.cs                 <- QueuePage 全体の VM（ジョブ一覧・追加削除・すべて実行（協調的キャンセル対応）・実行結果詳細ダイアログ表示・queue_jobs.json へのジョブ定義永続化）
+      QueueViewModel.cs                 <- QueuePage 全体の VM（ジョブ一覧・追加削除・すべて実行（協調的キャンセル対応）・実行結果詳細ダイアログ表示・queue_jobs.json へのジョブ定義永続化・ジョブリスト一括インポート）
+      GenerateViewModel.cs              <- GeneratePage の VM（ベースプロンプト・置換リスト・ジョブテンプレートの入力パス管理、BatchJobGenerator を用いたジョブリスト一括生成）
     ViewModels/Windows/
       MainWindowViewModel.cs            <- ナビゲーション定義・ウィンドウ状態保存
     ViewModels/Controls/
@@ -31,6 +32,7 @@ ComfyUIRunWorkflow/                     <- ソリューションルート
     Views/Pages/
       DashboardPage.xaml                <- ワークフロー実行 UI（生成結果プレビューを含む）
       QueuePage.xaml                    <- 複数ワークフロー連続実行 UI（ジョブ一覧＋個別編集パネルの2カラム構成）
+      GeneratePage.xaml                 <- バッチジョブ生成 UI（ベースプロンプトディレクトリ・置換リスト・ジョブテンプレート・出力先の指定と生成ボタン）
       SettingsPage.xaml                 <- 設定 UI
       DataPage.xaml                     <- 実行結果一覧 UI（サムネイル付き、生成結果⇔タグ付け履歴のタブ切り替え）
       TaggerPage.xaml                   <- WD14 Tagger UI（画像選択・ドラッグ&ドロップ・タグ結果表示/コピー）
@@ -51,6 +53,7 @@ ComfyUIRunWorkflow/                     <- ソリューションルート
       PreviewImageLoader.cs             <- サムネイル/原寸画像の BitmapImage 読み込み（PreviewImageCacheService に委譲）
       WorkflowSizeOptionBuilder.cs      <- ワークフロー設定から画像サイズ選択肢を組み立てる共通ロジック（DashboardViewModel・QueueJobViewModel で共用）
       WorkflowExecutionService.cs       <- バッチ実行して WorkflowResult にまとめる処理・result_*.json 保存処理の共通サービス（DashboardViewModel・QueueViewModel で共用）
+      BatchJobGenerator.cs              <- ベースプロンプトディレクトリ・置換リスト・ジョブテンプレートから QueueJobData のリストを一括生成する Generate ページ専用サービス
     Properties/
       AssemblyInfo.cs                   <- InternalsVisibleTo("ComfyUIRunWorkflowTests") を宣言
     Assets/

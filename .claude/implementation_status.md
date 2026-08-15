@@ -318,6 +318,46 @@ DashboardPage（Home）・QueuePage（右側の個別編集パネル）の両方
 
 合計テスト数: ComfyUILibsTests 187件 / ComfyUIRunWorkflowTests 257件（全パス）
 
+### フェーズ14: バッチジョブ生成 Generate ページの新設（`feature/generate-page` ブランチ、実装完了）
+
+ベースプロンプト（`positive`/`negative` を持つ JSON）内のキーワード（`<CHARACTER>` 等）を置換リストで置き換え、ジョブテンプレートと組み合わせて Queue ページ用のジョブリストを一括生成する新規ページ「Generate」を追加した。同じ構図・設定でキャラクターや衣装だけを変えた大量のジョブを手作業で1件ずつ登録する手間を省くための機能。
+
+**仕様（ユーザーとの合意事項）**
+- 置換は1キーワード=1値の単純置換（デカルト積による組み合わせ自動生成は対象外）
+- ジョブテンプレートは1つを全ベースプロンプトファイルに共通適用（ファイルごとに異なるテンプレートは対象外）
+- ベースプロンプトファイルの識別は指定ディレクトリ直下の `*.json` 全て
+- ベースプロンプト内のプレースホルダーが置換リストに存在しない場合はエラーとして生成処理全体を中断し、ユーザーに修正を促す（部分的に置換されたジョブリストを出力しない）
+- 出力は `queue_jobs.json` と同形式（`QueueJobListData`）の新規ファイルとして保存し、QueuePage に新設した「リストインポート」機能で取り込む
+- 操作性は入力（ベースプロンプトディレクトリ・置換リスト・テンプレート・出力先）を指定し「生成」ボタンで即座にファイル出力する一方向フロー（生成前プレビューはなし）
+- 4つの入力パスは `AppConfig` に保存し、次回このページを開いたときも復元する
+- 生成される各ジョブの `FilenamePrefix` はジョブテンプレートの値をそのまま全ジョブに使用する
+
+**設計判断**
+- ベースプロンプトの読み込みには新規モデルを作らず、`ComfyUILibs.Models.PromptPair`（`positive`/`negative` の JSON キーが既に一致）をそのまま流用した
+- ジョブテンプレートの読み込みは `QueueJobData` をそのまま `JsonLoader.ReadJson<QueueJobData>` で読み込む方式にした。テンプレート JSON にはプロンプト2項目が含まれていなくても、`System.Text.Json` のデシリアライズでは該当フィールドが既定値（空文字）になるだけで問題なく読み込める
+- 生成ロジック（`BatchJobGenerator`）は ComfyUI API 通信を伴わないローカルファイル処理であり、生成対象の `QueueJobData` も `ComfyUIRunWorkflow` 側の GUI 専用永続化フォーマットであるため、`ComfyUILibs` ではなく `ComfyUIRunWorkflow/Services/` に配置した（`WorkflowExecutionService`/`WorkflowSizeOptionBuilder` と同じ立ち位置）
+- QueuePage の既存 `ImportJobCommand`（1ファイル=1ジョブ形式）は Generate ページの出力形式（複数ジョブをまとめた `QueueJobListData`）を読み込めないため、`QueueViewModel` に新規 `ImportJobListCommand`（ボタン: 「リストインポート」）を追加し、選択したファイルの全ジョブを現在のキューへ追加したうえで `queue_jobs.json` へ即座に永続化する方式にした
+
+**ComfyUIRunWorkflow**
+- [x] `Models/AppConfig.cs` — `GenerateBasePromptDirectory`/`GenerateReplacementListPath`/`GenerateJobTemplatePath`/`GenerateOutputPath`（各 string, 既定 ""）を追加
+- [x] `Services/BatchJobGenerator.cs`（新規） — `Generate(baseDirectory, replacementListPath, jobTemplatePath)` でベースプロンプトディレクトリ内の全 `*.json` を読み込み、置換リストでプレースホルダー（正規表現 `<[^<>]+>`）を置換したうえで、ジョブテンプレートの各項目（ワークフロー・LoRA・画像サイズ・バッチ数・ファイル名プレフィックス）を複製した `QueueJobData` を1ファイルにつき1件生成する。置換リストに存在しないプレースホルダーがあった場合や `*.json` が1件もない場合は `InvalidOperationException` を投げる
+- [x] `ViewModels/Pages/GenerateViewModel.cs`（新規） — 4つの `Browse*Command`（`OpenFolderDialog`/`OpenFileDialog`/`SaveFileDialog`）で `Config.Data.GenerateXxx` を直接更新（SettingsViewModel の `BrowseConfigPathCommand` 等と同じパターン）。`GenerateCommand`（`CanExecute`: 4項目すべて非空）で `BatchJobGenerator.Generate` を実行し、結果を `QueueJobListData` として `JsonLoader.WriteJson` で出力。失敗時はスナックバーでエラー内容を表示。`OnNavigatedFromAsync` で `Config.Save()`
+- [x] `Views/Pages/GeneratePage.xaml`/`.xaml.cs`（新規） — 4つの入力欄（`ui:TextBox` IsReadOnly + 参照ボタン、SettingsPage と同じパターン）と生成ボタンの単一カラム構成
+- [x] `App.xaml.cs` — `GeneratePage`/`GenerateViewModel` を DI 登録
+- [x] `ViewModels/Windows/MainWindowViewModel.cs` — ナビゲーションメニューに「Generate」項目を Queue と Results の間に追加
+- [x] `ViewModels/Pages/QueueViewModel.cs` — `ImportJobListCommand`（新規） を追加。選択した `QueueJobListData` 形式ファイルの全ジョブを現在のキューへ追加し `queue_jobs.json` へ即座に永続化
+- [x] `Views/Pages/QueuePage.xaml` — ツールバーに「リストインポート」`ui:Button` を追加
+- [x] `Resources/Strings.resx`/`Strings.en.resx` — `Generate_*`（タイトル・説明・各ラベル・ダイアログタイトル・成功/エラーメッセージ）、`Queue_ImportList*`、`MainWindow_MenuGenerate` を追加
+
+**テスト**
+- [x] `ComfyUIRunWorkflowTests/Services/BatchJobGeneratorTests.cs`（新規） — プレースホルダー置換・ファイルごとに1ジョブ生成・テンプレート項目の複製・未使用の置換リストエントリの無視・未定義キーワードでの例外・空ディレクトリでの例外・非 json ファイルの無視を検証
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/GenerateViewModelTests.cs`（新規） — `GenerateCommand` の `CanExecute`（4項目すべて必須）・実行成功時のファイル出力とスナックバー・エラー時（未定義キーワード・空ディレクトリ）にファイルが出力されないこと・`OnNavigatedFromAsync` での `Config.Save()` を検証。ファイルダイアログを開く `Browse*Command` は `DashboardViewModel.BrowseConfigPath` 等と同様に単体テスト対象外
+- [x] `ComfyUIRunWorkflowTests/Models/AppConfigTests.cs` — 新規4フィールドの既定値・変更通知テストを追加
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/QueueViewModelTests.cs` — `ImportJobListCommand` はファイルダイアログを直接開くため、`ExportJobCommand`/`ImportJobCommand` と同様に単体テスト対象外と判断（コメントのみ追加）
+- [x] `README.md`/`doc/README_english.md`/`doc/usage.md`/`doc/usage_english.md`/`doc/class_diagram.md` を更新
+
+合計テスト数: ComfyUILibsTests 187件 / ComfyUIRunWorkflowTests 283件（全パス）
+
 ### 将来的な拡張
 
 - C# 版 Discord ボット（ComfyUILibs を共用）

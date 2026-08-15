@@ -13,6 +13,7 @@ ComfyUI のワークフローを GUI から実行するツール。[comfyui_tool
 - バッチ数指定（1〜10、実行ボタン左のバッチ数欄で指定した回数だけ連続実行）
 - Home / Queue ページの設定内容（ワークフロー・プロンプト・画像サイズ・LoRA・バッチ数・ファイル名プレフィックス）を JSON でインポート・エクスポート
 - Queue ページでの複数ワークフロー連続実行（ワークフロー・プロンプト・LoRA等が異なるジョブをリストに登録し、順番に自動実行）
+- Generate ページでのバッチジョブ生成（ベースプロンプト内のキーワードを置換リストで置き換え、ジョブテンプレートと組み合わせて Queue 用ジョブリストを一括生成）
 - 実行結果の一覧表示と詳細確認
 - 生成画像のプレビュー表示（実行直後・一覧・詳細ダイアログ、クリックで拡大表示）
 - WD14 Tagger による画像タグ付け（画像を選択してタグ文字列を取得・コピー）
@@ -85,7 +86,7 @@ ComfyUIRunWorkflow/   ← ソリューションルート
   ComfyUILibs/        ← 共有ライブラリ（サブモジュール）
   ComfyUILibsTests/   ← ComfyUILibs テスト（162件）
   ComfyUIRunWorkflow/ ← WPF GUI プロジェクト
-  ComfyUIRunWorkflowTests/ ← GUI テスト（257件）
+  ComfyUIRunWorkflowTests/ ← GUI テスト（283件）
   doc/                ← ドキュメント（使い方・英語版・クラス図）
 ```
 

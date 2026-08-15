@@ -13,6 +13,7 @@ A tool for running ComfyUI workflows from a GUI. A C# WPF port of [comfyui_tools
 - Batch count (1–10, runs the workflow repeatedly via the batch count field next to the run button)
 - Import/export Home / Queue page settings (workflow, prompts, image size, LoRA, batch count, filename prefix) as JSON
 - Run multiple workflows in sequence on the Queue page (register jobs with different workflows/prompts/LoRA etc. in a list and run them automatically one after another)
+- Batch-generate jobs on the Generate page (replace keywords in base prompts using a replacement list, and combine them with a job template to bulk-generate a Queue page job list)
 - List and inspect execution results
 - Preview generated images (right after execution, in the list, and in the detail dialog — click to enlarge)
 - WD14 Tagger image tagging (select an image, get and copy a tag string)
@@ -85,7 +86,7 @@ ComfyUIRunWorkflow/   ← solution root
   ComfyUILibs/        ← shared library (submodule)
   ComfyUILibsTests/   ← ComfyUILibs tests (162)
   ComfyUIRunWorkflow/ ← WPF GUI project
-  ComfyUIRunWorkflowTests/ ← GUI tests (257)
+  ComfyUIRunWorkflowTests/ ← GUI tests (283)
   doc/                ← documentation (usage, English versions, class diagram)
 ```
 
