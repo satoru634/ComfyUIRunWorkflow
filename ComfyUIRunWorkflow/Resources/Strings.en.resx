@@ -188,4 +188,12 @@
   <data name="Generate_Error_Format" xml:space="preserve"><value>Failed to generate: {0}</value></data>
   <data name="Generate_NoBasePromptFiles_Format" xml:space="preserve"><value>No base prompt files (*.json) found in {0}</value></data>
   <data name="Generate_UndefinedKeyword_Format" xml:space="preserve"><value>Keyword {1} in {0} was not found in the replacement list</value></data>
+  <data name="Generate_JobTemplateReadError_Format" xml:space="preserve"><value>Failed to read the job template file ({0}). Check that it is QueueJobData-shaped JSON: {1}</value></data>
+  <data name="Generate_ReplacementListReadError_Format" xml:space="preserve"><value>Failed to read the replacement list file ({0}). Check that it is a keyword-to-replacement dictionary (e.g. {{"&lt;CHARACTER&gt;": "alice"}}): {1}</value></data>
+  <data name="Generate_BasePromptReadError_Format" xml:space="preserve"><value>Failed to read the base prompt file ({0}). Check that it has positive/negative keys: {1}</value></data>
+  <data name="Generate_Log_LoadedTemplate_Format" xml:space="preserve"><value>Loaded job template: {0}</value></data>
+  <data name="Generate_Log_LoadedReplacements_Format" xml:space="preserve"><value>Loaded replacement list: {0} ({1} entries)</value></data>
+  <data name="Generate_Log_FoundBasePrompts_Format" xml:space="preserve"><value>Found {0} base prompt file(s): {1}</value></data>
+  <data name="Generate_Log_JobGenerated_Format" xml:space="preserve"><value>{0}: job generated</value></data>
+  <data name="Generate_Log_WroteOutput_Format" xml:space="preserve"><value>Wrote {0} job(s) to {1}</value></data>
 </root>

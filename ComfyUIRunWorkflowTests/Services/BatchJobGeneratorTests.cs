@@ -175,5 +175,116 @@ namespace ComfyUIRunWorkflowTests.Services
 
             Assert.Single(jobs);
         }
+
+        // ── 入力ファイルのスキーマ不正（原因ファイルの特定） ────────────────────────
+
+        [Fact]
+        public void Generate_ReplacementListIsJobTemplateShaped_ThrowsWithReplacementListPathInMessage()
+        {
+            // 実際にユーザーが遭遇した不具合の再現: 置換リストファイルに、誤ってジョブテンプレート形式の
+            // JSON（LoraFiles が配列）を指定すると、Dictionary<string,string> への変換に失敗する。
+            WriteBasePrompt("a.json", "1girl", "bad");
+            var replacementsPath = Path.Combine(_tempDir, "replacements.json");
+            File.WriteAllText(replacementsPath, """
+                {
+                  "WorkflowName": "sdxl",
+                  "LoraFiles": ["my_lora"]
+                }
+                """);
+            var templatePath = WriteTemplate(new QueueJobData { WorkflowName = "sdxl" });
+
+            var ex = Assert.Throws<InvalidOperationException>(
+                () => new BatchJobGenerator().Generate(_baseDir, replacementsPath, templatePath));
+
+            Assert.Contains(replacementsPath, ex.Message);
+            Assert.NotNull(ex.InnerException);
+        }
+
+        [Fact]
+        public void Generate_JobTemplateHasInvalidJson_ThrowsWithJobTemplatePathInMessage()
+        {
+            WriteBasePrompt("a.json", "1girl", "bad");
+            var replacementsPath = WriteReplacements(new());
+            var templatePath = Path.Combine(_tempDir, "template.json");
+            File.WriteAllText(templatePath, """{ "BatchCount": "not-a-number" }""");
+
+            var ex = Assert.Throws<InvalidOperationException>(
+                () => new BatchJobGenerator().Generate(_baseDir, replacementsPath, templatePath));
+
+            Assert.Contains(templatePath, ex.Message);
+            Assert.NotNull(ex.InnerException);
+        }
+
+        [Fact]
+        public void Generate_BasePromptHasInvalidJson_ThrowsWithBasePromptPathInMessage()
+        {
+            var basePromptPath = Path.Combine(_baseDir, "a.json");
+            File.WriteAllText(basePromptPath, """{ "positive": ["not", "a", "string"] }""");
+            var replacementsPath = WriteReplacements(new());
+            var templatePath = WriteTemplate(new QueueJobData { WorkflowName = "sdxl" });
+
+            var ex = Assert.Throws<InvalidOperationException>(
+                () => new BatchJobGenerator().Generate(_baseDir, replacementsPath, templatePath));
+
+            Assert.Contains(basePromptPath, ex.Message);
+            Assert.NotNull(ex.InnerException);
+        }
+
+        // ── onLog コールバック ───────────────────────────────────────────────────
+
+        [Fact]
+        public void Generate_OnLog_ReportsOneLinePerGeneratedJob()
+        {
+            WriteBasePrompt("a.json", "1girl", "bad");
+            WriteBasePrompt("b.json", "1boy", "bad");
+            var replacementsPath = WriteReplacements(new());
+            var templatePath = WriteTemplate(new QueueJobData { WorkflowName = "sdxl" });
+            var logLines = new List<string>();
+
+            new BatchJobGenerator().Generate(_baseDir, replacementsPath, templatePath, onLog: logLines.Add);
+
+            Assert.Contains(logLines, l => l.Contains("a.json"));
+            Assert.Contains(logLines, l => l.Contains("b.json"));
+        }
+
+        [Fact]
+        public void Generate_OnLog_ReportsFoundFileCount()
+        {
+            WriteBasePrompt("a.json", "1girl", "bad");
+            WriteBasePrompt("b.json", "1boy", "bad");
+            var replacementsPath = WriteReplacements(new());
+            var templatePath = WriteTemplate(new QueueJobData { WorkflowName = "sdxl" });
+            var logLines = new List<string>();
+
+            new BatchJobGenerator().Generate(_baseDir, replacementsPath, templatePath, onLog: logLines.Add);
+
+            Assert.Contains(logLines, l => l.Contains("2"));
+        }
+
+        [Fact]
+        public void Generate_OnLog_NotProvided_DoesNotThrow()
+        {
+            WriteBasePrompt("a.json", "1girl", "bad");
+            var replacementsPath = WriteReplacements(new());
+            var templatePath = WriteTemplate(new QueueJobData { WorkflowName = "sdxl" });
+
+            var jobs = new BatchJobGenerator().Generate(_baseDir, replacementsPath, templatePath, onLog: null);
+
+            Assert.Single(jobs);
+        }
+
+        [Fact]
+        public void Generate_OnLog_UndefinedKeyword_ReportsFoundCountBeforeThrowing()
+        {
+            WriteBasePrompt("a.json", "1girl, <MISSING>", "bad");
+            var replacementsPath = WriteReplacements(new());
+            var templatePath = WriteTemplate(new QueueJobData { WorkflowName = "sdxl" });
+            var logLines = new List<string>();
+
+            Assert.Throws<InvalidOperationException>(
+                () => new BatchJobGenerator().Generate(_baseDir, replacementsPath, templatePath, onLog: logLines.Add));
+
+            Assert.Contains(logLines, l => l.Contains("1"));
+        }
     }
 }

@@ -356,7 +356,26 @@ DashboardPage（Home）・QueuePage（右側の個別編集パネル）の両方
 - [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/QueueViewModelTests.cs` — `ImportJobListCommand` はファイルダイアログを直接開くため、`ExportJobCommand`/`ImportJobCommand` と同様に単体テスト対象外と判断（コメントのみ追加）
 - [x] `README.md`/`doc/README_english.md`/`doc/usage.md`/`doc/usage_english.md`/`doc/class_diagram.md` を更新
 
-合計テスト数: ComfyUILibsTests 187件 / ComfyUIRunWorkflowTests 283件（全パス）
+**追加対応: 生成ログ欄の追加**
+
+GeneratePage 下部にログ表示用の `ui:TextBox`（`IsReadOnly`）を追加し、バッチジョブ生成の進捗をリアルタイムで確認できるようにした。
+
+- [x] `Services/BatchJobGenerator.cs` — `Generate` に `Action<string>? onLog = null` 引数を追加。テンプレート読み込み・置換リスト読み込み・ベースプロンプト検出件数・ファイルごとのジョブ生成完了を1行ずつ通知する
+- [x] `ViewModels/Pages/GenerateViewModel.cs` — `Log`（string, 既定 ""）プロパティを追加。`GenerateCommand` 実行開始時にリセットし、`BatchJobGenerator.Generate` の `onLog` コールバックおよび出力ファイル書き込み完了・エラーメッセージを `AppendLog` で追記する
+- [x] `Views/Pages/GeneratePage.xaml` — 下部にログ欄（`ui:TextBox`、`Text` を `ViewModel.Log` に `Mode=OneWay` でバインド）を追加
+- [x] `Resources/Strings.resx`/`Strings.en.resx` — `Generate_Log_*`（テンプレート/置換リスト読み込み・検出件数・ジョブ生成・出力完了の各メッセージ）を追加
+- [x] `ComfyUIRunWorkflowTests/Services/BatchJobGeneratorTests.cs` — `onLog` コールバックがファイルごとに呼ばれること・検出件数を通知すること・未指定でも例外にならないこと・未定義キーワードで中断する前に検出件数を通知することを検証
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/GenerateViewModelTests.cs` — 成功時に `Log` にファイル名・出力先パスが含まれること、エラー時にエラーメッセージが含まれること、複数回実行してもログが累積せずリセットされることを検証
+
+**不具合修正: 入力ファイルのスキーマが誤っている場合にどのファイルが原因か分からない**
+
+実際の利用で、置換リストファイルに誤ってジョブテンプレート形式の JSON（`LoraFiles` が配列）を指定した際、`The JSON value could not be converted to System.String. Path: $.LoraFiles | ...` という `System.Text.Json` の生の例外メッセージがそのまま表示され、3つの入力ファイル（ジョブテンプレート・置換リスト・ベースプロンプト）のうちどれが原因か全く分からない不具合があった。
+
+- [x] `Services/BatchJobGenerator.cs` — `JsonLoader.ReadJson<T>` の各呼び出し（ジョブテンプレート・置換リスト・ベースプロンプト）を `ReadJsonOrThrow<T>`（新規 private ヘルパー）でラップし、失敗時は元の例外を `InnerException` に保持したまま「どのファイル（パス）の読み込みに失敗したか」を含む `InvalidOperationException` に変換して再スローするよう修正
+- [x] `Resources/Strings.resx`/`Strings.en.resx` — `Generate_JobTemplateReadError_Format`/`Generate_ReplacementListReadError_Format`/`Generate_BasePromptReadError_Format` を追加（各ファイルの期待するスキーマも文面に含める）
+- [x] `ComfyUIRunWorkflowTests/Services/BatchJobGeneratorTests.cs` — 置換リストファイルにジョブテンプレート形式の JSON を指定した場合（実際の不具合の再現）・ジョブテンプレート/ベースプロンプトファイルが不正な JSON の場合に、それぞれエラーメッセージに該当ファイルパスが含まれ `InnerException` が保持されることを検証するテストを追加
+
+合計テスト数: ComfyUILibsTests 187件 / ComfyUIRunWorkflowTests 293件（全パス）
 
 ### 将来的な拡張
 
