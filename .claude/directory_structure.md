@@ -15,7 +15,7 @@ ComfyUIRunWorkflow/                     <- ソリューションルート
       WorkflowResultPreview.cs          <- DataPage 一覧行のラッパー（WorkflowResult + サムネイル1枚分の Preview）
       WorkflowBatchOutcome.cs           <- WorkflowExecutionService.RunBatchAsync の戻り値（WorkflowResult + 発生した例外）
       QueueJobStatus.cs                 <- QueuePage の1ジョブの実行状態列挙体（Pending/Running/Success/Error/Cancelled）
-      QueueJobData.cs                   <- QueuePage の1ジョブ分の永続化用データ（ワークフロー・プロンプト・LoRA・画像サイズ・バッチ数。実行状態は含まない）
+      QueueJobData.cs                   <- QueuePage の1ジョブ分の永続化用データ（ジョブ名・ワークフロー・プロンプト・LoRA・画像サイズ・バッチ数。実行状態は含まない）
       QueueJobListData.cs               <- QueueJobData のリストを保持する永続化ルートクラス。Setting&lt;QueueJobListData&gt; 経由でアプリのカレントディレクトリ直下の queue_jobs.json に保存（AppConfig とは別ファイル。ファイル未存在時は空リストとして扱われる）
     ViewModels/Pages/
       DashboardViewModel.cs             <- ワークフロー実行 VM（ConfigLoader + WorkflowExecutionService 使用、実行直後のプレビュー表示を含む）

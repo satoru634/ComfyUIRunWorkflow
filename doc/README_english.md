@@ -12,7 +12,7 @@ A tool for running ComfyUI workflows from a GUI. A C# WPF port of [comfyui_tools
 - Filename prefix override (uses the workflow's value as-is if left blank)
 - Batch count (1–10, runs the workflow repeatedly via the batch count field next to the run button)
 - Import/export Home / Queue page settings (workflow, prompts, image size, LoRA, batch count, filename prefix) as JSON
-- Run multiple workflows in sequence on the Queue page (register jobs with different workflows/prompts/LoRA etc. in a list and run them automatically one after another)
+- Run multiple workflows in sequence on the Queue page (register jobs with different workflows/prompts/LoRA etc. in a list and run them automatically one after another; job names in the list can be edited by double-clicking)
 - Batch-generate jobs on the Generate page (replace keywords in base prompts using a replacement list, and combine them with a job template to bulk-generate a Queue page job list)
 - List and inspect execution results
 - Preview generated images (right after execution, in the list, and in the detail dialog — click to enlarge)

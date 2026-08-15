@@ -161,6 +161,7 @@
   <data name="Queue_ImportListButtonContent" xml:space="preserve"><value>Import List</value></data>
   <data name="Queue_ImportListDialogTitle" xml:space="preserve"><value>Import Job List</value></data>
   <data name="Queue_ImportListSuccess_Format" xml:space="preserve"><value>{0} job(s) imported</value></data>
+  <data name="Queue_JobNameEditHint" xml:space="preserve"><value>Double-click to edit the job name</value></data>
 
   <!-- ResultDetail -->
   <data name="ResultDetail_Title" xml:space="preserve"><value>Result Details</value></data>

@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using ComfyUILibs.Common;
 using ComfyUILibs.Models;
 using ComfyUIRunWorkflow.Models;
@@ -71,6 +72,32 @@ namespace ComfyUIRunWorkflowTests.Services
             var jobs = new BatchJobGenerator().Generate(_baseDir, replacementsPath, templatePath);
 
             Assert.Equal(2, jobs.Count);
+        }
+
+        [Fact]
+        public void Generate_JobNameIsBasePromptFileNameWithoutExtension()
+        {
+            WriteBasePrompt("kk_alice_shiraishi.json", "1girl", "bad");
+            var replacementsPath = WriteReplacements(new());
+            var templatePath = WriteTemplate(new QueueJobData { WorkflowName = "sdxl", JobName = "template job name" });
+
+            var jobs = new BatchJobGenerator().Generate(_baseDir, replacementsPath, templatePath);
+
+            Assert.Equal("kk_alice_shiraishi", jobs[0].JobName);
+        }
+
+        [Fact]
+        public void Generate_JobNameDiffersPerBasePromptFile()
+        {
+            WriteBasePrompt("a.json", "1girl", "bad");
+            WriteBasePrompt("b.json", "1boy", "bad");
+            var replacementsPath = WriteReplacements(new());
+            var templatePath = WriteTemplate(new QueueJobData { WorkflowName = "sdxl" });
+
+            var jobs = new BatchJobGenerator().Generate(_baseDir, replacementsPath, templatePath);
+
+            Assert.Equal("a", jobs.Single(j => j.PositivePrompt == "1girl").JobName);
+            Assert.Equal("b", jobs.Single(j => j.PositivePrompt == "1boy").JobName);
         }
 
         [Fact]

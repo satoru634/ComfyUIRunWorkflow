@@ -64,6 +64,8 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         {
             var job = new QueueJobViewModel();
 
+            Assert.Equal("", job.JobName);
+            Assert.False(job.IsEditingName);
             Assert.Equal("", job.WorkflowName);
             Assert.Equal(QueueJobStatus.Pending, job.Status);
             Assert.Empty(job.LoraSlots);
@@ -103,6 +105,29 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
             };
 
             Assert.True(job.HasLastResult);
+        }
+
+        // ── DisplayName ───────────────────────────────────────────────────────
+
+        [Fact]
+        public void DisplayName_JobNameEmpty_FallsBackToWorkflowName()
+        {
+            var job = new QueueJobViewModel { WorkflowName = "sdxl" };
+            Assert.Equal("sdxl", job.DisplayName);
+        }
+
+        [Fact]
+        public void DisplayName_JobNameSet_ReturnsJobName()
+        {
+            var job = new QueueJobViewModel { WorkflowName = "sdxl", JobName = "my custom job" };
+            Assert.Equal("my custom job", job.DisplayName);
+        }
+
+        [Fact]
+        public void DisplayName_JobNameWhitespaceOnly_FallsBackToWorkflowName()
+        {
+            var job = new QueueJobViewModel { WorkflowName = "sdxl", JobName = "   " };
+            Assert.Equal("sdxl", job.DisplayName);
         }
 
         // ── 画像サイズ向き ─────────────────────────────────────────────────────
@@ -426,6 +451,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         {
             var job = new QueueJobViewModel
             {
+                JobName = "my job",
                 WorkflowName = "sdxl",
                 PositivePrompt = "1girl",
                 NegativePrompt = "bad quality",
@@ -440,6 +466,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 
             var data = job.ToData();
 
+            Assert.Equal("my job", data.JobName);
             Assert.Equal("sdxl", data.WorkflowName);
             Assert.Equal("1girl", data.PositivePrompt);
             Assert.Equal("bad quality", data.NegativePrompt);
@@ -457,6 +484,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         {
             var data = new QueueJobData
             {
+                JobName = "my job",
                 WorkflowName = "sdxl",
                 PositivePrompt = "1girl",
                 NegativePrompt = "bad quality",
@@ -468,6 +496,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 
             var job = QueueJobViewModel.FromData(data);
 
+            Assert.Equal("my job", job.JobName);
             Assert.Equal("sdxl", job.WorkflowName);
             Assert.Equal("1girl", job.PositivePrompt);
             Assert.Equal("bad quality", job.NegativePrompt);
@@ -495,6 +524,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 
             var data = new QueueJobData
             {
+                JobName = "imported job",
                 WorkflowName = "anima",
                 PositivePrompt = "imported positive",
                 NegativePrompt = "imported negative",
@@ -506,6 +536,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 
             job.ApplyImportedData(data, applyWorkflowName: true);
 
+            Assert.Equal("imported job", job.JobName);
             Assert.Equal("anima", job.WorkflowName);
             Assert.Equal("imported positive", job.PositivePrompt);
             Assert.Equal("imported negative", job.NegativePrompt);

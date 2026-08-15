@@ -8,6 +8,13 @@ namespace ComfyUIRunWorkflow.Models
     /// </summary>
     public partial class QueueJobData : ObservableObject
     {
+        /// <summary>
+        /// ジョブ一覧での識別用に表示するジョブ名。空文字の場合は QueuePage の一覧表示側で
+        /// WorkflowName にフォールバックする（本クラス自体には既定値のフォールバック処理は持たせない）。
+        /// </summary>
+        [ObservableProperty]
+        private string _jobName = "";
+
         /// <summary>使用するワークフロー名。</summary>
         [ObservableProperty]
         private string _workflowName = "";

@@ -13,6 +13,20 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
     /// </summary>
     public partial class QueueJobViewModel : ObservableObject
     {
+        /// <summary>
+        /// ジョブ一覧での識別用に表示するジョブ名。空文字の場合は <see cref="DisplayName"/> が WorkflowName に
+        /// フォールバックする。
+        /// </summary>
+        [ObservableProperty]
+        private string _jobName = "";
+
+        /// <summary>
+        /// ジョブ一覧の項目でインライン編集（ジョブ名テキストのダブルクリック編集）中かどうか。
+        /// セッション限りの UI 状態であり、永続化対象（<see cref="QueueJobData"/>）には含めない。
+        /// </summary>
+        [ObservableProperty]
+        private bool _isEditingName = false;
+
         /// <summary>使用するワークフロー名。</summary>
         [ObservableProperty]
         private string _workflowName = "";
@@ -91,6 +105,14 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         /// <summary>LastResult が変わったとき、派生プロパティ HasLastResult を通知する。</summary>
         partial void OnLastResultChanged(WorkflowResult? value) => OnPropertyChanged(nameof(HasLastResult));
 
+        /// <summary>
+        /// ジョブ一覧に表示する名前。JobName が空の場合は WorkflowName にフォールバックする。
+        /// </summary>
+        public string DisplayName => string.IsNullOrWhiteSpace(JobName) ? WorkflowName : JobName;
+
+        /// <summary>JobName が変わったとき、派生プロパティ DisplayName を通知する。</summary>
+        partial void OnJobNameChanged(string value) => OnPropertyChanged(nameof(DisplayName));
+
         /// <summary>ユーザーが追加した LoRA 選択スロット（最大 4 個）。</summary>
         public ObservableCollection<LoraSlot> LoraSlots { get; } = new();
 
@@ -123,7 +145,11 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         /// ワークフロー種別が実際に変わった場合のみ、画像サイズ選択をプリセット既定値にリセットする
         /// （異なるワークフローでは有効なプリセットサイズが異なりうるため）。
         /// </summary>
-        partial void OnWorkflowNameChanged(string value) => RefreshForWorkflow(resetSizeSelection: true);
+        partial void OnWorkflowNameChanged(string value)
+        {
+            RefreshForWorkflow(resetSizeSelection: true);
+            OnPropertyChanged(nameof(DisplayName));
+        }
 
         /// <summary>ImageSizeOrientation が変わったとき、ComboBox 向けの derived プロパティを通知する。</summary>
         partial void OnImageSizeOrientationChanged(string value) => OnPropertyChanged(nameof(SelectedSizeOption));
@@ -228,6 +254,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         /// <summary>永続化用の <see cref="QueueJobData"/> に変換する。</summary>
         public QueueJobData ToData() => new()
         {
+            JobName = JobName,
             WorkflowName = WorkflowName,
             PositivePrompt = PositivePrompt,
             NegativePrompt = NegativePrompt,
@@ -254,6 +281,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             if (applyWorkflowName)
                 WorkflowName = data.WorkflowName;
 
+            JobName = data.JobName;
             PositivePrompt = data.PositivePrompt;
             NegativePrompt = data.NegativePrompt;
             FilenamePrefix = data.FilenamePrefix;
@@ -274,6 +302,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         {
             var vm = new QueueJobViewModel
             {
+                JobName = data.JobName,
                 PositivePrompt = data.PositivePrompt,
                 NegativePrompt = data.NegativePrompt,
                 FilenamePrefix = data.FilenamePrefix,

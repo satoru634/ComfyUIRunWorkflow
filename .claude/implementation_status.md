@@ -377,6 +377,26 @@ GeneratePage 下部にログ表示用の `ui:TextBox`（`IsReadOnly`）を追加
 
 合計テスト数: ComfyUILibsTests 187件 / ComfyUIRunWorkflowTests 293件（全パス）
 
+### フェーズ15: QueuePageのジョブにジョブ名（JobName）を追加（`feature/queue-job-name` ブランチ、実装完了）
+
+QueuePage のジョブ一覧が全てワークフロー名で表示され見分けにくいという指摘を受け、各ジョブに識別用の「ジョブ名」を追加した。
+
+**ComfyUIRunWorkflow**
+- [x] `Models/QueueJobData.cs` — `JobName`（string, 既定 ""）を追加（`queue_jobs.json` に永続化）
+- [x] `ViewModels/Pages/QueueJobViewModel.cs`
+  - `JobName`（string, 既定 ""）・`IsEditingName`（bool, 既定 false、インライン編集中かどうかを表すセッション限りの UI 状態）を追加
+  - `DisplayName`（計算プロパティ） — `JobName` が空の場合は `WorkflowName` にフォールバックする。`JobName`/`WorkflowName` 変更時に通知
+  - `ToData()`/`FromData()`/`ApplyImportedData()` で `JobName` を相互変換（`ApplyImportedData` はワークフロー名の反映有無に関わらず常に `JobName` を反映する）
+- [x] `Views/Pages/QueuePage.xaml` — ジョブ一覧の `ui:ListView.ItemTemplate` で、ワークフロー名の代わりに `DisplayName` を表示する `TextBlock` と、`IsEditingName` で表示切り替えする編集用 `ui:TextBox`（`JobName` に TwoWay バインド）を重ねて配置
+- [x] `Views/Pages/QueuePage.xaml.cs` — ジョブ名 `TextBlock` のダブルクリック（`MouseLeftButtonDown`、`ClickCount == 2`）で `IsEditingName = true` に切り替え、編集用 `TextBox` の `IsVisibleChanged` でフォーカス・全選択、`LostFocus`/Enter キー（`KeyDown`）で `IsEditingName = false` に戻すコードビハインドを追加
+- [x] `Services/BatchJobGenerator.cs` — `Generate` が生成する各 `QueueJobData` の `JobName` に、ベースプロンプトのファイル名（拡張子なし、`Path.GetFileNameWithoutExtension`）を設定するよう変更（ジョブテンプレート側の `JobName` は使用しない）
+- [x] `Resources/Strings.resx`/`Strings.en.resx` — `Queue_JobNameEditHint`（ジョブ名 `TextBlock` の ToolTip）を追加
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/QueueJobViewModelTests.cs` — `JobName`/`IsEditingName` の既定値、`DisplayName` のフォールバック（空文字・空白のみ）、`ToData`/`FromData`/`ApplyImportedData` への `JobName` 反映を検証するテストを追加
+- [x] `ComfyUIRunWorkflowTests/Services/BatchJobGeneratorTests.cs` — 生成される `JobName` がベースプロンプトのファイル名（拡張子なし）になること、ファイルごとに異なる `JobName` になることを検証するテストを追加
+- [x] `README.md`/`doc/README_english.md`/`doc/usage.md`/`doc/usage_english.md`/`doc/class_diagram.md` を更新
+
+合計テスト数: ComfyUILibsTests 187件 / ComfyUIRunWorkflowTests 298件（全パス）
+
 ### 将来的な拡張
 
 - C# 版 Discord ボット（ComfyUILibs を共用）
