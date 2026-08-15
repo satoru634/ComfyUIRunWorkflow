@@ -377,6 +377,7 @@ classDiagram
             +WorkflowResult? LastResult
             +bool HasLastResult
             +ApplyWorkflowConfig(WorkflowConfig) void
+            +ApplyImportedData(QueueJobData, bool) void
             +ResolveImageSize() ImageSize?
             +ToData() QueueJobData
             +FromData(QueueJobData) QueueJobViewModel$
@@ -397,6 +398,8 @@ classDiagram
             +RunAllCommand
             +CancelQueueCommand
             +OpenJobDetailCommand
+            +ExportJobCommand
+            +ImportJobCommand
             +OnNavigatedToAsync() Task
             +OnNavigatedFromAsync() Task
         }
@@ -592,7 +595,7 @@ classDiagram
     QueueJobViewModel "1" *-- "0..1" WorkflowResult : lastResult
     QueueJobViewModel "1" o-- "1" QueueJobStatus : status
     QueueJobViewModel --> WorkflowSizeOptionBuilder : uses
-    QueueJobViewModel ..> QueueJobData : ToData/FromData
+    QueueJobViewModel ..> QueueJobData : ToData/FromData/ApplyImportedData
     DashboardViewModel ..> QueueJobData : BuildExportData/ApplyImportedData
 ```
 
@@ -791,6 +794,7 @@ classDiagram
         +WorkflowResult? LastResult
         +bool HasLastResult
         +ApplyWorkflowConfig(WorkflowConfig) void
+        +ApplyImportedData(QueueJobData, bool) void
         +ResolveImageSize() ImageSize?
         +ToData() QueueJobData
         +FromData(QueueJobData) QueueJobViewModel$
@@ -812,6 +816,8 @@ classDiagram
         +RunAllCommand
         +CancelQueueCommand
         +OpenJobDetailCommand
+        +ExportJobCommand
+        +ImportJobCommand
         +OnNavigatedToAsync() Task
         +OnNavigatedFromAsync() Task
     }
@@ -941,7 +947,7 @@ classDiagram
     QueueJobViewModel "1" o-- "*" LoraSlot : loraSlots
     QueueJobViewModel "1" o-- "1" UIItemBaseModel~SizeOption~ : sizeLabelList
     QueueJobViewModel --> WorkflowSizeOptionBuilder : uses
-    QueueJobViewModel ..> QueueJobData : ToData/FromData
+    QueueJobViewModel ..> QueueJobData : ToData/FromData/ApplyImportedData
     DashboardViewModel ..> QueueJobData : BuildExportData/ApplyImportedData
     WorkflowExecutionService ..> WorkflowBatchOutcome : creates
     WorkflowBatchOutcome "1" *-- "1" WorkflowResult : result

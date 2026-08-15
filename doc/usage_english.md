@@ -78,7 +78,7 @@ The **Import** / **Export** buttons next to the title let you save and load the 
 - **Export**: saves the values currently entered in the form to a JSON file
 - **Import**: loads a JSON file and replaces the form's contents in one step
   - If the workflow name isn't present in the currently loaded `workflow_config.json`, the workflow selection is left unchanged while every other field (prompts, image size, LoRA, batch count, filename prefix) is still applied
-- The JSON uses the same schema as a Queue page job definition (one entry of `queue_jobs.json`), though the Queue page itself has no per-job import feature
+- The JSON uses the same schema as importing/exporting a single job on the Queue page (see below). You can, for example, export settings from the Home page and import them as a job on the Queue page
 - Import and export are both disabled while a workflow is running
 
 ---
@@ -92,6 +92,15 @@ This page lets you register multiple "jobs" — each a combination of workflow, 
 1. Click "+ Add Job" to add a job to the list (repeat as many times as needed)
 2. Selecting a job in the list lets you edit its content (workflow, prompts, image size, LoRA, filename prefix, batch count) in the panel on the right, just like on the Home page — each job can be configured independently (an empty filename prefix uses the workflow's value, same as on the Home page)
 3. Click **Run All** to execute the jobs one by one, starting from the top of the list
+
+### Import / Export Job Settings
+
+The **Import** / **Export** buttons at the top of the edit panel let you save and load the selected job's settings as a JSON file. The behavior is the same as Import/Export on the Home page (see above).
+
+- Fields covered: workflow, positive/negative prompt, image size (preset/custom), LoRA, batch count, filename prefix
+- If the workflow name isn't present in the currently loaded `workflow_config.json`, the workflow selection is left unchanged while every other field is still applied
+- Imported changes are saved to `queue_jobs.json` immediately
+- The edit panel itself is disabled while the queue is running (**Run All** in progress), so import/export are unavailable then too
 
 ### Status Display
 

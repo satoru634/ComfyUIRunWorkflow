@@ -6,6 +6,7 @@ using ComfyUIRunWorkflow.Helpers;
 using ComfyUIRunWorkflow.Models;
 using ComfyUIRunWorkflow.Services;
 using ComfyUIRunWorkflow.Views.Controls;
+using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using Wpf.Ui;
 using Wpf.Ui.Abstractions.Controls;
@@ -281,6 +282,101 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             var viewModel = new ViewModels.Controls.ResultDetailViewModel(job.LastResult, Config, _contentDialogService);
             var dialog = new ResultDetailWindow(viewModel, _contentDialogService.GetDialogHostEx());
             await dialog.ShowAsync();
+        }
+
+        // ── ジョブ設定のインポート・エクスポート ──────────────────────────────
+
+        /// <summary>指定したジョブの編集内容を JSON ファイルへエクスポートする。</summary>
+        [RelayCommand]
+        private void ExportJob(QueueJobViewModel job)
+        {
+            var dialog = new SaveFileDialog
+            {
+                Title = LocalizationManager.Instance["Common_ExportDialogTitle"],
+                Filter = LocalizationManager.Instance["Common_JsonFileDialogFilter"],
+                FileName = "workflow_settings.json",
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            try
+            {
+                JsonLoader.WriteJson(dialog.FileName, job.ToData());
+                _snackbarService.Show(
+                    LocalizationManager.Instance["Common_Completed"],
+                    LocalizationManager.Instance["Common_ExportSuccess"],
+                    ControlAppearance.Success,
+                    new SymbolIcon(SymbolRegular.CheckmarkCircle24),
+                    TimeSpan.FromSeconds(3.0)
+                );
+            }
+            catch (Exception ex)
+            {
+                _snackbarService.Show(
+                    LocalizationManager.Instance["Common_Error"],
+                    string.Format(LocalizationManager.Instance["Common_ExportError_Format"], ex.Message),
+                    ControlAppearance.Danger,
+                    new SymbolIcon(SymbolRegular.ErrorCircle24),
+                    TimeSpan.FromSeconds(5.0)
+                );
+            }
+        }
+
+        /// <summary>JSON ファイルから指定したジョブへ編集内容をインポートする。</summary>
+        [RelayCommand]
+        private void ImportJob(QueueJobViewModel job)
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = LocalizationManager.Instance["Common_ImportDialogTitle"],
+                Filter = LocalizationManager.Instance["Common_JsonFileDialogFilter"],
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            QueueJobData data;
+            try
+            {
+                data = JsonLoader.ReadJson<QueueJobData>(dialog.FileName);
+            }
+            catch (Exception ex)
+            {
+                _snackbarService.Show(
+                    LocalizationManager.Instance["Common_Error"],
+                    string.Format(LocalizationManager.Instance["Common_ImportError_Format"], ex.Message),
+                    ControlAppearance.Danger,
+                    new SymbolIcon(SymbolRegular.ErrorCircle24),
+                    TimeSpan.FromSeconds(5.0)
+                );
+                return;
+            }
+
+            bool workflowMatched = !string.IsNullOrWhiteSpace(data.WorkflowName) && WorkflowNames.Contains(data.WorkflowName);
+            job.ApplyImportedData(data, applyWorkflowName: workflowMatched);
+            PersistJobs();
+
+            if (workflowMatched || string.IsNullOrWhiteSpace(data.WorkflowName))
+            {
+                _snackbarService.Show(
+                    LocalizationManager.Instance["Common_Completed"],
+                    LocalizationManager.Instance["Common_ImportSuccess"],
+                    ControlAppearance.Success,
+                    new SymbolIcon(SymbolRegular.CheckmarkCircle24),
+                    TimeSpan.FromSeconds(3.0)
+                );
+            }
+            else
+            {
+                _snackbarService.Show(
+                    LocalizationManager.Instance["Common_Completed"],
+                    string.Format(LocalizationManager.Instance["Common_ImportWorkflowNotFound_Format"], data.WorkflowName),
+                    ControlAppearance.Caution,
+                    new SymbolIcon(SymbolRegular.Warning24),
+                    TimeSpan.FromSeconds(5.0)
+                );
+            }
         }
 
         // ── 永続化 ────────────────────────────────────────────────────────────
