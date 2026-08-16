@@ -149,6 +149,7 @@
   <data name="Queue_Title" xml:space="preserve"><value>Workflow Queue</value></data>
   <data name="Queue_AddJobButtonContent" xml:space="preserve"><value>+ Add Job</value></data>
   <data name="Queue_RunAllButtonContent" xml:space="preserve"><value>Run All</value></data>
+  <data name="Queue_RerunFailedButtonContent" xml:space="preserve"><value>Rerun Failed Only</value></data>
   <data name="Queue_CancelButtonContent" xml:space="preserve"><value>Cancel</value></data>
   <data name="Queue_DetailButtonContent" xml:space="preserve"><value>View Details</value></data>
   <data name="Queue_JobListEmptyPlaceholder" xml:space="preserve"><value>Click "Add Job"&#x0a;to get started</value></data>

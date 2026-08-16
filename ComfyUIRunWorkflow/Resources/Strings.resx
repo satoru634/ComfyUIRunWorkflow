@@ -149,6 +149,7 @@
   <data name="Queue_Title" xml:space="preserve"><value>ワークフローキュー</value></data>
   <data name="Queue_AddJobButtonContent" xml:space="preserve"><value>+ ジョブを追加</value></data>
   <data name="Queue_RunAllButtonContent" xml:space="preserve"><value>すべて実行</value></data>
+  <data name="Queue_RerunFailedButtonContent" xml:space="preserve"><value>失敗ジョブだけ再実行</value></data>
   <data name="Queue_CancelButtonContent" xml:space="preserve"><value>中断</value></data>
   <data name="Queue_DetailButtonContent" xml:space="preserve"><value>詳細を見る</value></data>
   <data name="Queue_JobListEmptyPlaceholder" xml:space="preserve"><value>「ジョブを追加」から&#x0a;ジョブを登録してください</value></data>

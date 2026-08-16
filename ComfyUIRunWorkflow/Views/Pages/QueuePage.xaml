@@ -79,6 +79,13 @@
                         Visibility="{Binding ViewModel.IsRunning, Converter={StaticResource BoolToVisibilityInverseConverter}}" />
                     <ui:Button
                         Margin="0,0,8,0"
+                        Command="{Binding ViewModel.RerunFailedJobsCommand}"
+                        Content="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Queue_RerunFailedButtonContent]}"
+                        Appearance="Secondary"
+                        Icon="{ui:SymbolIcon ArrowClockwise24}"
+                        Visibility="{Binding ViewModel.IsRunning, Converter={StaticResource BoolToVisibilityInverseConverter}}" />
+                    <ui:Button
+                        Margin="0,0,8,0"
                         Command="{Binding ViewModel.CancelQueueCommand}"
                         Content="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[Queue_CancelButtonContent]}"
                         Appearance="Danger"
