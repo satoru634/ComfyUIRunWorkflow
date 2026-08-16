@@ -86,6 +86,8 @@ The **Import** / **Export** buttons next to the title let you save and load the 
 
 ## Queue Page (Running Multiple Workflows in Sequence)
 
+![Queue page](images/queue_page_en.png)
+
 This page lets you register multiple "jobs" — each a combination of workflow, prompts, LoRA, image size, filename prefix, and batch count — in a list, and run them automatically one after another from the top. Use it when you want to run several workflows (e.g. `sdxl` and `anima`) together in one operation.
 
 ### Job Name
@@ -147,6 +149,8 @@ The job definitions (workflow, prompts, LoRA, image size, filename prefix, batch
 ---
 
 ## Generate Page (Batch Job Generation)
+
+![Generate page](images/generate_page_en.png)
 
 This page replaces keywords like `<CHARACTER>` in base prompts (JSON files with `positive`/`negative` keys) using a replacement list, then combines the result with a job template to bulk-generate a job list for the Queue page. It saves you from registering, by hand, a large number of jobs that only differ by character or outfit while sharing the same composition and settings.
 
