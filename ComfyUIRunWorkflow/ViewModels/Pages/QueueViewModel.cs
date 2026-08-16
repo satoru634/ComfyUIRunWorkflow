@@ -8,9 +8,11 @@ using ComfyUIRunWorkflow.Services;
 using ComfyUIRunWorkflow.Views.Controls;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using Wpf.Ui;
 using Wpf.Ui.Abstractions.Controls;
 using Wpf.Ui.Controls;
+using Wpf.Ui.Extensions;
 
 namespace ComfyUIRunWorkflow.ViewModels.Pages
 {
@@ -50,6 +52,8 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(RunAllCommand))]
         [NotifyCanExecuteChangedFor(nameof(CancelQueueCommand))]
+        [NotifyCanExecuteChangedFor(nameof(RemoveAllJobsCommand))]
+        [NotifyCanExecuteChangedFor(nameof(RemoveSelectedJobsCommand))]
         private bool _isRunning = false;
 
         /// <summary>全体の実行進捗テキスト（例: "2/5件目のジョブを実行中: sdxl"）。</summary>
@@ -64,6 +68,9 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
         /// <summary>ジョブが1件以上登録されているか（一覧の空プレースホルダー表示切り替えに使用）。</summary>
         public bool HasJobs => Jobs.Count > 0;
+
+        /// <summary>ジョブ一覧のチェックボックスで選択中のジョブが1件以上あるか（複数選択削除ボタンの活性判定に使用）。</summary>
+        public bool HasSelectedJobs => Jobs.Any(j => j.IsSelected);
 
         private bool _cancelRequested = false;
         private WorkflowConfig? _loadedConfig;
@@ -161,10 +168,29 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                 var job = QueueJobViewModel.FromData(data);
                 job.ApplyWorkflowConfig(_loadedConfig);
                 Jobs.Add(job);
+                AttachJob(job);
             }
 
             RunAllCommand.NotifyCanExecuteChanged();
+            RemoveAllJobsCommand.NotifyCanExecuteChanged();
             OnPropertyChanged(nameof(HasJobs));
+        }
+
+        // ── ジョブ選択（複数選択削除用） ──────────────────────────────────────
+
+        /// <summary>ジョブ一覧の選択チェックボックスの状態変化を監視できるよう、ジョブの PropertyChanged を購読する。</summary>
+        private void AttachJob(QueueJobViewModel job) => job.PropertyChanged += OnJobPropertyChanged;
+
+        /// <summary>ジョブ削除時に購読を解除する。</summary>
+        private void DetachJob(QueueJobViewModel job) => job.PropertyChanged -= OnJobPropertyChanged;
+
+        /// <summary>ジョブの IsSelected が変わったとき、複数選択削除ボタンの活性状態を更新する。</summary>
+        private void OnJobPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != nameof(QueueJobViewModel.IsSelected)) return;
+
+            OnPropertyChanged(nameof(HasSelectedJobs));
+            RemoveSelectedJobsCommand.NotifyCanExecuteChanged();
         }
 
         // ── ジョブ操作 ────────────────────────────────────────────────────────
@@ -179,8 +205,10 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                 job.WorkflowName = WorkflowNames[0];
 
             Jobs.Add(job);
+            AttachJob(job);
             SelectedJob = job;
             RunAllCommand.NotifyCanExecuteChanged();
+            RemoveAllJobsCommand.NotifyCanExecuteChanged();
             OnPropertyChanged(nameof(HasJobs));
             PersistJobs();
         }
@@ -189,13 +217,85 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         [RelayCommand]
         private void RemoveJob(QueueJobViewModel job)
         {
+            DetachJob(job);
             Jobs.Remove(job);
             if (SelectedJob == job)
                 SelectedJob = null;
 
             RunAllCommand.NotifyCanExecuteChanged();
+            RemoveAllJobsCommand.NotifyCanExecuteChanged();
+            RemoveSelectedJobsCommand.NotifyCanExecuteChanged();
             OnPropertyChanged(nameof(HasJobs));
+            OnPropertyChanged(nameof(HasSelectedJobs));
             PersistJobs();
+        }
+
+        private bool CanRemoveAllJobs() => CanEditJobs && Jobs.Count > 0;
+
+        /// <summary>登録されている全ジョブを、確認ダイアログでの承認後に削除する。</summary>
+        [RelayCommand(CanExecute = nameof(CanRemoveAllJobs))]
+        private async Task RemoveAllJobsAsync()
+        {
+            var confirmed = await ConfirmRemoveAsync(
+                LocalizationManager.Instance["Queue_RemoveAllConfirmTitle"],
+                string.Format(LocalizationManager.Instance["Queue_RemoveAllConfirmContent_Format"], Jobs.Count));
+            if (!confirmed) return;
+
+            foreach (var job in Jobs)
+                DetachJob(job);
+
+            Jobs.Clear();
+            SelectedJob = null;
+
+            RunAllCommand.NotifyCanExecuteChanged();
+            RemoveAllJobsCommand.NotifyCanExecuteChanged();
+            RemoveSelectedJobsCommand.NotifyCanExecuteChanged();
+            OnPropertyChanged(nameof(HasJobs));
+            OnPropertyChanged(nameof(HasSelectedJobs));
+            PersistJobs();
+        }
+
+        private bool CanRemoveSelectedJobs() => CanEditJobs && HasSelectedJobs;
+
+        /// <summary>チェックボックスで選択中のジョブを、確認ダイアログでの承認後にまとめて削除する。</summary>
+        [RelayCommand(CanExecute = nameof(CanRemoveSelectedJobs))]
+        private async Task RemoveSelectedJobsAsync()
+        {
+            var targets = Jobs.Where(j => j.IsSelected).ToList();
+            if (targets.Count == 0) return;
+
+            var confirmed = await ConfirmRemoveAsync(
+                LocalizationManager.Instance["Queue_RemoveSelectedConfirmTitle"],
+                string.Format(LocalizationManager.Instance["Queue_RemoveSelectedConfirmContent_Format"], targets.Count));
+            if (!confirmed) return;
+
+            foreach (var job in targets)
+            {
+                DetachJob(job);
+                Jobs.Remove(job);
+                if (SelectedJob == job)
+                    SelectedJob = null;
+            }
+
+            RunAllCommand.NotifyCanExecuteChanged();
+            RemoveAllJobsCommand.NotifyCanExecuteChanged();
+            RemoveSelectedJobsCommand.NotifyCanExecuteChanged();
+            OnPropertyChanged(nameof(HasJobs));
+            OnPropertyChanged(nameof(HasSelectedJobs));
+            PersistJobs();
+        }
+
+        /// <summary>削除操作前の確認ダイアログを表示し、「削除」が選択されたかどうかを返す。</summary>
+        private async Task<bool> ConfirmRemoveAsync(string title, string content)
+        {
+            var result = await _contentDialogService.ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions
+            {
+                Title = title,
+                Content = content,
+                PrimaryButtonText = LocalizationManager.Instance["Queue_RemoveConfirmPrimaryButtonContent"],
+                CloseButtonText = LocalizationManager.Instance["Common_CancelButtonContent"],
+            });
+            return result == ContentDialogResult.Primary;
         }
 
         // ── 実行 ──────────────────────────────────────────────────────────────
@@ -322,9 +422,11 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                 var job = QueueJobViewModel.FromData(data);
                 job.ApplyWorkflowConfig(_loadedConfig);
                 Jobs.Add(job);
+                AttachJob(job);
             }
 
             RunAllCommand.NotifyCanExecuteChanged();
+            RemoveAllJobsCommand.NotifyCanExecuteChanged();
             OnPropertyChanged(nameof(HasJobs));
             PersistJobs();
 

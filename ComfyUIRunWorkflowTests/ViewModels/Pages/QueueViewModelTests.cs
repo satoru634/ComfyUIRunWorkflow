@@ -259,6 +259,157 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
             Assert.Null(vm.SelectedJob);
         }
 
+        // ── RemoveAllJobsCommand ────────────────────────────────────────────
+
+        [Fact]
+        public void RemoveAllJobsCommand_NoJobs_CannotExecute()
+        {
+            var vm = CreateVm();
+            Assert.False(vm.RemoveAllJobsCommand.CanExecute(null));
+        }
+
+        [Fact]
+        public void RemoveAllJobsCommand_WithJobs_CanExecute()
+        {
+            var vm = CreateVm();
+            vm.AddJobCommand.Execute(null);
+            Assert.True(vm.RemoveAllJobsCommand.CanExecute(null));
+        }
+
+        [Fact]
+        public void RemoveAllJobsCommand_WhileRunning_CannotExecute()
+        {
+            var vm = CreateVm();
+            vm.AddJobCommand.Execute(null);
+            vm.IsRunning = true;
+            Assert.False(vm.RemoveAllJobsCommand.CanExecute(null));
+        }
+
+        [Fact]
+        public void RemoveAllJobsCommand_Confirmed_RemovesAllJobsAndPersists()
+        {
+            var queueJobsSetting = CreateQueueJobsSetting();
+            var vm = CreateVm(queueJobsSetting: queueJobsSetting);
+            vm.AddJobCommand.Execute(null);
+            vm.AddJobCommand.Execute(null);
+            _fakeContentDialogService.NextShowResult = ContentDialogResult.Primary;
+
+            // ShowSimpleDialogAsync（確認ダイアログ）は内部で WPF コントロールを構築するため STA スレッドが必要
+            RunOnSta(() => vm.RemoveAllJobsCommand.ExecuteAsync(null).Wait());
+
+            Assert.Empty(vm.Jobs);
+            Assert.False(vm.HasJobs);
+            Assert.Null(vm.SelectedJob);
+            Assert.Empty(queueJobsSetting.Data.Jobs);
+        }
+
+        [Fact]
+        public void RemoveAllJobsCommand_Cancelled_KeepsJobs()
+        {
+            var vm = CreateVm();
+            vm.AddJobCommand.Execute(null);
+            _fakeContentDialogService.NextShowResult = ContentDialogResult.None;
+
+            RunOnSta(() => vm.RemoveAllJobsCommand.ExecuteAsync(null).Wait());
+
+            Assert.Single(vm.Jobs);
+        }
+
+        // ── RemoveSelectedJobsCommand ────────────────────────────────────────
+
+        [Fact]
+        public void RemoveSelectedJobsCommand_NoSelection_CannotExecute()
+        {
+            var vm = CreateVm();
+            vm.AddJobCommand.Execute(null);
+            Assert.False(vm.RemoveSelectedJobsCommand.CanExecute(null));
+        }
+
+        [Fact]
+        public void RemoveSelectedJobsCommand_WithSelection_CanExecute()
+        {
+            var vm = CreateVm();
+            vm.AddJobCommand.Execute(null);
+            vm.Jobs[0].IsSelected = true;
+
+            Assert.True(vm.RemoveSelectedJobsCommand.CanExecute(null));
+            Assert.True(vm.HasSelectedJobs);
+        }
+
+        [Fact]
+        public void RemoveSelectedJobsCommand_WhileRunning_CannotExecute()
+        {
+            var vm = CreateVm();
+            vm.AddJobCommand.Execute(null);
+            vm.Jobs[0].IsSelected = true;
+            vm.IsRunning = true;
+
+            Assert.False(vm.RemoveSelectedJobsCommand.CanExecute(null));
+        }
+
+        [Fact]
+        public void RemoveSelectedJobsCommand_Confirmed_RemovesOnlySelectedJobs()
+        {
+            var queueJobsSetting = CreateQueueJobsSetting();
+            var vm = CreateVm(queueJobsSetting: queueJobsSetting);
+            vm.AddJobCommand.Execute(null);
+            vm.AddJobCommand.Execute(null);
+            var keptJob = vm.Jobs[0];
+            var removedJob = vm.Jobs[1];
+            removedJob.IsSelected = true;
+            _fakeContentDialogService.NextShowResult = ContentDialogResult.Primary;
+
+            RunOnSta(() => vm.RemoveSelectedJobsCommand.ExecuteAsync(null).Wait());
+
+            Assert.Single(vm.Jobs);
+            Assert.Same(keptJob, vm.Jobs[0]);
+            Assert.Single(queueJobsSetting.Data.Jobs);
+        }
+
+        [Fact]
+        public void RemoveSelectedJobsCommand_Cancelled_KeepsAllJobs()
+        {
+            var vm = CreateVm();
+            vm.AddJobCommand.Execute(null);
+            vm.AddJobCommand.Execute(null);
+            vm.Jobs[1].IsSelected = true;
+            _fakeContentDialogService.NextShowResult = ContentDialogResult.None;
+
+            RunOnSta(() => vm.RemoveSelectedJobsCommand.ExecuteAsync(null).Wait());
+
+            Assert.Equal(2, vm.Jobs.Count);
+        }
+
+        [Fact]
+        public void RemoveSelectedJobsCommand_RemovingSelectedJob_ClearsSelectedJob()
+        {
+            var vm = CreateVm();
+            vm.AddJobCommand.Execute(null);
+            var job = vm.Jobs[0];
+            job.IsSelected = true;
+            _fakeContentDialogService.NextShowResult = ContentDialogResult.Primary;
+
+            RunOnSta(() => vm.RemoveSelectedJobsCommand.ExecuteAsync(null).Wait());
+
+            Assert.Null(vm.SelectedJob);
+        }
+
+        [Fact]
+        public void IsSelected_ToggledOffAfterOn_UpdatesHasSelectedJobsAndCanExecute()
+        {
+            var vm = CreateVm();
+            vm.AddJobCommand.Execute(null);
+            var job = vm.Jobs[0];
+
+            job.IsSelected = true;
+            Assert.True(vm.HasSelectedJobs);
+            Assert.True(vm.RemoveSelectedJobsCommand.CanExecute(null));
+
+            job.IsSelected = false;
+            Assert.False(vm.HasSelectedJobs);
+            Assert.False(vm.RemoveSelectedJobsCommand.CanExecute(null));
+        }
+
         // ── RunAllCommand / CancelQueueCommand の CanExecute ────────────────
 
         [Fact]

@@ -82,6 +82,7 @@
   <data name="Common_ExportError_Format" xml:space="preserve"><value>Failed to export: {0}</value></data>
   <data name="Common_ImportError_Format" xml:space="preserve"><value>Failed to import: {0}</value></data>
   <data name="Common_ImportWorkflowNotFound_Format" xml:space="preserve"><value>Workflow "{0}" was not found, so only the non-workflow fields were applied</value></data>
+  <data name="Common_CancelButtonContent" xml:space="preserve"><value>Cancel</value></data>
 
   <!-- Dashboard -->
   <data name="Dashboard_Title" xml:space="preserve"><value>Run Workflow</value></data>
@@ -162,6 +163,13 @@
   <data name="Queue_ImportListDialogTitle" xml:space="preserve"><value>Import Job List</value></data>
   <data name="Queue_ImportListSuccess_Format" xml:space="preserve"><value>{0} job(s) imported</value></data>
   <data name="Queue_JobNameEditHint" xml:space="preserve"><value>Double-click to edit the job name</value></data>
+  <data name="Queue_RemoveSelectedButtonContent" xml:space="preserve"><value>Delete Selected</value></data>
+  <data name="Queue_RemoveAllButtonContent" xml:space="preserve"><value>Delete All</value></data>
+  <data name="Queue_RemoveAllConfirmTitle" xml:space="preserve"><value>Delete all jobs?</value></data>
+  <data name="Queue_RemoveAllConfirmContent_Format" xml:space="preserve"><value>This will delete all {0} registered job(s). This action cannot be undone.</value></data>
+  <data name="Queue_RemoveSelectedConfirmTitle" xml:space="preserve"><value>Delete selected jobs?</value></data>
+  <data name="Queue_RemoveSelectedConfirmContent_Format" xml:space="preserve"><value>This will delete the selected {0} job(s). This action cannot be undone.</value></data>
+  <data name="Queue_RemoveConfirmPrimaryButtonContent" xml:space="preserve"><value>Delete</value></data>
 
   <!-- ResultDetail -->
   <data name="ResultDetail_Title" xml:space="preserve"><value>Result Details</value></data>

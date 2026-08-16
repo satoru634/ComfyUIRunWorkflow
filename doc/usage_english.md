@@ -99,6 +99,15 @@ Each job in the list shows a "job name". If it hasn't been set, the workflow nam
 3. Double-click a job's name in the list to give it a descriptive name so it's easier to tell jobs apart later (optional)
 4. Click **Run All** to execute the jobs one by one, starting from the top of the list
 
+### Deleting Jobs
+
+Use the × button at the bottom-right of each job to delete it individually. Once the list grows large, you can also delete jobs in bulk from the toolbar:
+
+- **Delete Selected**: Check the checkbox on the left of each job you want to remove, then click this button. It is disabled when no job is checked.
+- **Delete All**: Deletes every registered job at once.
+
+Both actions show a confirmation dialog first; jobs are only deleted if you choose "Delete" (this cannot be undone). The deletion is immediately reflected in `queue_jobs.json`. Both buttons are disabled while the queue is running ("Run All" in progress).
+
 ### Import / Export Job Settings
 
 The **Import** / **Export** buttons at the top of the edit panel let you save and load the selected job's settings as a JSON file. The behavior is the same as Import/Export on the Home page (see above).

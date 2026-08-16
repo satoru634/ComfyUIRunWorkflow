@@ -366,6 +366,7 @@ classDiagram
         class QueueJobViewModel {
             +string JobName
             +bool IsEditingName
+            +bool IsSelected
             +string DisplayName
             +string WorkflowName
             +List~string~ AvailableLoras
@@ -396,9 +397,12 @@ classDiagram
             +bool IsRunning
             +bool CanEditJobs
             +bool HasJobs
+            +bool HasSelectedJobs
             +string OverallProgressText
             +AddJobCommand
             +RemoveJobCommand
+            +RemoveAllJobsCommand
+            +RemoveSelectedJobsCommand
             +RunAllCommand
             +CancelQueueCommand
             +OpenJobDetailCommand
@@ -809,6 +813,7 @@ classDiagram
     class QueueJobViewModel {
         +string JobName
         +bool IsEditingName
+        +bool IsSelected
         +string DisplayName
         +string WorkflowName
         +List~string~ AvailableLoras
@@ -840,9 +845,12 @@ classDiagram
         +bool IsRunning
         +bool CanEditJobs
         +bool HasJobs
+        +bool HasSelectedJobs
         +string OverallProgressText
         +AddJobCommand
         +RemoveJobCommand
+        +RemoveAllJobsCommand
+        +RemoveSelectedJobsCommand
         +RunAllCommand
         +CancelQueueCommand
         +OpenJobDetailCommand

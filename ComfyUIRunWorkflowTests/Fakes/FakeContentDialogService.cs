@@ -9,6 +9,9 @@ namespace ComfyUIRunWorkflowTests.Fakes
     /// </summary>
     internal class FakeContentDialogService : IContentDialogService
     {
+        /// <summary>次回以降の ShowAsync（ShowSimpleDialogAsync 経由の確認ダイアログ含む）が返す結果。既定は None（キャンセル相当）。</summary>
+        public ContentDialogResult NextShowResult { get; set; } = ContentDialogResult.None;
+
         public void SetContentPresenter(ContentPresenter contentPresenter) { }
 
         public ContentPresenter GetContentPresenter() => throw new NotImplementedException();
@@ -22,6 +25,6 @@ namespace ComfyUIRunWorkflowTests.Fakes
         public ContentDialogHost GetDialogHostEx() => throw new NotImplementedException();
 
         public Task<ContentDialogResult> ShowAsync(ContentDialog dialog, CancellationToken cancellationToken = default)
-            => Task.FromResult(ContentDialogResult.None);
+            => Task.FromResult(NextShowResult);
     }
 }
