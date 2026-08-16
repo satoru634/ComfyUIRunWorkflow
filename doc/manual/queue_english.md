@@ -11,14 +11,14 @@ The [Home page](home_english.md) only lets you generate one thing at a time. The
 1. Click **+ Add Job** at the top left to add a job. Repeat as many times as you need.
 2. Select a job from the list, and the same fields as the Home page (workflow, prompts, image size, etc.) appear on the right — fill them in for each job.
 3. Double-click a job's name in the list (it shows the workflow name by default) to give it a more descriptive name.
-4. Once everything is filled in, click **Run All** at the top to execute the jobs one by one, from the top of the list down.
+4. Once everything is filled in, click **Run All** at the top to execute every job one by one, from the top of the list down, regardless of status (jobs already marked "Success" are re-run too).
 
 ## While It's Running
 
 - The job currently running is marked "Running", along with its progress.
 - Clicking **Cancel** stops any further jobs from starting once the current one finishes (the job in progress still completes).
 - If a job fails, it's marked "Failed" and the queue automatically moves on to the next job — the whole queue doesn't stop.
-- If you click **Run All** again while some jobs already show "Success", those are skipped, and only the ones that haven't run yet (or failed) are executed.
+- **Run All** re-runs every job regardless of status, including ones already marked "Success". To leave successful jobs alone and only run the ones that haven't run yet (or failed), click **Rerun Failed Only** instead — jobs already marked "Success" are skipped.
 
 ## Deleting Jobs
 

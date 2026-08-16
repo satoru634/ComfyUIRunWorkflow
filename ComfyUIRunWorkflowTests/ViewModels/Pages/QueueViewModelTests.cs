@@ -437,6 +437,30 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         }
 
         [Fact]
+        public void RerunFailedJobsCommand_NoJobs_CannotExecute()
+        {
+            var vm = CreateVm();
+            Assert.False(vm.RerunFailedJobsCommand.CanExecute(null));
+        }
+
+        [Fact]
+        public void RerunFailedJobsCommand_WithJobs_CanExecute()
+        {
+            var vm = CreateVm();
+            vm.AddJobCommand.Execute(null);
+            Assert.True(vm.RerunFailedJobsCommand.CanExecute(null));
+        }
+
+        [Fact]
+        public void RerunFailedJobsCommand_WhileRunning_CannotExecute()
+        {
+            var vm = CreateVm();
+            vm.AddJobCommand.Execute(null);
+            vm.IsRunning = true;
+            Assert.False(vm.RerunFailedJobsCommand.CanExecute(null));
+        }
+
+        [Fact]
         public void CancelQueueCommand_NotRunning_CannotExecute()
         {
             var vm = CreateVm();

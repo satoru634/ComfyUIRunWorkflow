@@ -404,6 +404,7 @@ classDiagram
             +RemoveAllJobsCommand
             +RemoveSelectedJobsCommand
             +RunAllCommand
+            +RerunFailedJobsCommand
             +CancelQueueCommand
             +OpenJobDetailCommand
             +ExportJobCommand
@@ -852,6 +853,7 @@ classDiagram
         +RemoveAllJobsCommand
         +RemoveSelectedJobsCommand
         +RunAllCommand
+        +RerunFailedJobsCommand
         +CancelQueueCommand
         +OpenJobDetailCommand
         +ExportJobCommand

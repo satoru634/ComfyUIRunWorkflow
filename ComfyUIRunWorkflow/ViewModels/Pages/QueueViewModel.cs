@@ -303,12 +303,21 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         private bool CanRunAll() => !IsRunning && Jobs.Count > 0;
 
         /// <summary>
-        /// リストの先頭から順にジョブを実行する。既に成功済み（Success）のジョブはスキップする。
+        /// リストの先頭から順に、状態に関わらず全ジョブを実行する（既に成功済みのジョブも再実行する）。
         /// あるジョブで ComfyUI エラーが発生した場合はそのジョブを失敗として記録し、次のジョブへ継続する。
         /// 中断が要求された場合は、現在実行中のジョブが完了した時点で以降のジョブへの着手を止める（協調的キャンセル）。
         /// </summary>
         [RelayCommand(CanExecute = nameof(CanRunAll))]
-        private async Task RunAllAsync()
+        private Task RunAllAsync() => ExecuteQueueAsync(skipSuccessfulJobs: false);
+
+        /// <summary>
+        /// リストの先頭から順にジョブを実行するが、既に成功済み（Success）のジョブはスキップする。
+        /// 失敗・中断・未実行のジョブだけをまとめて再実行したい場合に使用する。
+        /// </summary>
+        [RelayCommand(CanExecute = nameof(CanRunAll))]
+        private Task RerunFailedJobsAsync() => ExecuteQueueAsync(skipSuccessfulJobs: true);
+
+        private async Task ExecuteQueueAsync(bool skipSuccessfulJobs)
         {
             IsRunning = true;
             _cancelRequested = false;
@@ -319,7 +328,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                 for (int i = 0; i < Jobs.Count; i++)
                 {
                     var job = Jobs[i];
-                    if (job.Status == QueueJobStatus.Success)
+                    if (skipSuccessfulJobs && job.Status == QueueJobStatus.Success)
                         continue;
 
                     if (_cancelRequested)

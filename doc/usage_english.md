@@ -100,7 +100,7 @@ Each job in the list shows a "job name". If it hasn't been set, the workflow nam
 1. Click "+ Add Job" to add a job to the list (repeat as many times as needed)
 2. Selecting a job in the list lets you edit its content (workflow, prompts, image size, LoRA, filename prefix, batch count) in the panel on the right, just like on the Home page — each job can be configured independently (an empty filename prefix uses the workflow's value, same as on the Home page)
 3. Double-click a job's name in the list to give it a descriptive name so it's easier to tell jobs apart later (optional)
-4. Click **Run All** to execute the jobs one by one, starting from the top of the list
+4. Click **Run All** to execute every job one by one, starting from the top of the list, regardless of status (jobs already marked "Success" are re-run too)
 
 ### Deleting Jobs
 
@@ -136,7 +136,7 @@ Each job shows its current execution status.
 
 - If a ComfyUI error occurs for a job, that job is recorded as "Failed" and execution automatically continues with the next job (the whole queue does not stop)
 - Clicking **Cancel** while running stops further jobs from starting once the currently running job finishes (the job in progress still runs to completion)
-- If you click **Run All** again while some jobs are already "Success", those are skipped and only pending/failed/cancelled jobs are run — so you can simply click **Run All** again to retry just the jobs that failed
+- **Run All** re-runs every job regardless of status. To leave jobs already marked "Success" untouched and only retry pending/failed/cancelled jobs, click **Rerun Failed Only** instead (jobs already "Success" are skipped)
 
 ### Viewing and Saving Results
 

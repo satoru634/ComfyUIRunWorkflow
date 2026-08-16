@@ -429,6 +429,21 @@ QueuePage のジョブ数が増えてくると1件ずつ × ボタンで削除�
 
 合計テスト数: ComfyUILibsTests 187件 / ComfyUIRunWorkflowTests 310件（全パス）
 
+### フェーズ17: QueuePageの「すべて実行」の成功ジョブ自動スキップに関する不具合修正（`fix/queue-rerun-failed-only` ブランチ、実装完了）
+
+**不具合: QueuePageでジョブを実行した後、同じジョブを再実行しようとしても実行ボタンを押してもジョブが走らない**
+
+フェーズ11の設計では、「すべて実行」は既に「成功（Success）」しているジョブを自動でスキップする仕様だった（失敗ジョブだけを再実行できるようにするための意図的な設計）。しかし、同じジョブをもう一度実行し直したい場合（内容を変えずに追加生成したい等）の手段が「アプリ再起動」（実行ステータスはセッション限りのためリセットされる）しかなく、ユーザーが「すべて実行」を押しても何も起きないように見える不具合として報告された。
+
+- **原因**: `QueueViewModel.RunAllAsync`（`RunAllCommand`）が `job.Status == QueueJobStatus.Success` のジョブを常にスキップしていたため、成功済みジョブを明示的に再実行する手段がなかった
+- [x] `ViewModels/Pages/QueueViewModel.cs` — 実行ロジックを `ExecuteQueueAsync(bool skipSuccessfulJobs)` に切り出し、`RunAllCommand`（`RunAllAsync`）は `skipSuccessfulJobs: false` で状態に関わらず全ジョブを実行するよう変更。従来の「成功済みジョブをスキップする」挙動は新規 `RerunFailedJobsCommand`（`RerunFailedJobsAsync`、`skipSuccessfulJobs: true`）に移植した
+- [x] `Views/Pages/QueuePage.xaml` — ツールバーに「失敗ジョブだけ再実行」`ui:Button`（Icon: `ArrowClockwise24`）を「すべて実行」ボタンの隣に追加
+- [x] `Resources/Strings.resx`/`Strings.en.resx` — `Queue_RerunFailedButtonContent` を追加
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/QueueViewModelTests.cs` — `RerunFailedJobsCommand` の `CanExecute`（ジョブなし・実行中）のテストを追加
+- [x] `doc/usage.md`/`doc/usage_english.md`/`doc/manual/queue.md`/`doc/manual/queue_english.md`/`doc/class_diagram.md` を更新
+
+合計テスト数: ComfyUILibsTests 187件 / ComfyUIRunWorkflowTests 313件（全パス）
+
 ### 将来的な拡張
 
 - C# 版 Discord ボット（ComfyUILibs を共用）
