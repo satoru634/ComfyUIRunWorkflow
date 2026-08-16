@@ -184,6 +184,17 @@ The log area below the **Generate** button shows, line by line, the result of lo
 
 The four input paths (base prompt directory, replacement list file, job template file, output file) are saved as settings and restored the next time you open this page.
 
+### Sample Files
+
+[`sample_jobs/`](../sample_jobs) at the repository root contains samples that map directly to the Generate page's four inputs (automatically copied next to the executable at build time). Point each field at these files to see the actual input/output format in action.
+
+| Directory / File | Corresponds to | Contents |
+|---|---|---|
+| `sample_jobs/base_prompts/` | Base prompt directory | `001_office.json` / `002_theme_park.json` — example prompts containing placeholders such as `<character>` and `<outfit_01_cowboy_shot>` |
+| `sample_jobs/replace_list/test_chara.json` | Replacement list file | Example replacement strings for the placeholders above |
+| `sample_jobs/job_templates/test_chara_job_template.json` | Job template file | Example shared settings (workflow, image size, batch count, filename prefix, etc.); both prompt fields are left empty |
+| `sample_jobs/generated/test_chara_jobs.json` | Output file | The actual output generated from the three inputs above (`QueueJobListData` format). You can bring it into the Queue page as-is via the **Import List** button to see it in action |
+
 ---
 
 ## Data Page (Results / Tag History)
