@@ -66,6 +66,7 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
 
             Assert.Equal("", job.JobName);
             Assert.False(job.IsEditingName);
+            Assert.False(job.IsSelected);
             Assert.Equal("", job.WorkflowName);
             Assert.Equal(QueueJobStatus.Pending, job.Status);
             Assert.Empty(job.LoraSlots);

@@ -397,6 +397,38 @@ QueuePage のジョブ一覧が全てワークフロー名で表示され見分�
 
 合計テスト数: ComfyUILibsTests 187件 / ComfyUIRunWorkflowTests 298件（全パス）
 
+### フェーズ16: QueuePageへのジョブ一括削除・複数選択削除の追加（`feature/queue-bulk-delete` ブランチ、実装完了）
+
+QueuePage のジョブ数が増えてくると1件ずつ × ボタンで削除するのが手間になるという指摘を受け、ツールバーに「すべて削除」（一括削除）と「選択したジョブを削除」（チェックボックスによる複数選択削除）を追加した。
+
+**仕様（ユーザーとの合意事項）**
+- どちらも誤操作防止のため確認ダイアログを表示し、「削除」を選択した場合のみ実際に削除する
+- キュー全体の実行中（「すべて実行」中）はどちらのボタンも無効化する（既存の `CanEditJobs` と同じ扱い）
+- 複数選択はジョブ一覧の各項目左端に追加したチェックボックスで行う。1件も選択されていない場合は「選択したジョブを削除」ボタンを無効化する
+
+**設計判断**
+- 確認ダイアログは `Wpf.Ui.Extensions.ContentDialogServiceExtensions.ShowSimpleDialogAsync`（`IContentDialogService` 拡張メソッド）を使用した。既存の `ResultDetailWindow`/`ImagePreviewWindow` のように独自の `ContentDialog` 派生クラスを新設する必要がなく、`IContentDialogService.ShowAsync` のみを呼び出す（`GetDialogHostEx()` は呼ばれない）ため、既存の `FakeContentDialogService`（`GetDialogHostEx()` が `NotImplementedException` を投げるテスト用スタブ）とも問題なく組み合わせられることをリフレクション・実機検証で確認した上で採用した
+- 選択状態（`QueueJobViewModel.IsSelected`）はジョブ名インライン編集中フラグ（`IsEditingName`）と同様、セッション限りの UI 状態として扱い、`QueueJobData`（永続化データ）には含めない
+- `QueueViewModel` は各ジョブの `IsSelected` 変更を検知できるよう、ジョブ追加時（`AddJob`/`LoadPersistedJobsIfNeeded`/`ImportJobList`）に `PropertyChanged` を購読し、削除時（`RemoveJob`/`RemoveAllJobsAsync`/`RemoveSelectedJobsAsync`）に購読解除する。これにより `HasSelectedJobs` プロパティと `RemoveSelectedJobsCommand` の活性状態を選択変更のたびに更新する
+
+**ComfyUIRunWorkflow**
+- [x] `ViewModels/Pages/QueueJobViewModel.cs` — `IsSelected`（bool, 既定 false、セッション限りの UI 状態）を追加
+- [x] `ViewModels/Pages/QueueViewModel.cs`
+  - `HasSelectedJobs`（計算プロパティ） — `Jobs.Any(j => j.IsSelected)`
+  - `RemoveAllJobsCommand`（`CanExecute`: `CanEditJobs && Jobs.Count > 0`） — 確認ダイアログでの承認後、全ジョブを削除し `queue_jobs.json` へ即座に反映
+  - `RemoveSelectedJobsCommand`（`CanExecute`: `CanEditJobs && HasSelectedJobs`） — 確認ダイアログでの承認後、チェック済みジョブのみを削除
+  - `AttachJob`/`DetachJob`/`OnJobPropertyChanged`（private） — ジョブの `PropertyChanged`（`IsSelected` 変更）を購読・解除するヘルパー
+- [x] `Views/Pages/QueuePage.xaml` — ツールバーに「選択したジョブを削除」「すべて削除」`ui:Button` を追加。ジョブ一覧の各項目左端にチェックボックス（`IsSelected` に TwoWay バインド）を追加（既存の2カラムグリッドをチェックボックス分1カラム追加してシフト）
+- [x] `Resources/Strings.resx`/`Strings.en.resx` — `Queue_RemoveSelectedButtonContent`/`Queue_RemoveAllButtonContent`/`Queue_RemoveAllConfirmTitle`/`Queue_RemoveAllConfirmContent_Format`/`Queue_RemoveSelectedConfirmTitle`/`Queue_RemoveSelectedConfirmContent_Format`/`Queue_RemoveConfirmPrimaryButtonContent`/`Common_CancelButtonContent` を追加
+
+**テスト**
+- [x] `ComfyUIRunWorkflowTests/Fakes/FakeContentDialogService.cs` — `ShowAsync` が返す結果をテストごとに切り替えられるよう `NextShowResult` プロパティ（既定 `ContentDialogResult.None`）を追加
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/QueueJobViewModelTests.cs` — `IsSelected` の既定値を検証するテストを追加
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/QueueViewModelTests.cs` — `RemoveAllJobsCommand`/`RemoveSelectedJobsCommand` の `CanExecute`（ジョブなし・実行中・選択なし）、確認ダイアログでの確定/キャンセル時の挙動（削除される/されない、`queue_jobs.json` への反映、`SelectedJob` のクリア）、`IsSelected` のオン/オフによる `HasSelectedJobs`/`CanExecute` の追従を検証するテストを追加（確認ダイアログの表示が実際に WPF `ContentDialog` を構築するため STA スレッド上で実行）
+- [x] `doc/usage.md`/`doc/usage_english.md`/`doc/class_diagram.md` を更新
+
+合計テスト数: ComfyUILibsTests 187件 / ComfyUIRunWorkflowTests 310件（全パス）
+
 ### 将来的な拡張
 
 - C# 版 Discord ボット（ComfyUILibs を共用）

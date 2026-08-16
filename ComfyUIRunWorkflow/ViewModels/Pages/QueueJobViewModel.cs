@@ -27,6 +27,13 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         [ObservableProperty]
         private bool _isEditingName = false;
 
+        /// <summary>
+        /// ジョブ一覧のチェックボックスによる複数選択削除用の選択状態。
+        /// セッション限りの UI 状態であり、永続化対象（<see cref="QueueJobData"/>）には含めない。
+        /// </summary>
+        [ObservableProperty]
+        private bool _isSelected = false;
+
         /// <summary>使用するワークフロー名。</summary>
         [ObservableProperty]
         private string _workflowName = "";

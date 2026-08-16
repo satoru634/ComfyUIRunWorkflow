@@ -82,6 +82,7 @@
   <data name="Common_ExportError_Format" xml:space="preserve"><value>エクスポートに失敗しました: {0}</value></data>
   <data name="Common_ImportError_Format" xml:space="preserve"><value>インポートに失敗しました: {0}</value></data>
   <data name="Common_ImportWorkflowNotFound_Format" xml:space="preserve"><value>ワークフロー「{0}」が見つからないため、ワークフロー選択以外の項目のみ反映しました</value></data>
+  <data name="Common_CancelButtonContent" xml:space="preserve"><value>キャンセル</value></data>
 
   <!-- Dashboard -->
   <data name="Dashboard_Title" xml:space="preserve"><value>ワークフロー実行</value></data>
@@ -162,6 +163,13 @@
   <data name="Queue_ImportListDialogTitle" xml:space="preserve"><value>ジョブリストをインポート</value></data>
   <data name="Queue_ImportListSuccess_Format" xml:space="preserve"><value>{0} 件のジョブをインポートしました</value></data>
   <data name="Queue_JobNameEditHint" xml:space="preserve"><value>ダブルクリックでジョブ名を編集</value></data>
+  <data name="Queue_RemoveSelectedButtonContent" xml:space="preserve"><value>選択したジョブを削除</value></data>
+  <data name="Queue_RemoveAllButtonContent" xml:space="preserve"><value>すべて削除</value></data>
+  <data name="Queue_RemoveAllConfirmTitle" xml:space="preserve"><value>すべてのジョブを削除しますか？</value></data>
+  <data name="Queue_RemoveAllConfirmContent_Format" xml:space="preserve"><value>登録されている{0}件のジョブをすべて削除します。この操作は元に戻せません。</value></data>
+  <data name="Queue_RemoveSelectedConfirmTitle" xml:space="preserve"><value>選択したジョブを削除しますか？</value></data>
+  <data name="Queue_RemoveSelectedConfirmContent_Format" xml:space="preserve"><value>選択した{0}件のジョブを削除します。この操作は元に戻せません。</value></data>
+  <data name="Queue_RemoveConfirmPrimaryButtonContent" xml:space="preserve"><value>削除</value></data>
 
   <!-- ResultDetail -->
   <data name="ResultDetail_Title" xml:space="preserve"><value>実行結果詳細</value></data>
