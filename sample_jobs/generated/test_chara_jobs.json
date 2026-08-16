@@ -1,0 +1,30 @@
+﻿{
+  "Jobs": [
+    {
+      "JobName": "001_office",
+      "WorkflowName": "anima_rapid",
+      "PositivePrompt": "masterpiece, best quality, score_7, safe, fine lines, volumetric lighting, detailed anime illustration, soft shading, cel shading, \nbrown hair, short hair, folded ponytail, swept bangs, brown eyes, \nindoors, office, president\u0027s office, chair, desk, modern architecture, \nred striped shirt, dress shirt, black jacket, necklace, skirt suit, business suit, black pencil skirt, belt, black pantyhose, \nsitting, crossed legs, head tilt, dutch angle, from side, hand on own cheek, arm support, ",
+      "NegativePrompt": "worst quality, low quality, score_1, score_2, score_3, artist name, blurry, bad anatomy, extra fingers, sepia, ",
+      "FilenamePrefix": "anima_test_chara/anima_test_chara",
+      "LoraFiles": [],
+      "ImageSizeOrientation": "square",
+      "IsCustomSize": false,
+      "CustomWidth": 1024,
+      "CustomHeight": 1024,
+      "BatchCount": 2
+    },
+    {
+      "JobName": "002_theme_park",
+      "WorkflowName": "anima_rapid",
+      "PositivePrompt": "masterpiece, best quality, score_7, safe, fine lines, volumetric lighting, detailed anime illustration, soft shading, cel shading, \nbrown hair, short hair, folded ponytail, swept bangs, brown eyes, \noutdoors, theme park, ferris wheel, roller coaster, carousel, sunlight, \nnecklace, earrings, red plaid shirt, white floral print camisole, tied shirt, orange plaid skirt, \nwalking, cowboy shot, smile, dutch angle, selfie, v over mouth, open mouth, tilt head, facing front, ",
+      "NegativePrompt": "worst quality, low quality, score_1, score_2, score_3, artist name, blurry, bad anatomy, extra fingers, sepia, ",
+      "FilenamePrefix": "anima_test_chara/anima_test_chara",
+      "LoraFiles": [],
+      "ImageSizeOrientation": "square",
+      "IsCustomSize": false,
+      "CustomWidth": 1024,
+      "CustomHeight": 1024,
+      "BatchCount": 2
+    }
+  ]
+}

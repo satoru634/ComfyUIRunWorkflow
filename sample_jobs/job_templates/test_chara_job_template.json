@@ -1,0 +1,12 @@
+{
+  "WorkflowName": "anima_rapid",
+  "FilenamePrefix": "anima_test_chara/anima_test_chara",
+  "PositivePrompt": "",
+  "NegativePrompt": "",
+  "LoraFiles": [],
+  "ImageSizeOrientation": "square",
+  "IsCustomSize": false,
+  "CustomWidth": 1024,
+  "CustomHeight": 1024,
+  "BatchCount": 2
+}
