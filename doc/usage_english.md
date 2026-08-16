@@ -2,8 +2,9 @@
 
 ✨ [日本語](usage.md)
 
-A detailed guide to each page of ComfyUIRunWorkflow.
+A detailed developer-oriented guide to each page of ComfyUIRunWorkflow.
 For setup instructions, see the [Quick Start](README_english.md) section of the English README.
+For a plain-language guide that doesn't assume any programming knowledge, see the [User Manual](manual/index_english.md).
 
 ## Table of Contents
 

@@ -68,8 +68,11 @@ ComfyUIRunWorkflow/                     <- ソリューションルート
       template_wd14_tagger.json         <- WD14 Tagger ワークフローテンプレート
   doc/                                <- ドキュメント
     class_diagram.md                  <- Mermaid 記法によるクラス図（全体・ComfyUIRunWorkflow・ComfyUILibs の3図）
-    usage.md                          <- 各ページの詳細な使い方（日本語）
-    usage_english.md                  <- 各ページの詳細な使い方（英語）
+    usage.md                          <- 各ページの詳細な使い方（開発者向け・日本語）
+    usage_english.md                  <- 各ページの詳細な使い方（開発者向け・英語）
     README_english.md                 <- README.md の英語版（クイックスタート）
-    images/                           <- README・usage 用スクリーンショット（プレースホルダー）
+    manual/                           <- 非エンジニア向け操作マニュアル（ページ単位で日本語/英語ファイルに分割、index.md が目次）
+    images/                           <- README・usage・manual 用スクリーンショット
+  sample_jobs/                        <- Generate ページ用サンプル（base_prompts/replace_list/job_templates/generated。ビルド時に出力ディレクトリへコピー）
+  workflow_config.json                <- サンプル設定ファイル（ビルド時に出力ディレクトリへコピー）
 ```
