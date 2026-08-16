@@ -2,8 +2,9 @@
 
 ✨ [English](usage_english.md)
 
-ComfyUIRunWorkflow の各ページの詳しい使い方をまとめたドキュメントです。
+ComfyUIRunWorkflow の各ページの詳しい使い方をまとめた開発者向けドキュメントです。
 セットアップ手順は [README.md](../README.md) を参照してください。
+プログラミングの知識を前提としない、分かりやすい操作ガイドは [操作マニュアル](manual/index.md) を参照してください。
 
 ## 目次
 

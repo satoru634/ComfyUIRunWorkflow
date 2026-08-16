@@ -92,7 +92,8 @@ ComfyUIRunWorkflow/   ← solution root
 
 ## Documentation
 
-- [Usage (detailed)](usage_english.md)
+- [User Manual (non-engineer)](manual/index_english.md)
+- [Usage (detailed, for developers)](usage_english.md)
 - [Class diagram](class_diagram.md)
 
 ## License

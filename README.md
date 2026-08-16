@@ -92,7 +92,8 @@ ComfyUIRunWorkflow/   ← ソリューションルート
 
 ## ドキュメント
 
-- [使い方（詳細）](doc/usage.md)
+- [操作マニュアル（非エンジニア向け）](doc/manual/index.md)
+- [使い方（詳細・開発者向け）](doc/usage.md)
 - [クラス図](doc/class_diagram.md)
 
 ## ライセンス
