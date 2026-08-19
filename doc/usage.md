@@ -248,6 +248,8 @@ ComfyUIRunWorkflow の各ページの詳しい使い方をまとめた開発者�
 
 ## Config ページ（workflow_config.json 編集）
 
+![Config ページ](images/config_editor_page.png)
+
 設定ページで指定した `workflow_config.json` を GUI から直接編集・保存できるページです。これまでテキストエディタで手作業編集する必要があった `workflow_config.json` を、アプリ内で完結して編集できます。
 
 ### 画面構成

@@ -5,6 +5,8 @@
 This page lets you edit `workflow_config.json` — the file that defines art styles (workflows) and LoRA settings — right from the app's screen, without needing a text editor.
 This page is mainly intended for the administrator who sets up the app. If you're just generating images day to day, you don't need to use this page.
 
+![Config page](../images/config_editor_page_en.png)
+
 ## Basic Usage
 
 1. At the top of the screen, check and update the common settings ("comfyui_url", "default_workflow", etc.) as needed
