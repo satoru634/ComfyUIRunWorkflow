@@ -142,6 +142,7 @@
   <data name="MainWindow_MenuGenerate" xml:space="preserve"><value>バッチ生成</value></data>
   <data name="MainWindow_MenuResults" xml:space="preserve"><value>結果</value></data>
   <data name="MainWindow_MenuTagger" xml:space="preserve"><value>タグ付け</value></data>
+  <data name="MainWindow_MenuConfig" xml:space="preserve"><value>ワークフロー設定</value></data>
   <data name="MainWindow_MenuSettings" xml:space="preserve"><value>設定</value></data>
   <data name="MainWindow_TrayHome" xml:space="preserve"><value>ホーム</value></data>
 
@@ -171,6 +172,33 @@
   <data name="Queue_RemoveSelectedConfirmTitle" xml:space="preserve"><value>選択したジョブを削除しますか？</value></data>
   <data name="Queue_RemoveSelectedConfirmContent_Format" xml:space="preserve"><value>選択した{0}件のジョブを削除します。この操作は元に戻せません。</value></data>
   <data name="Queue_RemoveConfirmPrimaryButtonContent" xml:space="preserve"><value>削除</value></data>
+
+  <!-- ConfigEditor -->
+  <data name="ConfigEditor_Title" xml:space="preserve"><value>ワークフロー設定編集</value></data>
+  <data name="ConfigEditor_SaveButtonContent" xml:space="preserve"><value>保存</value></data>
+  <data name="ConfigEditor_Wd14ModelNamePlaceholder" xml:space="preserve"><value>未入力の場合、wd14_tagger 設定自体を保存しません</value></data>
+  <data name="ConfigEditor_TagsPlaceholder" xml:space="preserve"><value>カンマ区切りで入力（例: tag_a, tag_b）</value></data>
+  <data name="ConfigEditor_AddWorkflowButtonContent" xml:space="preserve"><value>+ ワークフローを追加</value></data>
+  <data name="ConfigEditor_WorkflowNameEditHint" xml:space="preserve"><value>ダブルクリックでワークフロー名を編集</value></data>
+  <data name="ConfigEditor_NoWorkflowSelectedPlaceholder" xml:space="preserve"><value>編集するワークフローを&#x0a;リストから選択してください</value></data>
+  <data name="ConfigEditor_ImageSizeSectionLabel" xml:space="preserve"><value>画像サイズ</value></data>
+  <data name="ConfigEditor_LoraSectionLabel" xml:space="preserve"><value>LoRA</value></data>
+  <data name="ConfigEditor_LoraNamePlaceholder" xml:space="preserve"><value>論理名</value></data>
+  <data name="ConfigEditor_LoraFilePlaceholder" xml:space="preserve"><value>ファイル名</value></data>
+  <data name="ConfigEditor_AddLoraButtonContent" xml:space="preserve"><value>+ LoRA を追加</value></data>
+  <data name="ConfigEditor_SortLorasAscendingTooltip" xml:space="preserve"><value>LoRA名で昇順に並び替え</value></data>
+  <data name="ConfigEditor_SortLorasDescendingTooltip" xml:space="preserve"><value>LoRA名で降順に並び替え</value></data>
+  <data name="ConfigEditor_NewWorkflowDefaultName" xml:space="preserve"><value>new_workflow</value></data>
+  <data name="ConfigEditor_CannotRemoveDefaultWorkflow_Format" xml:space="preserve"><value>「{0}」は default_workflow に指定されているため削除できません。先に default_workflow を他のワークフローに変更してください。</value></data>
+  <data name="ConfigEditor_RemoveWorkflowConfirmTitle" xml:space="preserve"><value>ワークフローを削除しますか？</value></data>
+  <data name="ConfigEditor_RemoveWorkflowConfirmContent_Format" xml:space="preserve"><value>ワークフロー「{0}」を削除します。この操作は元に戻せません。</value></data>
+  <data name="ConfigEditor_WorkflowNameEmpty" xml:space="preserve"><value>ワークフロー名を入力してください。</value></data>
+  <data name="ConfigEditor_DuplicateWorkflowName_Format" xml:space="preserve"><value>ワークフロー名「{0}」は既に使用されています。</value></data>
+  <data name="ConfigEditor_LoraNameEmpty_Format" xml:space="preserve"><value>ワークフロー「{0}」に論理名が未入力の LoRA があります。</value></data>
+  <data name="ConfigEditor_DuplicateLoraName_Format" xml:space="preserve"><value>ワークフロー「{0}」の LoRA 論理名「{1}」が重複しています。</value></data>
+  <data name="ConfigEditor_SaveValidationError_Format" xml:space="preserve"><value>入力内容に誤りがあるため保存できませんでした: {0}</value></data>
+  <data name="ConfigEditor_SaveSuccess" xml:space="preserve"><value>workflow_config.json を保存しました</value></data>
+  <data name="ConfigEditor_SaveSuccessWithMissingTemplates_Format" xml:space="preserve"><value>workflow_config.json を保存しました。ただし次のワークフローには templates フォルダが見つかりません: {0}</value></data>
 
   <!-- ResultDetail -->
   <data name="ResultDetail_Title" xml:space="preserve"><value>実行結果詳細</value></data>
