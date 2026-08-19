@@ -1,0 +1,419 @@
+<Page
+    x:Class="ComfyUIRunWorkflow.Views.Pages.ConfigEditorPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:ComfyUIRunWorkflow.Views.Pages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:ComfyUIRunWorkflow.ViewModels.Pages"
+    xmlns:helpers="clr-namespace:ComfyUIRunWorkflow.Helpers"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    Title="ConfigEditorPage"
+    d:DataContext="{d:DesignInstance local:ConfigEditorPage, IsDesignTimeCreatable=False}"
+    d:DesignHeight="900"
+    d:DesignWidth="1100"
+    ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+    ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    ScrollViewer.CanContentScroll="False"
+    mc:Ignorable="d">
+
+    <Grid Margin="16,8,16,16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- タイトル・保存ボタン -->
+        <Grid Grid.Row="0" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock
+                Grid.Column="0"
+                VerticalAlignment="Center"
+                FontSize="20"
+                FontWeight="SemiBold"
+                Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ConfigEditor_Title]}" />
+            <ui:Button
+                Grid.Column="1"
+                Command="{Binding ViewModel.SaveCommand}"
+                Content="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ConfigEditor_SaveButtonContent]}"
+                Appearance="Primary"
+                Icon="{ui:SymbolIcon Save24}" />
+        </Grid>
+
+        <!-- 共通設定 -->
+        <Border
+            Grid.Row="1"
+            Margin="0,0,0,8"
+            Padding="12"
+            Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1"
+            CornerRadius="4"
+            IsEnabled="{Binding ViewModel.IsConfigLoaded}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="130" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="comfyui_url" />
+                <ui:TextBox
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    Grid.ColumnSpan="7"
+                    Margin="0,0,0,8"
+                    Text="{Binding ViewModel.ComfyUIUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="default_workflow" />
+                <ComboBox
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    Grid.ColumnSpan="7"
+                    Margin="0,0,0,8"
+                    Width="220"
+                    HorizontalAlignment="Left"
+                    ItemsSource="{Binding ViewModel.WorkflowNameList}"
+                    SelectedItem="{Binding ViewModel.DefaultWorkflow, Mode=TwoWay}" />
+
+                <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="wd14_tagger" />
+                <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,0,8,8" VerticalAlignment="Center" Text="model_name" />
+                <ComboBox
+                    Grid.Row="2"
+                    Grid.Column="2"
+                    Margin="0,0,8,8"
+                    IsReadOnly="True"
+                    ToolTip="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ConfigEditor_Wd14ModelNamePlaceholder]}"
+                    Text="{Binding ViewModel.Wd14ModelName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <ComboBoxItem Content="wd-vit-tagger-v3" />
+                        <ComboBoxItem Content="wd-swinv2-tagger-v3" />
+                        <ComboBoxItem Content="wd-convnext-tagger-v3" />
+                        <ComboBoxItem Content="wd-eva02-large-tagger-v3" />
+                        <ComboBoxItem Content="wd-vit-large-tagger-v3" />
+                </ComboBox>
+                <TextBlock Grid.Row="2" Grid.Column="3" Margin="0,0,8,8" VerticalAlignment="Center" Text="general thresh" />
+                <ui:NumberBox
+                    Grid.Row="2"
+                    Grid.Column="4"
+                    Width="100"
+                    Margin="0,0,16,8"
+                    Maximum="1"
+                    Minimum="0"
+                    SpinButtonPlacementMode="Compact"
+                    Value="{Binding ViewModel.Wd14GeneralThreshold, Mode=TwoWay}" />
+                <TextBlock Grid.Row="2" Grid.Column="5" Margin="0,0,8,8" VerticalAlignment="Center" Text="character thresh" />
+                <ui:NumberBox
+                    Grid.Row="2"
+                    Grid.Column="6"
+                    Width="100"
+                    Margin="0,0,0,8"
+                    Maximum="1"
+                    Minimum="0"
+                    SpinButtonPlacementMode="Compact"
+                    Value="{Binding ViewModel.Wd14CharacterThreshold, Mode=TwoWay}" />
+
+                <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="prepend_tags" />
+                <ui:TextBox
+                    Grid.Row="3"
+                    Grid.Column="1"
+                    Grid.ColumnSpan="7"
+                    Margin="0,0,0,8"
+                    PlaceholderText="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ConfigEditor_TagsPlaceholder]}"
+                    Text="{Binding ViewModel.PrependTagsText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                <TextBlock Grid.Row="4" Grid.Column="0" Margin="0,0,8,0" VerticalAlignment="Center" Text="exclude_tags" />
+                <ui:TextBox
+                    Grid.Row="4"
+                    Grid.Column="1"
+                    Grid.ColumnSpan="7"
+                    PlaceholderText="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ConfigEditor_TagsPlaceholder]}"
+                    Text="{Binding ViewModel.ExcludeTagsText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </Grid>
+        </Border>
+
+        <!-- 本体: 左=ワークフロー一覧, 右=個別編集パネル -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200" />
+                <ColumnDefinition Width="*" MinWidth="380" />
+            </Grid.ColumnDefinitions>
+
+            <!-- ワークフロー一覧 -->
+            <Border
+                Grid.Column="0"
+                Margin="0,0,8,0"
+                Padding="8"
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="4">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <ui:Button
+                        Grid.Row="0"
+                        Margin="0,0,0,8"
+                        HorizontalAlignment="Stretch"
+                        Command="{Binding ViewModel.AddWorkflowCommand}"
+                        Content="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ConfigEditor_AddWorkflowButtonContent]}"
+                        IsEnabled="{Binding ViewModel.IsConfigLoaded}"
+                        Appearance="Secondary" />
+
+                    <ui:ListView
+                        Grid.Row="1"
+                        BorderThickness="0"
+                        Background="Transparent"
+                        ItemsSource="{Binding ViewModel.Workflows}"
+                        SelectedItem="{Binding ViewModel.SelectedWorkflow, Mode=TwoWay}"
+                        ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <ui:ListView.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:ConfigWorkflowItemViewModel}">
+                                <Grid Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Grid Grid.Column="0" VerticalAlignment="Center">
+                                        <TextBlock
+                                            Cursor="Hand"
+                                            FontSize="13"
+                                            MouseLeftButtonDown="WorkflowNameText_MouseLeftButtonDown"
+                                            Text="{Binding Name}"
+                                            TextTrimming="CharacterEllipsis"
+                                            ToolTip="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ConfigEditor_WorkflowNameEditHint]}"
+                                            Visibility="{Binding IsEditingName, Converter={StaticResource BoolToVisibilityInverseConverter}}" />
+                                        <ui:TextBox
+                                            FontSize="13"
+                                            IsVisibleChanged="WorkflowNameEditBox_IsVisibleChanged"
+                                            KeyDown="WorkflowNameEditBox_KeyDown"
+                                            LostFocus="WorkflowNameEditBox_LostFocus"
+                                            Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            Visibility="{Binding IsEditingName, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                    </Grid>
+
+                                    <ui:Button
+                                        Grid.Column="1"
+                                        Padding="6,2"
+                                        Command="{Binding DataContext.ViewModel.RemoveWorkflowCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                                        CommandParameter="{Binding}"
+                                        Appearance="Danger"
+                                        Icon="{ui:SymbolIcon Dismiss12}"
+                                        FontSize="11" />
+                                </Grid>
+                            </DataTemplate>
+                        </ui:ListView.ItemTemplate>
+                    </ui:ListView>
+                </Grid>
+            </Border>
+
+            <!-- 個別編集パネル(未選択) -->
+            <Border
+                Grid.Column="1"
+                Padding="12"
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="4"
+                Visibility="{Binding ViewModel.SelectedWorkflow, Converter={StaticResource NullToVisibilityInverseConverter}}">
+                <TextBlock
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    FontSize="12"
+                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                    Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ConfigEditor_NoWorkflowSelectedPlaceholder]}"
+                    TextAlignment="Center" />
+            </Border>
+
+            <!-- 個別編集パネル(選択中) -->
+            <Grid
+                Grid.Column="1"
+                DataContext="{Binding ViewModel.SelectedWorkflow}"
+                Visibility="{Binding DataContext.ViewModel.SelectedWorkflow, RelativeSource={RelativeSource AncestorType={x:Type Page}}, Converter={StaticResource NullToVisibilityConverter}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- 画像サイズ -->
+                <Border
+                    Grid.Row="0"
+                    Padding="12"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock
+                            Grid.Column="0"
+                            Grid.Row="0"
+                            Grid.ColumnSpan="4"
+                            Margin="0,0,0,8"
+                            FontSize="13"
+                            FontWeight="Medium"
+                            Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ConfigEditor_ImageSizeSectionLabel]}" />
+
+                        <ComboBox
+                            Grid.Column="0"
+                            Grid.Row="1"
+                            Width="140"
+                            Margin="0,0,8,0"
+                            SelectedValue="{Binding SelectedSizeKind, Mode=TwoWay}"
+                            SelectedValuePath="Tag"
+                            IsReadOnly="True">
+                                <ComboBoxItem Content="default" Tag="default" />
+                                <ComboBoxItem Content="vertical" Tag="vertical" />
+                                <ComboBoxItem Content="horizontal" Tag="horizontal" />
+                                <ComboBoxItem Content="square" Tag="square" />
+                        </ComboBox>
+                        <ui:NumberBox
+                            Grid.Column="1"
+                            Grid.Row="1"
+                            Width="110"
+                            Margin="0,0,8,0"
+                            Maximum="2048"
+                            Minimum="512"
+                            SmallChange="8"
+                            SpinButtonPlacementMode="Compact"
+                            ClearButtonEnabled="False"
+                            Value="{Binding Width, Mode=TwoWay}" />
+                        <TextBlock
+                            Grid.Column="2"
+                            Grid.Row="1"
+                            Margin="0,0,8,0"
+                            VerticalAlignment="Center"
+                            Text="×" />
+                        <ui:NumberBox
+                            Grid.Column="3"
+                            Grid.Row="1"
+                            Width="110"
+                            Maximum="2048"
+                            Minimum="512"
+                            SmallChange="8"
+                            SpinButtonPlacementMode="Compact"
+                            ClearButtonEnabled="False"
+                            Value="{Binding Height, Mode=TwoWay}" />
+                    </Grid>
+                </Border>
+
+                <!-- LoRA -->
+                <Border
+                    Grid.Row="1"
+                    Margin="0,8,0,0"
+                    Padding="12"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock
+                            Grid.Row="0"
+                            Margin="0,0,0,8"
+                            FontSize="13"
+                            FontWeight="Medium"
+                            Text="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ConfigEditor_LoraSectionLabel]}" />
+
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding Loras}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type vm:ConfigLoraItemViewModel}">
+                                        <Grid Margin="0,0,0,6">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="140" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="120" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <ui:Button
+                                                Grid.Column="0"
+                                                Padding="4,0"
+                                                Margin="0,0,4,0"
+                                                Command="{Binding DataContext.RemoveLoraCommand, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                                                CommandParameter="{Binding}"
+                                                Appearance="Danger"
+                                                Icon="{ui:SymbolIcon Dismiss12}" />
+                                            <ui:TextBox
+                                                Grid.Column="1"
+                                                Margin="0,0,4,0"
+                                                PlaceholderText="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ConfigEditor_LoraNamePlaceholder]}"
+                                                Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <ui:TextBox
+                                                Grid.Column="2"
+                                                Margin="0,0,4,0"
+                                                PlaceholderText="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ConfigEditor_LoraFilePlaceholder]}"
+                                                Text="{Binding File, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <ui:NumberBox
+                                                Grid.Column="3"
+                                                Maximum="2"
+                                                Minimum="0"
+                                                SpinButtonPlacementMode="Compact"
+                                                SmallChange="0.01"
+                                                ClearButtonEnabled="False"
+                                                Value="{Binding Strength, Mode=TwoWay}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+
+                        <StackPanel Grid.Row="2" Margin="0,4,0,0" Orientation="Horizontal">
+                            <ui:Button
+                                Margin="0,0,4,0"
+                                Command="{Binding AddLoraCommand}"
+                                Content="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ConfigEditor_AddLoraButtonContent]}"
+                                Appearance="Secondary" />
+                            <ui:Button
+                                Margin="0,0,4,0"
+                                Command="{Binding SortLorasAscendingCommand}"
+                                Icon="{ui:SymbolIcon TextSortAscending24}"
+                                ToolTip="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ConfigEditor_SortLorasAscendingTooltip]}"
+                                Appearance="Secondary" />
+                            <ui:Button
+                                Command="{Binding SortLorasDescendingCommand}"
+                                Icon="{ui:SymbolIcon TextSortDescending24}"
+                                ToolTip="{Binding Source={x:Static helpers:LocalizationManager.Instance}, Path=[ConfigEditor_SortLorasDescendingTooltip]}"
+                                Appearance="Secondary" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</Page>
