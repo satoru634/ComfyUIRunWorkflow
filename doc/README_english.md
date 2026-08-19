@@ -14,6 +14,7 @@ A tool for running ComfyUI workflows from a GUI. A C# WPF port of [comfyui_tools
 - Import/export Home / Queue page settings (workflow, prompts, image size, LoRA, batch count, filename prefix) as JSON
 - Run multiple workflows in sequence on the Queue page (register jobs with different workflows/prompts/LoRA etc. in a list and run them automatically one after another; job names in the list can be edited by double-clicking)
 - Batch-generate jobs on the Generate page (replace keywords in base prompts using a replacement list, and combine them with a job template to bulk-generate a Queue page job list)
+- Edit workflow_config.json from the GUI on the Config page (workflows, image sizes, LoRA, WD14 Tagger, prepend/exclude tags — input is validated before saving, and invalid input blocks the save)
 - List and inspect execution results
 - Preview generated images (right after execution, in the list, and in the detail dialog — click to enlarge)
 - WD14 Tagger image tagging (select an image, get and copy a tag string)
@@ -48,7 +49,7 @@ dotnet run --project ComfyUIRunWorkflow
 1. Open the **Settings** page
 2. Configure the **ComfyUI URL** (default: `http://127.0.0.1:8188`), the **workflow_config.json path**, and the **results folder**
 
-A sample [`workflow_config.json`](../workflow_config.json) is included at the repository root. Edit it to match your environment (e.g. LoRA filenames), then point the **workflow_config.json path** setting at this file.
+A sample [`workflow_config.json`](../workflow_config.json) is included at the repository root. Point the **workflow_config.json path** setting at this file, then edit it to match your environment (e.g. LoRA filenames) from the **Config** page (directly editing the file in a text editor still works too).
 
 ![Settings page](images/settings_page_en.png)
 

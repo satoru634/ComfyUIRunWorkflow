@@ -25,6 +25,7 @@ ComfyUIRunWorkflow は、「ComfyUI」という画像生成の仕組みを、難
 | [Generate ページ](generate.md) | キャラクターや衣装だけ変えた大量の生成予約を一気に作る |
 | [Data ページ](data.md) | 生成した画像や、タグ付けした結果を見返す |
 | [Tagger ページ](tagger.md) | 画像に写っているものを説明する単語（タグ）を自動で取り出す |
+| [Config ページ](config.md)（管理者向け） | ワークフローや LoRA の設定を、ファイルを直接編集せずに画面から変更する |
 
 初めて使う場合は、[設定ページ](settings.md) → [Home ページ](home.md) の順に読むのがおすすめです。
 

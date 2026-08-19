@@ -424,6 +424,54 @@ classDiagram
             +OnNavigatedToAsync() Task
             +OnNavigatedFromAsync() Task
         }
+        class ConfigLoraItemViewModel {
+            +string Name
+            +string File
+            +double Strength
+        }
+        class ConfigWorkflowItemViewModel {
+            +string Name
+            +bool IsEditingName
+            +int DefaultWidth
+            +int DefaultHeight
+            +int VerticalWidth
+            +int VerticalHeight
+            +int HorizontalWidth
+            +int HorizontalHeight
+            +int SquareWidth
+            +int SquareHeight
+            +string SelectedSizeKind
+            +int Width
+            +int Height
+            +AddLoraCommand
+            +RemoveLoraCommand
+            +SortLorasAscendingCommand
+            +SortLorasDescendingCommand
+            +FromSettings(string, WorkflowSettings) ConfigWorkflowItemViewModel$
+            +CreateDefault(string) ConfigWorkflowItemViewModel$
+            +ToSettings() WorkflowSettings
+        }
+        class ConfigEditorViewModel {
+            +Setting~AppConfig~ Config
+            +bool IsConfigLoaded
+            +string ComfyUIUrl
+            +string DefaultWorkflow
+            +List~string~ WorkflowNameList
+            +ObservableCollection~ConfigWorkflowItemViewModel~ Workflows
+            +ConfigWorkflowItemViewModel? SelectedWorkflow
+            +string Wd14ModelName
+            +double Wd14GeneralThreshold
+            +double Wd14CharacterThreshold
+            +string PrependTagsText
+            +string ExcludeTagsText
+            +AddWorkflowCommand
+            +RemoveWorkflowCommand
+            +SaveCommand
+            +BeginEditingWorkflowName(ConfigWorkflowItemViewModel) void
+            +FinishEditingWorkflowName(ConfigWorkflowItemViewModel) void
+            +OnNavigatedToAsync() Task
+            +OnNavigatedFromAsync() Task
+        }
     }
 
     %% ===== ComfyUIRunWorkflow / Services =====
@@ -537,12 +585,16 @@ classDiagram
     ObservableObject_lib <|-- ResultDetailViewModel
     ObservableObject_lib <|-- QueueJobViewModel
     ObservableObject_lib <|-- QueueViewModel
+    ObservableObject_lib <|-- ConfigLoraItemViewModel
+    ObservableObject_lib <|-- ConfigWorkflowItemViewModel
+    ObservableObject_lib <|-- ConfigEditorViewModel
     INavigationAware <|.. DashboardViewModel
     INavigationAware <|.. SettingsViewModel
     INavigationAware <|.. DataViewModel
     INavigationAware <|.. TaggerViewModel
     INavigationAware <|.. QueueViewModel
     INavigationAware <|.. GenerateViewModel
+    INavigationAware <|.. ConfigEditorViewModel
     IHostedService <|.. ApplicationHostService
 
     %% ===== 関連・依存 =====
@@ -628,6 +680,12 @@ classDiagram
     BatchJobGenerator ..> QueueJobData : creates
     BatchJobGenerator ..> QueueJobListData : GenerateViewModel wraps output as
     BatchJobGenerator ..> PromptPair : reads base prompts as
+    ConfigEditorViewModel --> Setting~AppConfig~ : uses
+    ConfigEditorViewModel --> ConfigLoader : uses
+    ConfigEditorViewModel "1" *-- "*" ConfigWorkflowItemViewModel : workflows
+    ConfigWorkflowItemViewModel "1" o-- "*" ConfigLoraItemViewModel : loras
+    ConfigWorkflowItemViewModel ..> WorkflowSettings : FromSettings/ToSettings
+    ConfigEditorViewModel ..> WorkflowConfig : builds and saves via JsonLoader
 ```
 
 ---
@@ -874,6 +932,55 @@ classDiagram
         +OnNavigatedFromAsync() Task
     }
 
+    class ConfigLoraItemViewModel {
+        +string Name
+        +string File
+        +double Strength
+    }
+
+    class ConfigWorkflowItemViewModel {
+        +string Name
+        +bool IsEditingName
+        +int DefaultWidth
+        +int DefaultHeight
+        +int VerticalWidth
+        +int VerticalHeight
+        +int HorizontalWidth
+        +int HorizontalHeight
+        +int SquareWidth
+        +int SquareHeight
+        +string SelectedSizeKind
+        +int Width
+        +int Height
+        +AddLoraCommand
+        +RemoveLoraCommand
+        +SortLorasAscendingCommand
+        +SortLorasDescendingCommand
+        +FromSettings(string, WorkflowSettings) ConfigWorkflowItemViewModel$
+        +CreateDefault(string) ConfigWorkflowItemViewModel$
+        +ToSettings() WorkflowSettings
+    }
+
+    class ConfigEditorViewModel {
+        +Setting~AppConfig~ Config
+        +bool IsConfigLoaded
+        +string ComfyUIUrl
+        +string DefaultWorkflow
+        +List~string~ WorkflowNameList
+        +ObservableCollection~ConfigWorkflowItemViewModel~ Workflows
+        +ConfigWorkflowItemViewModel? SelectedWorkflow
+        +string Wd14ModelName
+        +double Wd14GeneralThreshold
+        +double Wd14CharacterThreshold
+        +string PrependTagsText
+        +string ExcludeTagsText
+        +AddWorkflowCommand
+        +RemoveWorkflowCommand
+        +SaveCommand
+        +OnNavigatedToAsync() Task
+        +OnNavigatedFromAsync() Task
+    }
+
     %% ----- Services -----
 
     class ApplicationHostService {
@@ -966,12 +1073,16 @@ classDiagram
     ObservableObject <|-- ResultDetailViewModel
     ObservableObject <|-- QueueJobViewModel
     ObservableObject <|-- QueueViewModel
+    ObservableObject <|-- ConfigLoraItemViewModel
+    ObservableObject <|-- ConfigWorkflowItemViewModel
+    ObservableObject <|-- ConfigEditorViewModel
     INavigationAware <|.. DashboardViewModel
     INavigationAware <|.. SettingsViewModel
     INavigationAware <|.. DataViewModel
     INavigationAware <|.. TaggerViewModel
     INavigationAware <|.. QueueViewModel
     INavigationAware <|.. GenerateViewModel
+    INavigationAware <|.. ConfigEditorViewModel
     IHostedService <|.. ApplicationHostService
 
     %% ----- 関連 -----
@@ -1015,6 +1126,9 @@ classDiagram
     GenerateViewModel --> BatchJobGenerator : uses
     BatchJobGenerator ..> QueueJobData : creates
     BatchJobGenerator ..> QueueJobListData : GenerateViewModel wraps output as
+    ConfigEditorViewModel --> Setting~AppConfig~ : uses
+    ConfigEditorViewModel "1" *-- "*" ConfigWorkflowItemViewModel : workflows
+    ConfigWorkflowItemViewModel "1" o-- "*" ConfigLoraItemViewModel : loras
 ```
 
 ---

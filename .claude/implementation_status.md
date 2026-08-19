@@ -444,6 +444,36 @@ QueuePage のジョブ数が増えてくると1件ずつ × ボタンで削除�
 
 合計テスト数: ComfyUILibsTests 187件 / ComfyUIRunWorkflowTests 313件（全パス）
 
+### フェーズ18: workflow_config.json 編集用 Config ページの新設（`feature/config-editor-page` ブランチ、実装完了）
+
+これまで `workflow_config.json` の編集はテキストエディタでの手作業に頼っていたため、GUI から直接編集・保存できる新規ページ「Config」を追加した。
+
+**仕様（ユーザーとの合意事項）**
+- 編集対象は設定ページで指定済みの `Config.Data.ConfigPath`（`AppConfig.ConfigPath`）が指す `workflow_config.json` そのもの（ページ内でファイルを都度選択する方式ではない）
+- 編集範囲は `comfyui_url`・`default_workflow`・`workflows`（ワークフローごとの `default_image_size`・`image_size`・`loras`）に加え、`wd14_tagger`・`prepend_tags`・`exclude_tags` も含めた全項目
+- 画面構成は QueuePage と同様、左にワークフロー名の一覧（追加・削除・ダブルクリックによるインライン名前編集）、右に選択中ワークフローの個別編集パネル（画像サイズ・LoRA 一覧）を配置する2カラム構成。共通設定（comfyui_url・default_workflow・wd14_tagger・prepend/exclude タグ）は最上部のカードにまとめる
+- 保存時は `ConfigLoader.LoadConfig` と同等のバリデーションを実施してから書き込み、不正な場合は実ファイルを変更しない
+
+**ComfyUIRunWorkflow**
+- [x] `ViewModels/Pages/ConfigLoraItemViewModel.cs`（新規） — LoRA 1件分の編集状態（論理名・ファイル名・strength）
+- [x] `ViewModels/Pages/ConfigWorkflowItemViewModel.cs`（新規） — ワークフロー1件分の編集状態（画像サイズ4種・LoRA 一覧）。`FromSettings`/`ToSettings` で `ComfyUILibs.Models.WorkflowSettings` と相互変換し、`CreateDefault` で新規追加時の初期値（画像サイズ全方向 1024×1024、LoRA 空）を生成する
+- [x] `ViewModels/Pages/ConfigEditorViewModel.cs`（新規） — ページ全体の VM。`OnNavigatedToAsync` のたびに `ConfigLoader.LoadConfig` で再読み込みする（未保存の編集内容は破棄される）。ワークフローの追加・削除・インライン名前編集（重複・空文字チェック、`default_workflow` への追従）、保存処理を担当
+  - 保存処理（`SaveCommand`）は、まず入力中のワークフロー名・LoRA 論理名の重複/空文字をローカルでチェックしたうえで `WorkflowConfig` を構築し、一時ファイルへ書き出してから `ConfigLoader.LoadConfig` に通す形で Home/Queue ページの実行時と同一のバリデーションを再利用する。検証に失敗した場合は一時ファイルを削除するのみで実ファイル（`ConfigPath`）には触れない。検証を通過した場合のみ実ファイルへ上書き保存する
+  - 保存成功後、追加・変更したワークフロー名に対応する `templates/{ワークフロー名}/template_lora_0.json` が実行ディレクトリに存在するかを追加でチェックし、存在しない場合は保存成功と合わせて警告（Caution 表示）を通知する（保存自体はブロックしない）
+  - `wd14_tagger.model_name` が空文字の場合は保存時に `wd14_tagger` セクション自体を出力しない。`prepend_tags`/`exclude_tags` はカンマ区切りテキストとの相互変換で、空文字の場合はキー自体を出力しない
+- [x] `Views/Pages/ConfigEditorPage.xaml` / `.xaml.cs`（新規） — 上記仕様のレイアウトを実装。ワークフロー名のインライン編集はダブルクリックで開始し、`LostFocus`/Enter キーで確定する（QueuePage のジョブ名編集と同じコードビハインドパターン）
+- [x] `App.xaml.cs` — `ConfigEditorPage`/`ConfigEditorViewModel` を DI 登録
+- [x] `ViewModels/Windows/MainWindowViewModel.cs` — ナビゲーションメニューに「Config」項目を Tagger の直後（Settings の直前）に追加
+- [x] `Resources/Strings.resx`/`Strings.en.resx` — `MainWindow_MenuConfig`・`ConfigEditor_*` キーを追加
+
+**テスト**
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/ConfigLoraItemViewModelTests.cs`（新規）
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/ConfigWorkflowItemViewModelTests.cs`（新規） — `FromSettings`/`ToSettings` の相互変換・`CreateDefault` の初期値・LoRA 追加削除コマンドを検証
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/ConfigEditorViewModelTests.cs`（新規） — 読み込み（正常/異常系・wd14_tagger や prepend/exclude タグの有無）・ワークフロー追加（一意な仮名生成）・削除（確認ダイアログ・`default_workflow` 保護）・インライン名前編集（重複/空文字チェック・`default_workflow` への追従）・保存（正常系・バリデーションエラー時に実ファイルを変更しないこと・`wd14_tagger` 省略・タグ分割・テンプレート未検出警告）を検証
+- [x] `doc/usage.md`/`doc/usage_english.md`/`doc/manual/config.md`/`doc/manual/config_english.md`/`doc/manual/index.md`/`doc/manual/index_english.md`/`README.md`/`doc/README_english.md`/`doc/class_diagram.md` を更新
+
+合計テスト数: ComfyUILibsTests 187件 / ComfyUIRunWorkflowTests 343件（全パス）
+
 ### 将来的な拡張
 
 - C# 版 Discord ボット（ComfyUILibs を共用）

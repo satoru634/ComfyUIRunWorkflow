@@ -14,6 +14,7 @@ ComfyUIRunWorkflow の各ページの詳しい使い方をまとめた開発者�
 - [Generate ページ（バッチジョブ生成）](#generate-ページバッチジョブ生成)
 - [Data ページ（実行結果・タグ付け履歴）](#data-ページ実行結果タグ付け履歴)
 - [Tagger ページ（WD14 Tagger）](#tagger-ページwd14-tagger)
+- [Config ページ（workflow_config.json 編集）](#config-ページworkflow_configjson-編集)
 
 ---
 
@@ -237,8 +238,43 @@ ComfyUIRunWorkflow の各ページの詳しい使い方をまとめた開発者�
 
 ### モデル・しきい値について
 
-モデル名・しきい値（general/character threshold）は `workflow_config.json` の `wd14_tagger` セクションの値が使用され、ページ上での変更はできません。変更したい場合は設定ページで `workflow_config.json` のパスを確認し、ファイル自体を編集します。
+モデル名・しきい値（general/character threshold）は `workflow_config.json` の `wd14_tagger` セクションの値が使用され、ページ上での変更はできません。変更したい場合は [Config ページ](#config-ページworkflow_configjson-編集)で `wd14_tagger` の値を編集します。
 
 ### 保存先
 
 タグ付け結果は `結果出力フォルダ/tag_result_{timestamp}.json` に保存されます（ワークフロー実行結果 `result_*.json` とは別ファイルとして管理され、Data ページの「タグ付け履歴」タブに表示されます）。
+
+---
+
+## Config ページ（workflow_config.json 編集）
+
+設定ページで指定した `workflow_config.json` を GUI から直接編集・保存できるページです。これまでテキストエディタで手作業編集する必要があった `workflow_config.json` を、アプリ内で完結して編集できます。
+
+### 画面構成
+
+- 上部の共通設定カード: `comfyui_url`・`default_workflow`・`wd14_tagger`（model_name・general/character threshold）・`prepend_tags`・`exclude_tags`（後者2つはカンマ区切りで入力）。`model_name` は `wd-vit-tagger-v3`/`wd-swinv2-tagger-v3`/`wd-convnext-tagger-v3`/`wd-eva02-large-tagger-v3`/`wd-vit-large-tagger-v3` の5種から選ぶ ComboBox
+- 左カラム: ワークフロー名の一覧（**+ ワークフローを追加** ボタン、各項目右の **×** ボタンで削除）
+- 右カラム: 一覧で選択中のワークフローの個別編集パネル。画像サイズは種別選択 ComboBox（default/vertical/horizontal/square）＋ Width/Height の1行で表示し、種別を切り替えるとその種別の値が Width/Height に反映される（4種類とも同じ1行で編集する）。ほかに `loras` 一覧を配置
+
+### 基本の使い方
+
+1. 左の一覧からワークフローを選ぶと、右側に画像サイズ・LoRA の編集項目が表示されます
+2. ワークフロー名をダブルクリックすると、その場で名前を変更できます（他のワークフローと重複する名前・空文字には変更できません）
+3. LoRA は論理名・ファイル名・strength の3項目を1行として一覧に追加・削除できます。LoRA 欄の **+ LoRA を追加** の隣にある2つのソートボタンで、一覧を LoRA名（Name）の昇順・降順に並び替えられます
+4. 入力が終わったら、画面右上の **保存** ボタンをクリックします
+
+### ワークフローの追加・削除
+
+- **+ ワークフローを追加** をクリックすると `new_workflow`（重複する場合は `new_workflow_2` など）という仮名で追加され、そのまま名前を編集できる状態になります。画像サイズは全方向 1024×1024、LoRA は空の状態で作成されます
+- 削除は各項目右の **×** ボタンから行います。`default_workflow` に指定中のワークフローは削除できません（先に `default_workflow` を他のワークフローに変更してください）
+
+### 保存時の検証
+
+**保存** をクリックすると、Home/Queue ページのワークフロー実行時と同じ検証ルール（画像サイズが 512〜2048 かつ 8 の倍数であること、LoRA の論理名・ファイル名が空でないこと、`default_workflow` が実在するワークフロー名であることなど）でチェックされます。不正な内容がある場合は保存されず、エラー内容が通知に表示されます。
+
+新しく追加したワークフロー名に対応する `templates/{ワークフロー名}/` フォルダが見つからない場合、保存自体は成功しますが、実行時にエラーになる可能性がある旨の警告が通知に表示されます。ワークフローの実行前に、テンプレートフォルダを配置してください。
+
+### 注意
+
+- このページを離れる（他のページへ移動する）と、保存していない編集内容は破棄されます。編集を終えたら必ず **保存** をクリックしてください
+- `wd14_tagger.model_name` を空にして保存すると、`workflow_config.json` から `wd14_tagger` セクション自体が削除されます
