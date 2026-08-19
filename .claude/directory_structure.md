@@ -25,6 +25,9 @@ ComfyUIRunWorkflow/                     <- ソリューションルート
       QueueJobViewModel.cs              <- QueuePage の1ジョブ分の編集状態・実行状態 VM（ワークフロー選択に連動した LoRA/画像サイズ一覧更新、ToData/FromData で永続化データと相互変換）
       QueueViewModel.cs                 <- QueuePage 全体の VM（ジョブ一覧・追加削除・すべて実行（協調的キャンセル対応）・実行結果詳細ダイアログ表示・queue_jobs.json へのジョブ定義永続化・ジョブリスト一括インポート）
       GenerateViewModel.cs              <- GeneratePage の VM（ベースプロンプト・置換リスト・ジョブテンプレートの入力パス管理、BatchJobGenerator を用いたジョブリスト一括生成）
+      ConfigLoraItemViewModel.cs        <- ConfigEditorPage の LoRA 1件分の編集状態（論理名・ファイル名・strength）
+      ConfigWorkflowItemViewModel.cs    <- ConfigEditorPage のワークフロー1件分の編集状態（画像サイズ4種・LoRA 一覧。ComfyUILibs.Models.WorkflowSettings と相互変換）
+      ConfigEditorViewModel.cs          <- workflow_config.json 編集ページ（Config）の VM（ワークフロー追加削除・インライン名前編集・ConfigLoader.LoadConfig 相当のバリデーションを経た保存）
     ViewModels/Windows/
       MainWindowViewModel.cs            <- ナビゲーション定義・ウィンドウ状態保存
     ViewModels/Controls/
@@ -36,6 +39,7 @@ ComfyUIRunWorkflow/                     <- ソリューションルート
       SettingsPage.xaml                 <- 設定 UI
       DataPage.xaml                     <- 実行結果一覧 UI（サムネイル付き、生成結果⇔タグ付け履歴のタブ切り替え）
       TaggerPage.xaml                   <- WD14 Tagger UI（画像選択・ドラッグ&ドロップ・タグ結果表示/コピー）
+      ConfigEditorPage.xaml             <- workflow_config.json 編集 UI（ワークフロー一覧＋個別編集パネルの2カラム構成、上部に共通設定カード）
     Views/Windows/
       MainWindow.xaml                   <- ナビゲーションホスト
     Views/Controls/

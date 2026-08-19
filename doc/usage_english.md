@@ -14,6 +14,7 @@ For a plain-language guide that doesn't assume any programming knowledge, see th
 - [Generate Page (Batch Job Generation)](#generate-page-batch-job-generation)
 - [Data Page (Results / Tag History)](#data-page-results--tag-history)
 - [Tagger Page (WD14 Tagger)](#tagger-page-wd14-tagger)
+- [Config Page (Editing workflow_config.json)](#config-page-editing-workflow_configjson)
 
 ---
 
@@ -237,8 +238,43 @@ A dedicated page for selecting a single image, running the WD14 Tagger workflow,
 
 ### Model and Thresholds
 
-The model name and thresholds (general/character threshold) come from the `wd14_tagger` section of `workflow_config.json` and cannot be changed from the page. To change them, check the `workflow_config.json` path on the Settings page and edit the file directly.
+The model name and thresholds (general/character threshold) come from the `wd14_tagger` section of `workflow_config.json` and cannot be changed from the page. To change them, edit the `wd14_tagger` values on the [Config page](#config-page-editing-workflow_configjson).
 
 ### Where Results Are Saved
 
 Tagging results are saved to `{results folder}/tag_result_{timestamp}.json` (managed separately from workflow execution results `result_*.json`, and shown in the "Tag History" tab on the Data page).
+
+---
+
+## Config Page (Editing workflow_config.json)
+
+A page for directly editing and saving the `workflow_config.json` pointed to by the Settings page, right from the GUI. What previously required manually editing `workflow_config.json` in a text editor can now be done entirely within the app.
+
+### Layout
+
+- Common settings card at the top: `comfyui_url`, `default_workflow`, `wd14_tagger` (model_name, general/character threshold), `prepend_tags`, `exclude_tags` (the latter two are entered as comma-separated text). `model_name` is a ComboBox with 5 preset choices: `wd-vit-tagger-v3`/`wd-swinv2-tagger-v3`/`wd-convnext-tagger-v3`/`wd-eva02-large-tagger-v3`/`wd-vit-large-tagger-v3`
+- Left column: the list of workflow names (**+ Add Workflow** button; each row has an **×** button to delete it)
+- Right column: the edit panel for the workflow selected in the list. Image size is shown as a single row — a kind ComboBox (default/vertical/horizontal/square) plus Width/Height fields; switching the kind loads that kind's values into Width/Height (all four kinds share the same row). The `loras` list is shown below it
+
+### Basic Usage
+
+1. Selecting a workflow from the list on the left shows its image size and LoRA fields on the right
+2. Double-click a workflow name to rename it inline (you can't rename it to an empty string or a name already used by another workflow)
+3. Each LoRA entry is a row with a logical name, file name, and strength; add or remove rows freely. The two sort buttons next to **+ Add LoRA** reorder the list by LoRA name (Name), ascending or descending
+4. Once you're done editing, click **Save** in the top-right corner
+
+### Adding and Removing Workflows
+
+- **+ Add Workflow** adds a new workflow with a placeholder name (`new_workflow`, or `new_workflow_2` etc. if that name is taken) and immediately puts it into rename mode. Its image size starts at 1024×1024 in every orientation, and its LoRA list starts empty
+- Delete a workflow via the **×** button next to it in the list. A workflow currently set as `default_workflow` cannot be deleted — change `default_workflow` to another workflow first
+
+### Validation on Save
+
+Clicking **Save** validates the content using the same rules used when running workflows from the Home/Queue pages (image sizes must be 512–2048 and a multiple of 8, LoRA logical names and file names must not be empty, `default_workflow` must reference an existing workflow, etc.). If anything is invalid, nothing is saved and the error is shown in a notification.
+
+If a newly added workflow has no matching `templates/{workflow name}/` folder, the save still succeeds, but a warning is shown noting that running that workflow may fail until the templates folder is put in place.
+
+### Notes
+
+- Leaving this page (navigating to another page) discards any unsaved edits — always click **Save** before you leave
+- Saving with `wd14_tagger.model_name` left blank removes the entire `wd14_tagger` section from `workflow_config.json`

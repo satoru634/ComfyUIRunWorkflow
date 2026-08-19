@@ -14,6 +14,7 @@ ComfyUI のワークフローを GUI から実行するツール。[comfyui_tool
 - Home / Queue ページの設定内容（ワークフロー・プロンプト・画像サイズ・LoRA・バッチ数・ファイル名プレフィックス）を JSON でインポート・エクスポート
 - Queue ページでの複数ワークフロー連続実行（ワークフロー・プロンプト・LoRA等が異なるジョブをリストに登録し、順番に自動実行。一覧のジョブ名はダブルクリックで編集可能）
 - Generate ページでのバッチジョブ生成（ベースプロンプト内のキーワードを置換リストで置き換え、ジョブテンプレートと組み合わせて Queue 用ジョブリストを一括生成）
+- Config ページでの workflow_config.json の GUI 編集（ワークフロー・画像サイズ・LoRA・WD14 Tagger・prepend/exclude タグ。保存時に内容を検証し、不正な場合は保存をブロック）
 - 実行結果の一覧表示と詳細確認
 - 生成画像のプレビュー表示（実行直後・一覧・詳細ダイアログ、クリックで拡大表示）
 - WD14 Tagger による画像タグ付け（画像を選択してタグ文字列を取得・コピー）
@@ -48,7 +49,7 @@ dotnet run --project ComfyUIRunWorkflow
 1. **設定** ページを開きます
 2. **ComfyUI URL**（デフォルト: `http://127.0.0.1:8188`）・**workflow_config.json パス**・**結果出力フォルダ** を設定します
 
-リポジトリ直下にサンプルの [`workflow_config.json`](workflow_config.json) を配置しています。LoRA のファイル名など環境に合わせて内容を編集のうえ、**workflow_config.json パス** にこのファイルを指定してください。
+リポジトリ直下にサンプルの [`workflow_config.json`](workflow_config.json) を配置しています。**workflow_config.json パス** にこのファイルを指定したうえで、**Config** ページから LoRA のファイル名など環境に合わせた内容へ編集してください（テキストエディタでの直接編集も引き続き可能です）。
 
 ![設定ページ](doc/images/settings_page.png)
 

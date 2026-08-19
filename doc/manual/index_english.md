@@ -25,6 +25,7 @@ Just pick a pre-made "workflow" (think of it as an art style) and describe what 
 | [Generate](generate_english.md) | Bulk-create a large number of generation jobs that only differ by character or outfit |
 | [Data](data_english.md) | Review generated images and tagging results |
 | [Tagger](tagger_english.md) | Automatically extract descriptive tags from an image |
+| [Config](config_english.md) (for administrators) | Change workflow and LoRA settings from the screen instead of editing a file directly |
 
 If this is your first time, we recommend reading [Settings](settings_english.md) followed by [Home](home_english.md).
 
