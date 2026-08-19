@@ -142,6 +142,7 @@
   <data name="MainWindow_MenuGenerate" xml:space="preserve"><value>Generate</value></data>
   <data name="MainWindow_MenuResults" xml:space="preserve"><value>Results</value></data>
   <data name="MainWindow_MenuTagger" xml:space="preserve"><value>Tagger</value></data>
+  <data name="MainWindow_MenuConfig" xml:space="preserve"><value>Workflow Config</value></data>
   <data name="MainWindow_MenuSettings" xml:space="preserve"><value>Settings</value></data>
   <data name="MainWindow_TrayHome" xml:space="preserve"><value>Home</value></data>
 
@@ -171,6 +172,33 @@
   <data name="Queue_RemoveSelectedConfirmTitle" xml:space="preserve"><value>Delete selected jobs?</value></data>
   <data name="Queue_RemoveSelectedConfirmContent_Format" xml:space="preserve"><value>This will delete the selected {0} job(s). This action cannot be undone.</value></data>
   <data name="Queue_RemoveConfirmPrimaryButtonContent" xml:space="preserve"><value>Delete</value></data>
+
+  <!-- ConfigEditor -->
+  <data name="ConfigEditor_Title" xml:space="preserve"><value>Edit Workflow Config</value></data>
+  <data name="ConfigEditor_SaveButtonContent" xml:space="preserve"><value>Save</value></data>
+  <data name="ConfigEditor_Wd14ModelNamePlaceholder" xml:space="preserve"><value>Leave blank to omit the wd14_tagger section entirely</value></data>
+  <data name="ConfigEditor_TagsPlaceholder" xml:space="preserve"><value>Comma-separated (e.g. tag_a, tag_b)</value></data>
+  <data name="ConfigEditor_AddWorkflowButtonContent" xml:space="preserve"><value>+ Add Workflow</value></data>
+  <data name="ConfigEditor_WorkflowNameEditHint" xml:space="preserve"><value>Double-click to edit the workflow name</value></data>
+  <data name="ConfigEditor_NoWorkflowSelectedPlaceholder" xml:space="preserve"><value>Select a workflow from the list&#x0a;to edit it</value></data>
+  <data name="ConfigEditor_ImageSizeSectionLabel" xml:space="preserve"><value>Image Size</value></data>
+  <data name="ConfigEditor_LoraSectionLabel" xml:space="preserve"><value>LoRA</value></data>
+  <data name="ConfigEditor_LoraNamePlaceholder" xml:space="preserve"><value>Logical name</value></data>
+  <data name="ConfigEditor_LoraFilePlaceholder" xml:space="preserve"><value>File name</value></data>
+  <data name="ConfigEditor_AddLoraButtonContent" xml:space="preserve"><value>+ Add LoRA</value></data>
+  <data name="ConfigEditor_SortLorasAscendingTooltip" xml:space="preserve"><value>Sort by LoRA name (ascending)</value></data>
+  <data name="ConfigEditor_SortLorasDescendingTooltip" xml:space="preserve"><value>Sort by LoRA name (descending)</value></data>
+  <data name="ConfigEditor_NewWorkflowDefaultName" xml:space="preserve"><value>new_workflow</value></data>
+  <data name="ConfigEditor_CannotRemoveDefaultWorkflow_Format" xml:space="preserve"><value>"{0}" cannot be deleted because it is set as default_workflow. Change default_workflow to another workflow first.</value></data>
+  <data name="ConfigEditor_RemoveWorkflowConfirmTitle" xml:space="preserve"><value>Delete this workflow?</value></data>
+  <data name="ConfigEditor_RemoveWorkflowConfirmContent_Format" xml:space="preserve"><value>This will delete the workflow "{0}". This action cannot be undone.</value></data>
+  <data name="ConfigEditor_WorkflowNameEmpty" xml:space="preserve"><value>Please enter a workflow name.</value></data>
+  <data name="ConfigEditor_DuplicateWorkflowName_Format" xml:space="preserve"><value>The workflow name "{0}" is already in use.</value></data>
+  <data name="ConfigEditor_LoraNameEmpty_Format" xml:space="preserve"><value>Workflow "{0}" has a LoRA entry with no logical name.</value></data>
+  <data name="ConfigEditor_DuplicateLoraName_Format" xml:space="preserve"><value>The LoRA logical name "{1}" is duplicated in workflow "{0}".</value></data>
+  <data name="ConfigEditor_SaveValidationError_Format" xml:space="preserve"><value>Could not save due to invalid input: {0}</value></data>
+  <data name="ConfigEditor_SaveSuccess" xml:space="preserve"><value>workflow_config.json saved</value></data>
+  <data name="ConfigEditor_SaveSuccessWithMissingTemplates_Format" xml:space="preserve"><value>workflow_config.json saved. However, no templates folder was found for: {0}</value></data>
 
   <!-- ResultDetail -->
   <data name="ResultDetail_Title" xml:space="preserve"><value>Result Details</value></data>

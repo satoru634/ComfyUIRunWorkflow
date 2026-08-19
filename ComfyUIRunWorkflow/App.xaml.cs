@@ -73,6 +73,8 @@ namespace ComfyUIRunWorkflow
                 services.AddSingleton<DataViewModel>();
                 services.AddSingleton<TaggerPage>();
                 services.AddSingleton<TaggerViewModel>();
+                services.AddSingleton<ConfigEditorPage>();
+                services.AddSingleton<ConfigEditorViewModel>();
                 services.AddSingleton<SettingsPage>();
                 services.AddSingleton<SettingsViewModel>();
             }).Build();

@@ -86,6 +86,12 @@ namespace ComfyUIRunWorkflow.ViewModels.Windows
                     Content = LocalizationManager.Instance["MainWindow_MenuTagger"],
                     Icon = new SymbolIcon { Symbol = SymbolRegular.TagSearch20 },
                     TargetPageType = typeof(Views.Pages.TaggerPage)
+                },
+                new NavigationViewItem()
+                {
+                    Content = LocalizationManager.Instance["MainWindow_MenuConfig"],
+                    Icon = new SymbolIcon { Symbol = SymbolRegular.DocumentSettings20 },
+                    TargetPageType = typeof(Views.Pages.ConfigEditorPage)
                 }
             };
 
