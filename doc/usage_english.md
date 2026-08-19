@@ -248,6 +248,8 @@ Tagging results are saved to `{results folder}/tag_result_{timestamp}.json` (man
 
 ## Config Page (Editing workflow_config.json)
 
+![Config page](images/config_editor_page_en.png)
+
 A page for directly editing and saving the `workflow_config.json` pointed to by the Settings page, right from the GUI. What previously required manually editing `workflow_config.json` in a text editor can now be done entirely within the app.
 
 ### Layout
