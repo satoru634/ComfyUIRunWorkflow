@@ -168,7 +168,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         }
 
         /// <summary>言語切替時に画像サイズラベル（vertical/horizontal/square/custom の表示名）を再生成する。</summary>
-        private void RefreshSizeLabels() => OnSelectedWorkflowChanged(SelectedWorkflow);
+        private void RefreshSizeLabels() => RefreshForWorkflow(resetSizeSelection: false);
 
         // ── INavigationAware ─────────────────────────────────────────────────
 
@@ -216,9 +216,15 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                 var names = _loadedConfig.Workflows!.Keys.ToList();
                 WorkflowNames = names;
 
-                // 現在の選択が有効なら維持、そうでなければデフォルトに変更
+                // 現在の選択が有効なら維持、そうでなければデフォルトに変更。
+                // 選択が変わらない場合、SelectedWorkflow の setter は変更通知を発火しないため
+                // OnSelectedWorkflowChanged が呼ばれず AvailableLoras/SizeLabelList が更新されない。
+                // ConfigEditorPage での保存内容（LoRA・画像サイズ）を再訪問時に反映するため、
+                // その場合は明示的に RefreshForWorkflow を呼び出す。
                 if (!names.Contains(SelectedWorkflow))
                     SelectedWorkflow = _loadedConfig.DefaultWorkflow ?? names.FirstOrDefault() ?? "";
+                else
+                    RefreshForWorkflow(resetSizeSelection: false);
 
                 IsConfigLoaded = true;
             }
@@ -243,15 +249,44 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
 
         /// <summary>
         /// 選択ワークフローが変わったとき、LoRA 一覧とプリセットサイズラベルを更新する。
+        /// ワークフロー種別が実際に切り替わった場合のみ、画像サイズ選択をプリセット既定値にリセットする。
         /// </summary>
         partial void OnSelectedWorkflowChanged(string value)
         {
-            if (_loadedConfig?.Workflows == null || !_loadedConfig.Workflows.TryGetValue(value, out var ws))
+            RefreshForWorkflow(resetSizeSelection: true);
+        }
+
+        /// <summary>
+        /// LoRA 一覧・画像サイズ選択肢を再構築する。
+        /// </summary>
+        /// <param name="resetSizeSelection">
+        /// true の場合、画像サイズ選択をこのワークフローのプリセット既定値（先頭のオプション）にリセットする。
+        /// ワークフロー種別が実際に切り替わったときのみ true にする（異なるワークフローでは有効なプリセット
+        /// サイズが異なりうるため）。config の再読み込みだけの場合は false にし、ユーザーの選択を保持する。
+        /// </param>
+        private void RefreshForWorkflow(bool resetSizeSelection)
+        {
+            // SizeLabelList.Init() は内部で ItemList を Clear() してから再構築するため、DashboardPage.xaml で
+            // ItemsSource="{Binding SizeLabelList.ItemList}" / SelectedValue="{Binding SelectedSizeOption,
+            // Mode=TwoWay}" とバインドされた実際の ComboBox では、Clear() 直後に選択項目が一時的に見つから
+            // なくなり、TwoWay バインディング経由で SelectedSizeOption（延いては ImageSizeOrientation/
+            // IsCustomSize）へ null が書き戻されてしまう（QueueJobViewModel で対処済みの不具合と同種）。
+            // resetSizeSelection が false（config 再読み込み時）の場合はユーザーの選択を保持したいため、
+            // Init() 呼び出し前の値を退避し、呼び出し後に明示的に復元することでこの巻き添え上書きを打ち消す。
+            var preservedIsCustomSize = IsCustomSize;
+            var preservedOrientation = ImageSizeOrientation;
+
+            if (_loadedConfig?.Workflows == null || !_loadedConfig.Workflows.TryGetValue(SelectedWorkflow, out var ws))
             {
                 AvailableLoras = new List<string>();
                 var (fallbackOptions, fallbackPresetSizes) = WorkflowSizeOptionBuilder.Build(null);
                 _presetSizes = fallbackPresetSizes;
                 SizeLabelList.Init(fallbackOptions, fallbackOptions[0]);
+                if (!resetSizeSelection)
+                {
+                    IsCustomSize = preservedIsCustomSize;
+                    ImageSizeOrientation = preservedOrientation;
+                }
                 return;
             }
 
@@ -261,8 +296,16 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             _presetSizes = presetSizes;
             SizeLabelList.Init(options, options[0]);
 
-            // デフォルトは最初の項目（vertical）を選択
-            SelectedSizeOption = options[0].Key;
+            if (resetSizeSelection)
+            {
+                // デフォルトは最初の項目（vertical）を選択
+                SelectedSizeOption = options[0].Key;
+            }
+            else
+            {
+                IsCustomSize = preservedIsCustomSize;
+                ImageSizeOrientation = preservedOrientation;
+            }
 
             // LoRA スロットの選択が新しいワークフローの LoRA に含まれない場合はリセット
             foreach (var slot in LoraSlots)
