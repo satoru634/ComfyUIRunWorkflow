@@ -401,6 +401,102 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
             Assert.Equal(4, vm.SizeLabelList.ItemList.Count);
         }
 
+        [Fact]
+        public async Task OnNavigatedToAsync_ReloadWithSameSelectedWorkflow_UpdatesAvailableLoras()
+        {
+            // ConfigEditorPage で保存した内容（LoRA 追加）が、同じワークフローを選択したまま
+            // Dashboard ページへ戻ってきたときに反映されることを検証する。
+            var setting = CreateSetting();
+            var configPath = CreateConfigJson();
+            setting.Data.ConfigPath = configPath;
+            var vm = CreateVm(setting);
+            await vm.OnNavigatedToAsync();
+            Assert.Equal(new[] { "my_lora" }, vm.AvailableLoras);
+
+            var updatedJson = """
+                {
+                  "comfyui_url": "http://127.0.0.1:8188",
+                  "default_workflow": "sdxl",
+                  "workflows": {
+                    "sdxl": {
+                      "default_image_size": {"width": 832, "height": 1216},
+                      "image_size": {
+                        "vertical":   {"width": 832,  "height": 1216},
+                        "horizontal": {"width": 1216, "height": 832},
+                        "square":     {"width": 1024, "height": 1024}
+                      },
+                      "loras": {
+                        "my_lora": {"file": "my_lora.safetensors", "strength": 0.8},
+                        "new_lora": {"file": "new_lora.safetensors", "strength": 0.5}
+                      }
+                    }
+                  }
+                }
+                """;
+            File.WriteAllText(configPath, updatedJson);
+
+            await vm.OnNavigatedToAsync();
+
+            Assert.Equal("sdxl", vm.SelectedWorkflow);
+            Assert.Contains("new_lora", vm.AvailableLoras);
+        }
+
+        [Fact]
+        public async Task OnNavigatedToAsync_ReloadWithSameSelectedWorkflow_PreservesSelectedSizeOption()
+        {
+            // ConfigEditorPage での保存後の再読み込みでは、ユーザーが選択済みの画像サイズ向きを
+            // 勝手にリセットしてはならない（ワークフロー種別自体は変わっていないため）。
+            var setting = CreateSetting();
+            var configPath = CreateConfigJson();
+            setting.Data.ConfigPath = configPath;
+            var vm = CreateVm(setting);
+            await vm.OnNavigatedToAsync();
+            vm.SelectedSizeOption = "horizontal";
+
+            await vm.OnNavigatedToAsync();
+
+            Assert.Equal("horizontal", vm.SelectedSizeOption);
+        }
+
+        [Fact]
+        public async Task OnNavigatedToAsync_ReloadWithSameSelectedWorkflow_UpdatesSizeLabelList()
+        {
+            // ConfigEditorPage で画像サイズ（例: vertical のプリセット）を変更した内容が、
+            // 同じワークフローを選択したまま再読み込みしたときに反映されることを検証する。
+            var setting = CreateSetting();
+            var configPath = CreateConfigJson();
+            setting.Data.ConfigPath = configPath;
+            var vm = CreateVm(setting);
+            await vm.OnNavigatedToAsync();
+
+            var updatedJson = """
+                {
+                  "comfyui_url": "http://127.0.0.1:8188",
+                  "default_workflow": "sdxl",
+                  "workflows": {
+                    "sdxl": {
+                      "default_image_size": {"width": 896, "height": 1152},
+                      "image_size": {
+                        "vertical":   {"width": 896,  "height": 1152},
+                        "horizontal": {"width": 1152, "height": 896},
+                        "square":     {"width": 1024, "height": 1024}
+                      },
+                      "loras": {
+                        "my_lora": {"file": "my_lora.safetensors", "strength": 0.8}
+                      }
+                    }
+                  }
+                }
+                """;
+            File.WriteAllText(configPath, updatedJson);
+
+            await vm.OnNavigatedToAsync();
+
+            var vertical = vm.SizeLabelList.ItemList.Single(o => o.Key == "vertical");
+            Assert.Contains("896", vertical.Label);
+            Assert.Contains("1152", vertical.Label);
+        }
+
         // ── LoRA 操作 ─────────────────────────────────────────────────────────
 
         [Fact]

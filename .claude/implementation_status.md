@@ -474,6 +474,19 @@ QueuePage のジョブ数が増えてくると1件ずつ × ボタンで削除�
 
 合計テスト数: ComfyUILibsTests 187件 / ComfyUIRunWorkflowTests 343件（全パス）
 
+### フェーズ19: ConfigEditorPageで保存した内容がDashboardPage/QueuePageに即座に反映されない不具合修正（`fix/config-editor-immediate-reflection` ブランチ、実装完了）
+
+**不具合: ConfigEditorPageで現在選択中のワークフローのLoRA・画像サイズを編集して保存しても、DashboardPage/QueuePageへ戻ったときに古い内容のまま表示される**
+
+DashboardPage/QueuePage はどちらもページへ遷移するたびに `workflow_config.json` を再読み込みする設計（`OnNavigatedToAsync` → `TryLoadConfig`）だが、DashboardPage 側にのみ、選択中ワークフロー名が変わらない場合に LoRA 一覧・画像サイズ選択肢（`AvailableLoras`/`SizeLabelList`）が再構築されない不具合があった。QueuePage（`QueueJobViewModel`）はフェーズ12で対処済みの設計（`ApplyWorkflowConfig` を再訪問のたびに全ジョブへ無条件で呼び出す）になっており、この不具合の対象外だった。
+
+- **原因**: `DashboardViewModel.TryLoadConfig()` は `SelectedWorkflow` が読み込み済みワークフロー名一覧に含まれる場合、値を変更しない。`OnSelectedWorkflowChanged`（LoRA 一覧・画像サイズ選択肢の再構築ロジック）は `SelectedWorkflow` プロパティの setter が値の変更を検知した場合のみ発火する `partial` メソッドのため、ConfigEditorPage で同じワークフロー名のまま LoRA や画像サイズだけを編集・保存した場合、`_loadedConfig` 自体は最新化されるにもかかわらず `AvailableLoras`/`SizeLabelList` は古い内容のまま取り残されていた
+- [x] `ViewModels/Pages/DashboardViewModel.cs` — `OnSelectedWorkflowChanged` の内部ロジックを `RefreshForWorkflow(bool resetSizeSelection)`（`QueueJobViewModel.RefreshForWorkflow` と同名・同設計）として切り出した。`OnSelectedWorkflowChanged`（ワークフロー種別が実際に切り替わったとき）は `resetSizeSelection: true` で呼び出し、`TryLoadConfig()` は `SelectedWorkflow` が変わらなかった場合に限り `resetSizeSelection: false` で明示的に呼び出すことで、ユーザーが選択済みの画像サイズ（向き・カスタムサイズ）を保持したまま `AvailableLoras`/`SizeLabelList` だけを最新化するようにした。言語切替時の再生成（`RefreshSizeLabels`）も同メソッド呼び出しに統一した
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/DashboardViewModelTests.cs` — 同じワークフローを選択したまま `OnNavigatedToAsync` を再度呼び出した場合に、追加された LoRA・変更された画像サイズラベルが反映されること、および選択済みの画像サイズ向きがリセットされず保持されることを検証するテストを3件追加
+- [x] `README.md`/`doc/README_english.md`（変更なし、内部実装のみの修正のため）
+
+合計テスト数: ComfyUILibsTests 187件 / ComfyUIRunWorkflowTests 357件（全パス）
+
 ### 将来的な拡張
 
 - C# 版 Discord ボット（ComfyUILibs を共用）
