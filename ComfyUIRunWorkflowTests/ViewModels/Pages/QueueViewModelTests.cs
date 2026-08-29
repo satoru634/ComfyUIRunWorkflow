@@ -476,6 +476,17 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
         }
 
         [Fact]
+        public void CancelQueueCommand_WhenNotRunning_DoesNotThrow()
+        {
+            var vm = CreateVm();
+            // キュー未実行時は CancellationTokenSource が未生成のため、
+            // CancelQueue は null 安全に何もせず完了する（例外を出さない）
+            var ex = Record.Exception(() => vm.CancelQueueCommand.Execute(null));
+            Assert.Null(ex);
+            Assert.False(vm.IsRunning);
+        }
+
+        [Fact]
         public void IsRunning_True_CanEditJobsIsFalse()
         {
             var vm = CreateVm();

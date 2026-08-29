@@ -16,7 +16,7 @@ The [Home page](home_english.md) only lets you generate one thing at a time. The
 ## While It's Running
 
 - The job currently running is marked "Running", along with its progress.
-- Clicking **Cancel** stops any further jobs from starting once the current one finishes (the job in progress still completes).
+- Clicking **Cancel** stops the running job right away and marks it and the remaining jobs as "Cancelled". This works even when the target ComfyUI has gone down and stops responding.
 - If a job fails, it's marked "Failed" and the queue automatically moves on to the next job — the whole queue doesn't stop.
 - **Run All** re-runs every job regardless of status, including ones already marked "Success". To leave successful jobs alone and only run the ones that haven't run yet (or failed), click **Rerun Failed Only** instead — jobs already marked "Success" are skipped.
 

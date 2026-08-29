@@ -142,22 +142,22 @@ classDiagram
     namespace ComfyUILibs_Services {
         class IComfyUIClient {
             <<interface>>
-            +SubmitAsync(JsonObject, string) Task~string~
-            +MonitorAsync(string, string) Task
+            +SubmitAsync(JsonObject, string, CancellationToken) Task~string~
+            +MonitorAsync(string, string, CancellationToken) Task
             +UploadImageAsync(byte[], string) Task~string~
             +GetHistoryAsync(string) Task~JsonElement~
-            +GetOutputsAsync(string) Task~List~OutputFile~~
+            +GetOutputsAsync(string, CancellationToken) Task~List~OutputFile~~
             +GetImageAsync(string, string, string) Task~byte[]~
         }
         class ComfyUIClient {
             -string _url
             -HttpClient _httpClient
             +ComfyUIClient(string, HttpClient)
-            +SubmitAsync(JsonObject, string) Task~string~
-            +MonitorAsync(string, string) Task
+            +SubmitAsync(JsonObject, string, CancellationToken) Task~string~
+            +MonitorAsync(string, string, CancellationToken) Task
             +UploadImageAsync(byte[], string) Task~string~
             +GetHistoryAsync(string) Task~JsonElement~
-            +GetOutputsAsync(string) Task~List~OutputFile~~
+            +GetOutputsAsync(string, CancellationToken) Task~List~OutputFile~~
             +GetImageAsync(string, string, string) Task~byte[]~
         }
         class WorkflowBuilder {
@@ -172,7 +172,7 @@ classDiagram
             +WorkflowParameters? Parameters
             +WorkflowRunner(string, string)
             +GetImageSize(string) ImageSize
-            +ExecuteAsync(List~string~, PromptPair, ImageSize?, string?) Task~List~OutputFile~~
+            +ExecuteAsync(List~string~, PromptPair, ImageSize?, string?, CancellationToken) Task~List~OutputFile~~
             +RunAsync(string, string) Task
         }
         class ConfigLoader {
@@ -495,7 +495,7 @@ classDiagram
             +OrientationLabel(string) string$
         }
         class WorkflowExecutionService {
-            +RunBatchAsync(string, string, List~string~, PromptPair, ImageSize?, int, string?, Action, Action) Task~WorkflowBatchOutcome~
+            +RunBatchAsync(string, string, List~string~, PromptPair, ImageSize?, int, string?, Action, Action, CancellationToken) Task~WorkflowBatchOutcome~
             +SaveResultAsync(WorkflowResult, string) Task$
         }
         class BatchJobGenerator {
@@ -997,7 +997,7 @@ classDiagram
     }
 
     class WorkflowExecutionService {
-        +RunBatchAsync(string, string, List~string~, PromptPair, ImageSize?, int, string?, Action, Action) Task~WorkflowBatchOutcome~
+        +RunBatchAsync(string, string, List~string~, PromptPair, ImageSize?, int, string?, Action, Action, CancellationToken) Task~WorkflowBatchOutcome~
         +SaveResultAsync(WorkflowResult, string) Task$
     }
 
@@ -1282,11 +1282,11 @@ classDiagram
 
     class IComfyUIClient {
         <<interface>>
-        +SubmitAsync(JsonObject, string) Task~string~
-        +MonitorAsync(string, string) Task
+        +SubmitAsync(JsonObject, string, CancellationToken) Task~string~
+        +MonitorAsync(string, string, CancellationToken) Task
         +UploadImageAsync(byte[], string) Task~string~
         +GetHistoryAsync(string) Task~JsonElement~
-        +GetOutputsAsync(string) Task~List~OutputFile~~
+        +GetOutputsAsync(string, CancellationToken) Task~List~OutputFile~~
         +GetImageAsync(string, string, string) Task~byte[]~
     }
 
@@ -1294,11 +1294,11 @@ classDiagram
         -string _url
         -HttpClient _httpClient
         +ComfyUIClient(string, HttpClient)
-        +SubmitAsync(JsonObject, string) Task~string~
-        +MonitorAsync(string, string) Task
+        +SubmitAsync(JsonObject, string, CancellationToken) Task~string~
+        +MonitorAsync(string, string, CancellationToken) Task
         +UploadImageAsync(byte[], string) Task~string~
         +GetHistoryAsync(string) Task~JsonElement~
-        +GetOutputsAsync(string) Task~List~OutputFile~~
+        +GetOutputsAsync(string, CancellationToken) Task~List~OutputFile~~
         +GetImageAsync(string, string, string) Task~byte[]~
     }
 
@@ -1315,7 +1315,7 @@ classDiagram
         +WorkflowParameters? Parameters
         +WorkflowRunner(string, string)
         +GetImageSize(string) ImageSize
-        +ExecuteAsync(List~string~, PromptPair, ImageSize?) Task~List~OutputFile~~
+        +ExecuteAsync(List~string~, PromptPair, ImageSize?, string?, CancellationToken) Task~List~OutputFile~~
         +RunAsync(string, string) Task
     }
 

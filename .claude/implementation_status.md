@@ -487,6 +487,29 @@ DashboardPage/QueuePage はどちらもページへ遷移するたびに `workfl
 
 合計テスト数: ComfyUILibsTests 187件 / ComfyUIRunWorkflowTests 357件（全パス）
 
+### フェーズ20: QueuePage 実行中に ComfyUI がダウンすると「中断」ボタンで停止できない不具合修正（`fix/queue-cancel-on-comfyui-down` ブランチ、`ComfyUILibs` は `fix/cancellation-token` ブランチ、実装完了）
+
+**不具合: QueuePage でジョブ実行中に接続先の ComfyUI が落ちると、「中断」ボタンを押しても処理を停止できない**
+
+- **原因（2点の複合）**:
+  1. `QueueViewModel.CancelQueue()` は `_cancelRequested = true` にするだけで、このフラグは `ExecuteQueueAsync` のジョブ間ループでしか参照されない。実行中ジョブの `_executionService.RunBatchAsync(...)` には `CancellationToken` が渡っておらず、`WorkflowExecutionService` → `WorkflowRunner.ExecuteAsync` → `IComfyUIClient` までキャンセルを伝える経路が存在しなかった（「協調的キャンセル＝実行中ジョブは完了させる」設計だが、完了が来ないと永久に効かない）
+  2. ComfyUI がダウンすると実行中ジョブが返ってこない（`ComfyUIClient.MonitorWebSocketAsync` の2秒タイムアウト経路が全体タイムアウトなしで無限ループ、または `PollUntilCompletedAsync` の600秒待ちに落ちる）。詳細は `ComfyUILibs/.claude/implementation_status.md` フェーズ10を参照
+- **方針（ユーザーとの合意事項）**: ワークフロー実行の全経路に `CancellationToken` を通し、中断ボタンで実行中の ComfyUI 通信待ちごとキャンセルする（協調的キャンセルから、実行中ジョブも即中断する仕様へ変更）
+
+**ComfyUILibs（`fix/cancellation-token` ブランチ）**
+- [x] `IComfyUIClient`／`ComfyUIClient`／`WorkflowRunner.ExecuteAsync` に `CancellationToken` を追加。詳細は `ComfyUILibs/.claude/implementation_status.md` フェーズ10
+
+**ComfyUIRunWorkflow（`fix/queue-cancel-on-comfyui-down` ブランチ）**
+- [x] `Services/WorkflowExecutionService.cs` — `RunBatchAsync` に `CancellationToken cancellationToken = default` 引数を追加し `WorkflowRunner.ExecuteAsync` へ橋渡し。`catch (OperationCanceledException)` を `catch (ComfyUIException)` の手前に追加し、キャンセルはエラー結果（`WorkflowBatchOutcome`）に変換せずそのまま再スローする
+- [x] `ViewModels/Pages/QueueViewModel.cs` — `private bool _cancelRequested` を `private CancellationTokenSource? _queueCts` に置き換え。`ExecuteQueueAsync` は実行開始時に `_queueCts` を生成してトークンを `RunBatchAsync` に渡し、`finally` で `Dispose`。`RunBatchAsync` の呼び出しを `try/catch (OperationCanceledException)` で囲み、捕捉時は当該ジョブを `Cancelled` にして `continue`（残りのジョブはループ先頭のガードで `Cancelled` にマークされる）。`CancelQueue()` は `_queueCts?.Cancel()` に変更
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/QueueViewModelTests.cs` — キュー未実行時に `CancelQueueCommand` を実行しても `_queueCts` が null 安全で例外を出さないことを検証するテストを1件追加
+  - `RunAll` の実行経路は従来どおり単体テスト対象外（`WorkflowExecutionService` が実 ComfyUI 通信を伴うため）。キャンセル伝播の実質的な検証は `ComfyUILibs` 側の `ComfyUIClientTests`／`WorkflowRunnerTests` で担保する
+- [x] `Services/PreviewImageLoaderTests.cs` の `NoopComfyUIClient` を新シグネチャに追従
+- [x] `doc/class_diagram.md`（`RunBatchAsync`・`IComfyUIClient`・`ComfyUIClient`・`WorkflowRunner` のシグネチャ）／`doc/usage.md`／`doc/usage_english.md`／`doc/manual/queue.md`／`doc/manual/queue_english.md` を更新
+- [x] `README.md`/`doc/README_english.md`（変更なし、内部実装と挙動の明確化のみ）
+
+合計テスト数: ComfyUILibsTests 233件 / ComfyUIRunWorkflowTests 358件（全パス）
+
 ### 将来的な拡張
 
 - C# 版 Discord ボット（ComfyUILibs を共用）

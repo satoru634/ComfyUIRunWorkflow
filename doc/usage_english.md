@@ -131,12 +131,12 @@ Each job shows its current execution status.
 | Running | Currently running (batch progress is also shown) |
 | Success | Ran successfully |
 | Failed | A ComfyUI-side error occurred |
-| Cancelled | Skipped without starting, due to a "Cancel" operation |
+| Cancelled | Cancelled by a "Cancel" operation (covers both the job that was running and jobs not yet started) |
 
 ### Error and Cancellation Behavior
 
 - If a ComfyUI error occurs for a job, that job is recorded as "Failed" and execution automatically continues with the next job (the whole queue does not stop)
-- Clicking **Cancel** while running stops further jobs from starting once the currently running job finishes (the job in progress still runs to completion)
+- Clicking **Cancel** while running cancels the running job together with its pending ComfyUI communication, marking that job and all later jobs as "Cancelled". This works even when the target ComfyUI has gone down and no completion notification comes back
 - **Run All** re-runs every job regardless of status. To leave jobs already marked "Success" untouched and only retry pending/failed/cancelled jobs, click **Rerun Failed Only** instead (jobs already "Success" are skipped)
 
 ### Viewing and Saving Results
