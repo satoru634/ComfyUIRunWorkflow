@@ -2,6 +2,7 @@ using System.IO;
 using System.Runtime.ExceptionServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Threading;
 using ComfyUILibs.Models;
 using ComfyUILibs.Services;
 using ComfyUIRunWorkflow.Models;
@@ -12,11 +13,11 @@ namespace ComfyUIRunWorkflowTests.Services
     /// <summary>テスト用の IComfyUIClient モック（画像取得は使用しない。キャッシュ解決は Fake で差し替える）</summary>
     internal class NoopComfyUIClient : IComfyUIClient
     {
-        public Task<string> SubmitAsync(JsonObject workflow, string clientId) => Task.FromResult("pid");
-        public Task MonitorAsync(string promptId, string clientId) => Task.CompletedTask;
+        public Task<string> SubmitAsync(JsonObject workflow, string clientId, CancellationToken cancellationToken = default) => Task.FromResult("pid");
+        public Task MonitorAsync(string promptId, string clientId, CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task<string> UploadImageAsync(byte[] imageData, string filename = "image.png") => Task.FromResult("uploaded.png");
         public Task<JsonElement> GetHistoryAsync(string promptId) => Task.FromResult(JsonDocument.Parse("{}").RootElement);
-        public Task<List<OutputFile>> GetOutputsAsync(string promptId) => Task.FromResult(new List<OutputFile>());
+        public Task<List<OutputFile>> GetOutputsAsync(string promptId, CancellationToken cancellationToken = default) => Task.FromResult(new List<OutputFile>());
         public Task<byte[]> GetImageAsync(string filename, string subfolder, string type) => Task.FromResult(Array.Empty<byte>());
     }
 

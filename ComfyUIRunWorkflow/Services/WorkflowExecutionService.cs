@@ -6,6 +6,7 @@ using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
+using System.Threading;
 
 namespace ComfyUIRunWorkflow.Services
 {
@@ -26,6 +27,8 @@ namespace ComfyUIRunWorkflow.Services
         /// 結果を1件の <see cref="WorkflowResult"/> にまとめる。各回シードは <see cref="WorkflowRunner"/> 側で自動採番される。
         /// 途中で <see cref="ComfyUIException"/>（またはその他の例外）が発生した場合はその時点で中断し、
         /// 成功済み分の出力を含めたエラー結果を返す（例外は再送出しない）。
+        /// ただし <paramref name="cancellationToken"/> によるキャンセルは
+        /// <see cref="OperationCanceledException"/> としてそのまま呼び出し側へ送出する（エラー結果には変換しない）。
         /// </summary>
         /// <param name="configPath">workflow_config.json のパス。</param>
         /// <param name="workflowName">実行するワークフロー名。</param>
@@ -38,6 +41,10 @@ namespace ComfyUIRunWorkflow.Services
         /// </param>
         /// <param name="onBatchStart">各バッチ開始直前に呼ばれるコールバック（現在の回数, 総回数）。</param>
         /// <param name="onBatchCompleted">各バッチ完了直後に呼ばれるコールバック（出力ファイル一覧, prompt_id）。</param>
+        /// <param name="cancellationToken">
+        /// キャンセル要求を伝えるトークン。ComfyUI サーバーがダウンして完了を待ち続ける状況でも、
+        /// このトークンをキャンセルすれば実行中のバッチを即座に打ち切れる。
+        /// </param>
         public async Task<WorkflowBatchOutcome> RunBatchAsync(
             string configPath,
             string workflowName,
@@ -47,7 +54,8 @@ namespace ComfyUIRunWorkflow.Services
             int batchCount,
             string? filenamePrefix = null,
             Action<int, int>? onBatchStart = null,
-            Action<List<OutputFile>, string?>? onBatchCompleted = null)
+            Action<List<OutputFile>, string?>? onBatchCompleted = null,
+            CancellationToken cancellationToken = default)
         {
             var totalBatches = Math.Max(1, batchCount);
             var allOutputs = new List<OutputFile>();
@@ -65,7 +73,7 @@ namespace ComfyUIRunWorkflow.Services
                 {
                     onBatchStart?.Invoke(i, totalBatches);
 
-                    var outputs = await runner.ExecuteAsync(loras, prompts, imageSize, filenamePrefix);
+                    var outputs = await runner.ExecuteAsync(loras, prompts, imageSize, filenamePrefix, cancellationToken);
 
                     allOutputs.AddRange(outputs);
                     lastSuccessPromptId = runner.PromptId;
@@ -86,6 +94,11 @@ namespace ComfyUIRunWorkflow.Services
                 };
 
                 return new WorkflowBatchOutcome { Result = result, Error = null };
+            }
+            catch (OperationCanceledException)
+            {
+                // キャンセルはエラー結果に変換せず、そのまま呼び出し側へ伝播させる
+                throw;
             }
             catch (ComfyUIException ex)
             {

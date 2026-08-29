@@ -9,6 +9,7 @@ using ComfyUIRunWorkflow.Views.Controls;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Threading;
 using Wpf.Ui;
 using Wpf.Ui.Abstractions.Controls;
 using Wpf.Ui.Controls;
@@ -72,7 +73,11 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         /// <summary>ジョブ一覧のチェックボックスで選択中のジョブが1件以上あるか（複数選択削除ボタンの活性判定に使用）。</summary>
         public bool HasSelectedJobs => Jobs.Any(j => j.IsSelected);
 
-        private bool _cancelRequested = false;
+        /// <summary>
+        /// 「すべて実行」中のキャンセル制御。中断ボタンでこれを <see cref="CancellationTokenSource.Cancel()"/> すると、
+        /// 実行中ジョブの ComfyUI 通信待ち（サーバーダウン時を含む）ごと即座に打ち切られる。
+        /// </summary>
+        private CancellationTokenSource? _queueCts;
         private WorkflowConfig? _loadedConfig;
 
         /// <summary>DI コンテナから設定を受け取って初期化する。</summary>
@@ -320,7 +325,9 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
         private async Task ExecuteQueueAsync(bool skipSuccessfulJobs)
         {
             IsRunning = true;
-            _cancelRequested = false;
+            _queueCts?.Dispose();
+            _queueCts = new CancellationTokenSource();
+            var token = _queueCts.Token;
             PersistJobs();
 
             try
@@ -331,7 +338,7 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                     if (skipSuccessfulJobs && job.Status == QueueJobStatus.Success)
                         continue;
 
-                    if (_cancelRequested)
+                    if (token.IsCancellationRequested)
                     {
                         job.Status = QueueJobStatus.Cancelled;
                         continue;
@@ -350,16 +357,29 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
                     var prompts = new PromptPair { Positive = job.PositivePrompt, Negative = job.NegativePrompt };
                     var imageSize = job.ResolveImageSize();
 
-                    var outcome = await _executionService.RunBatchAsync(
-                        Config.Data.ConfigPath,
-                        job.WorkflowName,
-                        loras,
-                        prompts,
-                        imageSize,
-                        job.BatchCount,
-                        filenamePrefix: job.FilenamePrefix,
-                        onBatchStart: (current, total) =>
-                            job.StatusMessage = total > 1 ? BatchProgressFormatter.Format(current, total) : "");
+                    WorkflowBatchOutcome outcome;
+                    try
+                    {
+                        outcome = await _executionService.RunBatchAsync(
+                            Config.Data.ConfigPath,
+                            job.WorkflowName,
+                            loras,
+                            prompts,
+                            imageSize,
+                            job.BatchCount,
+                            filenamePrefix: job.FilenamePrefix,
+                            onBatchStart: (current, total) =>
+                                job.StatusMessage = total > 1 ? BatchProgressFormatter.Format(current, total) : "",
+                            cancellationToken: token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // 中断ボタンが押された。実行中だったこのジョブを中断扱いにし、
+                        // 残りのジョブはループ先頭のガードで Cancelled にマークされる。
+                        job.Status = QueueJobStatus.Cancelled;
+                        job.StatusMessage = "";
+                        continue;
+                    }
 
                     job.LastResult = outcome.Result;
                     job.Status = outcome.Error == null ? QueueJobStatus.Success : QueueJobStatus.Error;
@@ -372,15 +392,20 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             {
                 IsRunning = false;
                 OverallProgressText = "";
+                _queueCts.Dispose();
+                _queueCts = null;
                 PersistJobs();
             }
         }
 
         private bool CanCancelQueue() => IsRunning;
 
-        /// <summary>実行中のジョブが完了した時点で、以降のジョブへの着手を止めるよう要求する。</summary>
+        /// <summary>
+        /// キューの実行を中断する。実行中ジョブの ComfyUI 通信待ち（サーバーダウンで完了イベントが
+        /// 来ない状況を含む）ごとキャンセルし、以降のジョブへの着手も止める。
+        /// </summary>
         [RelayCommand(CanExecute = nameof(CanCancelQueue))]
-        private void CancelQueue() => _cancelRequested = true;
+        private void CancelQueue() => _queueCts?.Cancel();
 
         /// <summary>指定したジョブの実行結果詳細ダイアログを開く。実行結果がない場合は何もしない。</summary>
         [RelayCommand]
