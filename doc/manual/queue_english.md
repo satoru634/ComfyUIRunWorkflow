@@ -24,6 +24,7 @@ The [Home page](home_english.md) only lets you generate one thing at a time. The
 
 - Click the **×** button at the bottom-right of a job to delete it by itself.
 - Check the boxes on the left of the jobs you want to remove, then click **Delete Selected** to remove several at once.
+  - If you select several jobs by holding Ctrl or Shift while clicking, then click the checkbox of any one of the selected jobs, all selected jobs get checked at once (unchecking works the same way).
 - Click **Delete All** to remove every job in the list.
 - Both bulk actions ask you to confirm before deleting anything, so there's no risk of removing jobs by accident.
 

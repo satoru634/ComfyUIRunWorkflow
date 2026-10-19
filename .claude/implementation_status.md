@@ -510,6 +510,21 @@ DashboardPage/QueuePage はどちらもページへ遷移するたびに `workfl
 
 合計テスト数: ComfyUILibsTests 233件 / ComfyUIRunWorkflowTests 358件（全パス）
 
+### フェーズ21: QueuePageで複数行選択時にチェックボックス操作が1件にしか反映されない不具合修正（`fix/queue-multi-check` ブランチ、実装完了）
+
+**不具合: QueuePage の左ペインで Ctrl/Shift+クリックにより複数ジョブを選択（ハイライト）しても、チェックボックスにチェックを入れると操作した1件にしかチェックが入らない**
+
+- **原因**: ジョブ一覧のチェックボックスは各行の `QueueJobViewModel.IsSelected` に個別に TwoWay バインドしているだけで、ListView 側の複数行選択（`SelectedItems`）を一切参照していなかった
+- **仕様**: 複数行を選択した状態で、選択中のいずれかの行のチェックボックスを操作すると、操作後のチェック状態（オン/オフ）を選択中の全ジョブへ揃えて反映する（チェック状態が混在していても操作した行の状態に統一）。選択外の行のチェックボックスを操作した場合は、従来どおりその行のみを切り替える（エクスプローラー等の一般的な挙動に合わせた）
+- [x] `ViewModels/Pages/QueueViewModel.cs` — `ApplyCheckStateToHighlightedJobs(QueueJobViewModel clickedJob, IEnumerable<QueueJobViewModel> highlightedJobs)`（internal）を追加。`clickedJob` が `highlightedJobs` に含まれる場合のみ、全件の `IsSelected` を `clickedJob.IsSelected` に揃える
+- [x] `Views/Pages/QueuePage.xaml` — ジョブ一覧の `ui:ListView` に `x:Name="JobListView"` を付与し、チェックボックスに `Click="JobCheckBox_Click"` を追加
+- [x] `Views/Pages/QueuePage.xaml.cs` — `JobCheckBox_Click`（`IsChecked` のトグル・TwoWay バインディングの書き戻し後に発生）で `JobListView.SelectedItems` を `ApplyCheckStateToHighlightedJobs` に渡す
+- [x] `ComfyUIRunWorkflowTests/ViewModels/Pages/QueueViewModelTests.cs` — 選択中の行の操作でオン/オフが全選択行へ反映されること・状態混在時に操作行へ統一されること・選択外の行の操作では他の行が変わらないことを検証するテストを4件追加
+- [x] `doc/usage.md`/`doc/usage_english.md`/`doc/manual/queue.md`/`doc/manual/queue_english.md`/`doc/class_diagram.md` を更新
+- [x] `README.md`/`doc/README_english.md`（変更なし、該当記述がないため）
+
+合計テスト数: ComfyUILibsTests 233件 / ComfyUIRunWorkflowTests 362件（全パス）
+
 ### 将来的な拡張
 
 - C# 版 Discord ボット（ComfyUILibs を共用）
