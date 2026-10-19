@@ -107,7 +107,7 @@ Each job in the list shows a "job name". If it hasn't been set, the workflow nam
 
 Use the × button at the bottom-right of each job to delete it individually. Once the list grows large, you can also delete jobs in bulk from the toolbar:
 
-- **Delete Selected**: Check the checkbox on the left of each job you want to remove, then click this button. It is disabled when no job is checked.
+- **Delete Selected**: Check the checkbox on the left of each job you want to remove, then click this button. It is disabled when no job is checked. If you select (highlight) multiple rows with Ctrl/Shift+click and then toggle the checkbox of one of the selected rows, the same check state is applied to all selected jobs at once (toggling the checkbox of a row outside the selection changes only that row).
 - **Delete All**: Deletes every registered job at once.
 
 Both actions show a confirmation dialog first; jobs are only deleted if you choose "Delete" (this cannot be undone). The deletion is immediately reflected in `queue_jobs.json`. Both buttons are disabled while the queue is running ("Run All" in progress).

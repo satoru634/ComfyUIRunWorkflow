@@ -410,6 +410,7 @@ classDiagram
             +ExportJobCommand
             +ImportJobCommand
             +ImportJobListCommand
+            +ApplyCheckStateToHighlightedJobs(QueueJobViewModel, IEnumerable~QueueJobViewModel~) void
             +OnNavigatedToAsync() Task
             +OnNavigatedFromAsync() Task
         }
@@ -917,6 +918,7 @@ classDiagram
         +ExportJobCommand
         +ImportJobCommand
         +ImportJobListCommand
+        +ApplyCheckStateToHighlightedJobs(QueueJobViewModel, IEnumerable~QueueJobViewModel~) void
         +OnNavigatedToAsync() Task
         +OnNavigatedFromAsync() Task
     }

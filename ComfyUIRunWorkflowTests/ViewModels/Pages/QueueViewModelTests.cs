@@ -410,6 +410,69 @@ namespace ComfyUIRunWorkflowTests.ViewModels.Pages
             Assert.False(vm.RemoveSelectedJobsCommand.CanExecute(null));
         }
 
+        // ── ApplyCheckStateToHighlightedJobs（複数行選択時のチェック一括反映） ──
+
+        [Fact]
+        public void ApplyCheckStateToHighlightedJobs_ClickedJobInHighlight_CheckedAppliesToAllHighlighted()
+        {
+            var vm = CreateVm();
+            for (var i = 0; i < 3; i++) vm.AddJobCommand.Execute(null);
+            var highlighted = new[] { vm.Jobs[0], vm.Jobs[1] };
+
+            vm.Jobs[1].IsSelected = true; // チェックボックスのクリックで反映済みの状態
+            vm.ApplyCheckStateToHighlightedJobs(vm.Jobs[1], highlighted);
+
+            Assert.True(vm.Jobs[0].IsSelected);
+            Assert.True(vm.Jobs[1].IsSelected);
+            Assert.False(vm.Jobs[2].IsSelected);
+            Assert.True(vm.RemoveSelectedJobsCommand.CanExecute(null));
+        }
+
+        [Fact]
+        public void ApplyCheckStateToHighlightedJobs_ClickedJobInHighlight_UncheckedAppliesToAllHighlighted()
+        {
+            var vm = CreateVm();
+            for (var i = 0; i < 3; i++) vm.AddJobCommand.Execute(null);
+            foreach (var job in vm.Jobs) job.IsSelected = true;
+            var highlighted = new[] { vm.Jobs[0], vm.Jobs[1] };
+
+            vm.Jobs[0].IsSelected = false;
+            vm.ApplyCheckStateToHighlightedJobs(vm.Jobs[0], highlighted);
+
+            Assert.False(vm.Jobs[0].IsSelected);
+            Assert.False(vm.Jobs[1].IsSelected);
+            Assert.True(vm.Jobs[2].IsSelected);
+        }
+
+        [Fact]
+        public void ApplyCheckStateToHighlightedJobs_MixedStates_AlignedToClickedJob()
+        {
+            var vm = CreateVm();
+            for (var i = 0; i < 3; i++) vm.AddJobCommand.Execute(null);
+            vm.Jobs[0].IsSelected = true;
+            vm.Jobs[2].IsSelected = false;
+
+            vm.Jobs[1].IsSelected = true;
+            vm.ApplyCheckStateToHighlightedJobs(vm.Jobs[1], vm.Jobs.ToList());
+
+            Assert.All(vm.Jobs, job => Assert.True(job.IsSelected));
+        }
+
+        [Fact]
+        public void ApplyCheckStateToHighlightedJobs_ClickedJobNotInHighlight_OnlyClickedJobChanges()
+        {
+            var vm = CreateVm();
+            for (var i = 0; i < 3; i++) vm.AddJobCommand.Execute(null);
+            var highlighted = new[] { vm.Jobs[0], vm.Jobs[1] };
+
+            vm.Jobs[2].IsSelected = true;
+            vm.ApplyCheckStateToHighlightedJobs(vm.Jobs[2], highlighted);
+
+            Assert.False(vm.Jobs[0].IsSelected);
+            Assert.False(vm.Jobs[1].IsSelected);
+            Assert.True(vm.Jobs[2].IsSelected);
+        }
+
         // ── RunAllCommand / CancelQueueCommand の CanExecute ────────────────
 
         [Fact]

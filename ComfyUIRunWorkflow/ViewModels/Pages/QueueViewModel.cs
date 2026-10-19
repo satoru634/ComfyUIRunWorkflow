@@ -198,6 +198,22 @@ namespace ComfyUIRunWorkflow.ViewModels.Pages
             RemoveSelectedJobsCommand.NotifyCanExecuteChanged();
         }
 
+        /// <summary>
+        /// ジョブ一覧で複数行を選択（ハイライト）した状態でいずれかのチェックボックスを操作したとき、
+        /// 操作したジョブのチェック状態を選択中の全ジョブへ反映する。
+        /// 操作したジョブが選択行に含まれない場合は、そのジョブ単体の操作として扱い何もしない。
+        /// </summary>
+        /// <param name="clickedJob">チェックボックスを操作したジョブ（チェック状態は反映済み）</param>
+        /// <param name="highlightedJobs">ジョブ一覧で選択（ハイライト）中のジョブ</param>
+        internal void ApplyCheckStateToHighlightedJobs(QueueJobViewModel clickedJob, IEnumerable<QueueJobViewModel> highlightedJobs)
+        {
+            var targets = highlightedJobs.ToList();
+            if (!targets.Contains(clickedJob)) return;
+
+            foreach (var job in targets)
+                job.IsSelected = clickedJob.IsSelected;
+        }
+
         // ── ジョブ操作 ────────────────────────────────────────────────────────
 
         /// <summary>新しいジョブをリストに追加し、選択状態にする。</summary>

@@ -26,6 +26,16 @@ namespace ComfyUIRunWorkflow.Views.Pages
             InitializeComponent();
         }
 
+        /// <summary>
+        /// ジョブのチェックボックス操作時、ジョブ一覧で複数行を選択中ならそのチェック状態を選択中の全ジョブへ反映する。
+        /// Click は IsChecked のトグルと TwoWay バインディングの書き戻しが済んだ後に発生する。
+        /// </summary>
+        private void JobCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is FrameworkElement { DataContext: QueueJobViewModel job })
+                ViewModel.ApplyCheckStateToHighlightedJobs(job, JobListView.SelectedItems.OfType<QueueJobViewModel>());
+        }
+
         /// <summary>ジョブ名テキストをダブルクリックしたら、そのジョブをインライン編集モードにする。</summary>
         private void JobNameText_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
